@@ -67,6 +67,18 @@ There is a small Next.js frontend implemented in-repo as a proof-of-concept. It 
 - `lib/theme.js` and `styles/globals.css` (color palette and global styles including decorative rectangles)
 - Components in `components/` for header, cards, background rects and footer (visual examples)
 
+Recent frontend POC updates (2025-10-30)
+---------------------------------------
+A small Next.js frontend POC was added at the repository root to provide visual validation of integration patterns with Supabase. It is intentionally minimal and non-production. Key applied updates:
+
+- Bootstrapped Tailwind entry files and PostCSS adapter; installed `autoprefixer` and the Tailwind PostCSS adapter to resolve Next postcss pipeline issues.
+- POC files of interest: `pages/index.js`, `pages/dashboard.js`, `pages/api/projects.js`, `lib/supabaseClient.js`, `lib/supabaseAdmin.js`, `lib/theme.js`, `styles/globals.css`, and the `components/` folder.
+- UI adjustments: project cards are uniform height (13rem), left primary accent stripe, top-right admin menu placeholder, an Add card at the end of the grid, and a centered projects panel (`.projects-panel`) containing a white `.projects-inner`.
+- Scroll UX: the projects list uses a scroll container that hides the native scrollbar by default and reveals a thin styled scrollbar while the user scrolls (JS toggles a `.scrolling` class; CSS rules reveal the thumb).
+- Header: increased the app title size and the Projects heading for clearer hierarchy.
+
+Reminder: this POC is for reference only — backend RLS, migrations, and schema remain authoritative and unchanged by the POC.
+
 Notes:
 - The POC intentionally uses server-side admin client only in `pages/api/*` to demonstrate how admin-only actions could be performed; these routes bypass RLS and therefore must be treated carefully and protected in production.
 - The POC UI includes details that are intentionally superficial (no persistent create/edit flows yet). Use it as a visual reference, not a production-ready implementation.

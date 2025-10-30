@@ -31,6 +31,19 @@ Local implementation notes (UI details)
   - Decorative rectangles: `components/BackgroundRects.jsx` implements a small clump of rotated rectangles used on auth and dashboard pages replacing the prior single large rectangles.
   - Footer: `components/Footer.jsx` provides a full-width footer bar with an inner centered `.app-footer` container; the dashboard layout uses a column flex layout so the footer sits at the bottom of the page when content is short.
 
+Implementation deltas (2025-10-30)
+--------------------------------
+Short, concrete notes about the implemented POC in the repo (useful when wiring a new frontend to the canonical API):
+
+- Card layout: each `ProjectCard` uses a fixed height (13rem) so title length doesn't change card height. Title wraps within the fixed height; the small `HE-XXXX` ID sits under the title.
+- Metadata area: the bottom row contains three equal-width blocks (memories count, Created, Updated). They are implemented with `flex: 1` so they share the available width and use a 1px external gap (margin) between them.
+- Projects panel: `.projects-panel` is the outer light-gray panel and `.projects-inner` is the white inner container; `box-sizing: border-box` was applied and the inner container uses `width:100%` to prevent horizontal overflow when the panel has padding.
+- Scrollbar UX: the projects scroll container hides native scrollbars by default and reveals a thin, styled scrollbar only while the user is scrolling. JS in `pages/dashboard.js` toggles a `.scrolling` class on the scroll container and CSS in `styles/globals.css` provides the visual thumb.
+- Header & headings: `MeCalApp` title was increased to `text-4xl` and the Projects heading in the dashboard was increased to `text-3xl` for visual hierarchy.
+- Accessibility: `AddProjectCard` is keyboard-accessible and project cards are focusable (`role="button"`, `tabIndex=0`).
+
+Implementation note: these are UI/tooling conveniences for the POC and do not change the canonical API or RLS policies. When porting to a production frontend, move inline styles to CSS/Tailwind, add aria attributes and keyboard testing, and ensure server routes using the admin client remain server-only.
+
 These notes are implementation pointers — they do not change the canonical API contracts documented in this file but will help frontend engineers find the implemented helpers and example routes in this repo.
 
 Supabase usage notes

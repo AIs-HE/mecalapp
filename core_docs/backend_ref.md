@@ -56,6 +56,30 @@ The repo currently includes a minimal Next.js frontend (POC). This is intended f
 - `pages/api/projects.js` — example server route using the admin client to GET project lists and POST new projects (admin/testing flows only).
 - `components/Header.jsx`, `components/ProjectCard.jsx`, `components/AddProjectCard.jsx`, `components/BackgroundRects.jsx`, `components/Footer.jsx`, `components/MemoryCard.jsx` — POC components demonstrating the intended UI layout and interactions.
 
+Recent frontend POC updates (2025-10-30)
+---------------------------------------
+The following concise summary documents the UI and tooling changes that were applied to the in-repo Next.js POC on 2025-10-30. These are implementation notes only (the canonical backend remains in `backend_ref.md`).
+
+- Tailwind/bootstrap and PostCSS: bootstrapped Tailwind entry files (`tailwind.config.js`, `styles/tailwind.css`, `postcss.config.js`) and installed required PostCSS deps (including `autoprefixer` and the official Tailwind PostCSS adapter). PostCSS config was updated so Next's pipeline accepts Tailwind.
+- Tooling fix: resolved a PostCSS build error by installing `autoprefixer` + the Tailwind adapter and updating `postcss.config.js`.
+- Supabase helpers: `lib/supabaseClient.js` (browser) and `lib/supabaseAdmin.js` (server-only) remain the canonical helpers. Example admin route: `pages/api/projects.js` — uses the admin client for GET/POST example actions (admin/testing flows only).
+- Projects panel layout: introduced a centered light-gray panel (`.projects-panel`) with a white inner container (`.projects-inner`) to host the grid. Fixed horizontal overflow by using `box-sizing: border-box` and making the inner container width:100% so cards remain contained.
+- ProjectCard visual polish:
+  - Cards use a fixed visual height (13rem) so grid layout stays consistent regardless of title length.
+  - The left accent stripe uses `--color-main`; the admin three-dots menu is positioned at the top-right of each card as a UI placeholder.
+  - The bottom metadata area was reworked so the three blocks (memories count / Created / Updated) share equal width, have a 1px external gap, and stack labels/dates for clearer vertical alignment.
+  - The memories label uses the main green (`--color-main`) for emphasis.
+- Scroll behavior: the projects grid is scrollable when content overflows. The scrollbar is hidden by default and revealed only while the user is actively scrolling — implemented by toggling a `.scrolling` class on the scroll container from `pages/dashboard.js` and adding corresponding CSS rules in `styles/globals.css`.
+- Header & navigation tweaks: increased the `MeCalApp` title to a larger size (`text-4xl`), increased the Projects heading in the dashboard to `text-3xl`, and preserved original nav button spacing.
+- Accessibility / keyboard: `AddProjectCard` is keyboard-accessible (`role="button"`, `tabIndex`, Enter/Space handler) to match accessibility guidance.
+
+Notes for backend authors
+------------------------
+- These frontend POC changes are purely visual and tooling-oriented. They do not alter any backend policies, RLS, or DB migrations. Treat the POC as a visual and integration reference only.
+- Do NOT expose the `SUPABASE_SERVICE_ROLE_KEY` in client code. Server-only files (e.g., `pages/api/*`, `lib/supabaseAdmin.js`) must continue to use environment-only secret access.
+
+See also: `core_docs/frontend_ref.md` and `core_docs/system_sync_ref.md` for more implementation pointers and the canonical API contracts.
+
 Notable UI behaviors in the POC:
 - Project cards have a fixed visual size so grid layout remains consistent; cards include a left primary-color accent stripe.
 - The admin three-dots menu is visually positioned at the top-right of each card (UI placeholder for edit/delete actions).

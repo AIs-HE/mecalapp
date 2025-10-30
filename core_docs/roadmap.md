@@ -34,6 +34,9 @@ Changelog (selected)
  - 2025-10-30 - Added minimal Next.js frontend at repo root (auth UI, theme, parallax) and an example server API route `pages/api/projects.js` using the admin client; removed duplicate `frontend/` copy.
  - 2025-10-30 - Implemented color palette (primary `#85B726`, secondary `#858688`) and exported it via `lib/theme.js`; added global CSS in `styles/globals.css` containing the parallax rectangles and animations.
  - 2025-10-30 - Frontend POC expanded: added project gallery UI, `ProjectCard` (fixed-height), admin `⋯` menu (top-right placeholder), `AddProjectCard` (appears at end of grid), `BackgroundRects` decorative clump, and a full-width footer. Dashboard layout was adjusted so footer sits at page bottom and main content scrolls when long.
+ - 2025-10-30 - Tooling fixes & Tailwind bootstrap: added Tailwind entry files and installed PostCSS dependencies (including `autoprefixer` and the Tailwind PostCSS adapter) to resolve Next/PostCSS pipeline issues.
+ - 2025-10-30 - UI polish: project cards use a fixed height (13rem); bottom metadata blocks were reworked to equal-width items with 1px gaps; memories label uses primary green; projects inner container and panel were adjusted to avoid horizontal overflow (box-sizing applied).
+ - 2025-10-30 - Scroll UX: scrollbars are hidden by default and revealed only while the user scrolls via JS toggling `.scrolling` class on the projects scroll container; CSS provides a thin styled scrollbar while scrolling.
 
 Developer notes
 ---------------

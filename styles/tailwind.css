@@ -1,0 +1,6 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Optional: small helpers that combine with Tailwind utilities */
+/* Keep legacy globals in `globals.css` and migrate rules incrementally. */

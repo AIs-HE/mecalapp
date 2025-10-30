@@ -22,132 +22,252 @@ body {
     margin: 0;
     font-family: Inter, ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
     color: var(--text);
-    background: linear-gradient(180deg, var(--bg-gradient-start), var(--bg-gradient-end));
-    -webkit-font-smoothing: antialiased;
-    -moz-osx-font-smoothing: grayscale;
-}
 
-.auth-root {
-    min-height: 100vh;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    position: relative;
-    overflow: hidden;
-    padding: 40px 20px;
-}
+    :root {
+        --color-main: #85B726;
+        /* user primary */
+        --color-muted: #858688;
+        /* user secondary */
+        --bg-gradient-start: #f7fbf3;
+        --bg-gradient-end: #ffffff;
+        --text: #111827;
+    }
 
-.auth-container {
-    width: 100%;
-    max-width: 980px;
-    background: rgba(255, 255, 255, 0.9);
-    border-radius: 14px;
-    box-shadow: 0 10px 30px rgba(16, 24, 40, 0.08);
-    display: grid;
-    grid-template-columns: 1fr 420px;
-    gap: 24px;
-    padding: 28px;
-    align-items: center;
-}
+    * {
+        box-sizing: border-box;
+    }
 
-.left-brand {
-    padding: 12px 24px;
-}
+    html,
+    body,
+    #__next {
+        height: 100%;
+    }
 
-.brand-logo {
-    max-width: 260px
-}
+    body {
+        margin: 0;
+        font-family: Inter, ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+        color: var(--text);
+        background: linear-gradient(180deg, var(--bg-gradient-start), var(--bg-gradient-end));
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
+    }
 
-.brand-company {
-    max-width: 160px;
-    margin-top: 18px;
-    opacity: 0.95
-}
+    .auth-root {
+        min-height: 100vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        position: relative;
+        overflow: hidden;
+        padding: 40px 20px;
+    }
 
-.auth-card {
-    background: linear-gradient(180deg, rgba(255, 255, 255, 0.9), rgba(250, 250, 250, 0.95));
-    border-radius: 10px;
-    padding: 22px;
-}
+    .auth-container {
+        width: 100%;
+        max-width: 980px;
+        /* keep the outer container white to hold the two columns, use full white for consistency */
+        background: #ffffff;
+        border-radius: 14px;
+        box-shadow: 0 10px 30px rgba(16, 24, 40, 0.08);
+        display: grid;
+        grid-template-columns: 1fr 420px;
+        gap: 24px;
+        padding: 28px;
+        align-items: center;
+    }
 
-form .label {
-    display: block;
-    font-size: 13px;
-    margin-top: 10px;
-    color: var(--color-muted)
-}
+    .left-brand {
+        padding: 12px 24px;
+        /* left column should be pure white so images sit on white */
+        background: #ffffff;
+        border-top-left-radius: 12px;
+        border-bottom-left-radius: 12px;
+    }
 
-form input {
-    width: 100%;
-    padding: 10px 12px;
-    margin-top: 6px;
-    border-radius: 8px;
-    border: 1px solid #e6e6e6
-}
+    /* Auth card (right column) - light neutral gray to contrast with left white column */
+    .auth-card {
+        /* use a neutral gray (near Tailwind gray-100) → avoids bluish tint */
+        background: linear-gradient(180deg, #f3f4f6, #ffffff);
+        border-top-right-radius: 12px;
+        border-bottom-right-radius: 12px;
+        padding: 22px;
+        border-left: 1px solid rgba(0, 0, 0, 0.04);
+        border-top: 1px solid rgba(0, 0, 0, 0.04);
+        border-bottom: 1px solid rgba(0, 0, 0, 0.04);
+        box-shadow: 0 6px 18px rgba(16, 24, 40, 0.03);
+        position: relative;
+        z-index: 2;
+    }
 
-button.btn {
-    margin-top: 14px;
-    display: inline-block;
-    padding: 10px 14px;
-    border-radius: 8px;
-    border: 0;
-    cursor: pointer;
-    background: var(--color-main);
-    color: white;
-    font-weight: 600;
-}
+    .footer-bar {
+        width: 100%;
+        background: rgba(255, 255, 255, 0.85);
+        border-top: 1px solid rgba(0, 0, 0, 0.05);
+        backdrop-filter: saturate(120%) blur(6px);
+        padding: 16px 0 20px;
+    }
 
-.meta {
-    font-size: 13px;
-    color: #6b7280
-}
+    .app-footer {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 16px 20px;
+        display: flex;
+        gap: 16px;
+        align-items: center;
+    }
 
-/* Parallax rectangles */
-.parallax-rect {
-    position: absolute;
-    border-radius: 10px;
-    opacity: 0.18;
-    filter: blur(4px);
-    transform: translateY(0) rotate(45deg);
-    transform-origin: center;
-}
+    .footer-logo {
+        max-width: 120px;
+        height: auto;
+        opacity: 0.95;
+    }
 
-.rect-a {
-    width: 520px;
-    height: 120px;
-    background: var(--color-main);
-    left: -120px;
-    top: -60px;
-}
+    .footer-info {
+        display: flex;
+        flex-direction: column;
+    }
 
-.rect-b {
-    width: 420px;
-    height: 100px;
-    background: var(--color-muted);
-    right: -80px;
-    bottom: -80px;
-}
+    @media (max-width: 860px) {
+        .app-footer {
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 8px;
+        }
 
-.rect-c {
-    width: 360px;
-    height: 80px;
-    background: var(--color-main);
-    right: 20px;
-    top: 40px;
-    opacity: 0.12;
-}
+        .footer-logo {
+            max-width: 100px;
+        }
+    }
 
-/* initial entrance animation */
-.animate-in {
-    animation: rectIn 700ms cubic-bezier(.22, .9, .55, 1) forwards;
-}
+    /* Form labels and inputs (auth) */
+    form .label {
+        display: block;
+        font-size: 13px;
+        margin-top: 10px;
+        color: var(--color-muted);
+    }
 
-.animate-up-enter {
-    animation: rectUp 700ms cubic-bezier(.22, .9, .55, 1) forwards;
-}
+    form input {
+        width: 100%;
+        padding: 10px 12px;
+        margin-top: 6px;
+        border-radius: 8px;
+        border: 1px solid #e6e6e6;
+    }
 
-.animate-up-exit {
-    animation: rectDown 500ms cubic-bezier(.22, .9, .55, 1) forwards;
+    button.btn {
+        margin-top: 14px;
+        display: inline-block;
+        padding: 10px 14px;
+        border-radius: 8px;
+        border: 0;
+        cursor: pointer;
+        background: var(--color-main);
+        color: white;
+        font-weight: 600;
+    }
+
+    .meta {
+        font-size: 13px;
+        color: #6b7280;
+    }
+
+    /* Parallax rectangles */
+    .parallax-rect {
+        position: absolute;
+        border-radius: 10px;
+        opacity: 0.18;
+        filter: blur(4px);
+        transform: translateY(0) rotate(45deg);
+        transform-origin: center;
+    }
+
+    .projects-list {
+        margin-top: 12px;
+    }
+
+    /* Projects panel: centered light-gray panel ~60% width of viewport */
+    .projects-panel {
+        width: 60vw;
+        /* ~60% of viewport */
+        max-width: 1200px;
+        min-width: 340px;
+        margin: 20px auto;
+        background: rgba(243, 244, 246, 0.6);
+        /* Tailwind gray-100 at 60% */
+        border-radius: 12px;
+        padding: 16px;
+        box-sizing: border-box;
+        box-shadow: 0 8px 26px rgba(16, 24, 40, 0.03);
+    }
+
+    /* Inner area holds the scrollable grid and should be transparent so cards remain white */
+    .projects-inner {
+        background: transparent;
+        padding: 0;
+        border-radius: 8px;
+    }
+
+    @media (max-width: 900px) {
+        .projects-panel {
+            width: calc(100% - 32px);
+            margin: 12px auto;
+            padding: 12px;
+            background: transparent;
+            /* avoid heavy overlay on small screens */
+            box-shadow: none;
+        }
+
+        .projects-inner {
+            padding: 0;
+        }
+    }
+
+    /* Additional large parallax rectangles to add depth (three more) */
+    .rect-d {
+        width: 460px;
+        height: 90px;
+        background: #eef2f6;
+        /* very light neutral gray */
+        left: -200px;
+        bottom: -40px;
+        opacity: 0.08;
+    }
+
+    .rect-e {
+        width: 300px;
+        height: 110px;
+        background: #f1f5f9;
+        /* soft light gray */
+        right: -140px;
+        top: -20px;
+        opacity: 0.06;
+    }
+
+    .rect-f {
+        width: 240px;
+        height: 72px;
+        background: var(--color-muted);
+        left: 60px;
+        top: 160px;
+        opacity: 0.10;
+    }
+
+    /* initial entrance animation */
+    .animate-in {
+        animation: rectIn 700ms cubic-bezier(.22, .9, .55, 1) forwards;
+    }
+
+    .animate-up-enter {
+        animation: rectUp 700ms cubic-bezier(.22, .9, .55, 1) forwards;
+    }
+
+    .animate-up-exit {
+        animation: rectDown 500ms cubic-bezier(.22, .9, .55, 1) forwards;
+    }
+
+    /* end of globals */
+
 }
 
 @keyframes rectIn {
@@ -193,11 +313,389 @@ button.btn {
 
     .left-brand {
         display: flex;
-        justify-content: center
+        justify-content: center;
     }
 }
 
 /* small helper */
 .projects-list {
-    margin-top: 12px
+    margin-top: 12px;
+}
+
+/* Inner container for projects: fill the panel and use box-sizing to avoid overflow */
+.projects-inner {
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
+    margin: 0;
+    background: #ffffff;
+    border-radius: 12px;
+    padding: 12px;
+    box-shadow: 0 6px 18px rgba(16, 24, 40, 0.04);
+    box-sizing: border-box;
+}
+
+@media (max-width: 900px) {
+    .projects-inner {
+        width: 100%;
+        min-width: 0;
+        padding: 8px;
+        box-shadow: none;
+        background: transparent;
+        /* let cards show on small screens */
+    }
+}
+
+/* Decorative clump used on dashboard and auth (smaller, spread rectangles) */
+.bg-clump {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    overflow: visible;
+}
+
+.decor-rect {
+    position: absolute;
+    border-radius: 10px;
+    opacity: 0.14;
+    filter: blur(3px);
+    transform: rotate(45deg);
+    transform-origin: center;
+}
+
+.decor-rect-1 {
+    width: 220px;
+    height: 90px;
+    background: var(--color-main);
+    left: -40px;
+    top: -40px;
+}
+
+.decor-rect-2 {
+    width: 160px;
+    height: 68px;
+    background: var(--color-muted);
+    left: 120px;
+    top: 10px;
+    opacity: 0.12;
+}
+
+.decor-rect-3 {
+    width: 120px;
+    height: 56px;
+    background: var(--color-main);
+    left: 60px;
+    bottom: -20px;
+    opacity: 0.10;
+}
+
+.decor-rect-4 {
+    width: 200px;
+    height: 80px;
+    background: var(--color-muted);
+    right: -60px;
+    top: 40px;
+    opacity: 0.12;
+}
+
+.decor-rect-5 {
+    width: 140px;
+    height: 64px;
+    background: var(--color-main);
+    right: 40px;
+    bottom: 20px;
+    opacity: 0.09;
+}
+
+/* Additional lighter, subtler rectangles for the clump (small accents) */
+.decor-rect-6 {
+    width: 100px;
+    height: 48px;
+    background: #f8fafc;
+    /* neutral very light gray */
+    left: 180px;
+    top: 80px;
+    opacity: 0.08;
+}
+
+.decor-rect-7 {
+    width: 180px;
+    height: 70px;
+    background: #f3f4f6;
+    /* light gray (tailwind gray-100) */
+    right: 120px;
+    top: 120px;
+    opacity: 0.06;
+}
+
+.decor-rect-8 {
+    width: 80px;
+    height: 40px;
+    background: #fbfbfc;
+    /* near-white neutral */
+    left: 40px;
+    bottom: 40px;
+    opacity: 0.06;
+}
+
+/* Three more subtle decor rectangles to enrich each clump */
+.decor-rect-9 {
+    width: 130px;
+    height: 56px;
+    background: #f7fafc;
+    right: 10px;
+    top: -10px;
+    opacity: 0.06;
+}
+
+.decor-rect-10 {
+    width: 90px;
+    height: 44px;
+    background: #f2f4f6;
+    left: 220px;
+    bottom: 10px;
+    opacity: 0.05;
+}
+
+.decor-rect-11 {
+    width: 200px;
+    height: 72px;
+    background: #f5f7f9;
+    left: 80px;
+    top: 140px;
+    opacity: 0.04;
+}
+
+/* Reuse the existing entrance/up/down animations */
+.animate-in {
+    animation: rectIn 700ms cubic-bezier(.22, .9, .55, 1) forwards;
+}
+
+.animate-up-enter {
+    animation: rectUp 700ms cubic-bezier(.22, .9, .55, 1) forwards;
+}
+
+/* Fallback styles for components when Tailwind utilities are not available
+   These mirror the intended appearance of Header and card components so the
+   UI remains readable even before Tailwind is active. */
+header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 14px 28px;
+    background: rgba(255, 255, 255, 0.92);
+    border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+    backdrop-filter: blur(8px) saturate(120%);
+    gap: 12px;
+}
+
+header>div:first-child {
+    font-weight: 900;
+    font-size: 20px;
+    color: var(--color-main);
+    letter-spacing: -0.02em;
+}
+
+/* left title container (for header structure with centered nav) */
+.left-title {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+/* center nav container to ensure nav items are horizontally centered */
+.nav-center {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 12px;
+}
+
+header nav button {
+    background: transparent;
+    border: 0;
+    padding: 8px 10px;
+    font-weight: 600;
+    color: #4b5563;
+    /* neutral-600 */
+    cursor: pointer;
+    border-radius: 8px;
+}
+
+header nav button:hover {
+    background: rgba(16, 24, 40, 0.04);
+}
+
+header nav button[aria-current="page"] {
+    background: rgba(133, 150, 136, 0.08);
+    color: var(--color-main);
+}
+
+header>div.header-user {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+header>div.header-user .user-info {
+    text-align: right;
+}
+
+header>div.header-user .user-email {
+    font-weight: 700;
+    font-size: 0.95rem;
+    color: #111827;
+}
+
+header>div.header-user .user-role {
+    font-size: 0.75rem;
+    color: #6b7280;
+}
+
+header>div.header-user button {
+    background: var(--color-main);
+    color: #fff;
+    padding: 8px 12px;
+    border-radius: 10px;
+    font-weight: 700;
+    border: 0;
+    box-shadow: 0 6px 18px rgba(16, 24, 40, 0.06);
+}
+
+main h2 {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #111827;
+    margin: 0;
+}
+
+/* Generic grid fallback used by the dashboard project list */
+.grid {
+    display: grid;
+    gap: 12px;
+}
+
+.grid>div {
+    background: #fff;
+    border-radius: 12px;
+    padding: 16px;
+    box-shadow: 0 8px 20px rgba(16, 24, 40, 0.06);
+    min-height: 160px;
+    cursor: pointer;
+}
+
+.grid>div .text-lg {
+    font-size: 1.125rem;
+    font-weight: 800;
+    color: #111827
+}
+
+/* ensure Projects label is visible if Tailwind not applied */
+.projects-heading {
+    font-size: 1.875rem;
+    /* match Tailwind text-3xl */
+    font-weight: 700;
+    color: #111827;
+    margin: 0 0 1rem 0;
+    /* external spacing below the heading */
+    padding: 0.25rem 0;
+    /* small vertical breathing room */
+}
+
+/* Projects panel container fallback */
+.projects-panel {
+    background: #f8fafc;
+    /* very light gray */
+    padding: 16px;
+    border-radius: 10px;
+}
+
+/* Project card fallback visuals */
+.project-card {
+    border-left-width: 6px;
+    border-left-style: solid;
+    border-left-color: var(--color-main);
+    background: #ffffff;
+}
+
+.add-project-card {
+    border-left-width: 6px;
+    border-left-style: dashed;
+    border-left-color: var(--color-main);
+    color: var(--color-main);
+}
+
+.memory-card {
+    border-left-width: 4px;
+    border-left-style: solid;
+    border-left-color: var(--color-main);
+}
+
+.animate-up-exit {
+    animation: rectDown 500ms cubic-bezier(.22, .9, .55, 1) forwards;
+}
+
+.decor-rect-5 {
+    width: 140px;
+    height: 64px;
+    background: var(--color-main);
+    right: 40px;
+    bottom: 20px;
+    opacity: 0.09;
+}
+
+/* Reuse the existing entrance/up/down animations */
+.animate-in {
+    animation: rectIn 700ms cubic-bezier(.22, .9, .55, 1) forwards;
+}
+
+.animate-up-enter {
+    animation: rectUp 700ms cubic-bezier(.22, .9, .55, 1) forwards;
+}
+
+.animate-up-exit {
+    animation: rectDown 500ms cubic-bezier(.22, .9, .55, 1) forwards;
+}
+
+/* projects scroll: hide scrollbar by default, show while scrolling */
+.projects-scroll {
+    /* Firefox */
+    scrollbar-width: none;
+    /* IE 10+ */
+    -ms-overflow-style: none;
+}
+
+.projects-scroll::-webkit-scrollbar {
+    width: 0;
+    height: 0;
+}
+
+/* while scrolling, reveal a thin styled scrollbar */
+.projects-scroll.scrolling {
+    scrollbar-width: thin;
+    scrollbar-color: rgba(0, 0, 0, 0.18) transparent;
+}
+
+.projects-scroll.scrolling::-webkit-scrollbar {
+    width: 10px;
+}
+
+.projects-scroll.scrolling::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.projects-scroll.scrolling::-webkit-scrollbar-thumb {
+    background-color: rgba(0, 0, 0, 0.18);
+    border-radius: 6px;
+    border: 2px solid transparent;
+    /* for padding effect */
+    background-clip: padding-box;
+}
+
+.animate-up-enter {
+    animation: rectUp 700ms cubic-bezier(.22, .9, .55, 1) forwards;
+}
+
+.animate-up-exit {
+    animation: rectDown 500ms cubic-bezier(.22, .9, .55, 1) forwards;
 }

@@ -42,6 +42,23 @@ Notes about UI behaviours implemented in the POC:
 - The admin three-dots control is top-right in each card (placeholder for a menu).
 - The `AddProjectCard` appears at the end of the grid and is shown even when no projects exist. The dashboard's main area scrolls when content overflows and the footer remains at page end when content is short.
 
+Recent POC implementation details (delta — 2025-10-30)
+-----------------------------------------------------
+Below are concise, actionable deltas that reflect the concrete POC implementation in the repository (useful when reconciling the conceptual guidance above with the actual files):
+
+- Tooling: Tailwind bootstrap files were added (`tailwind.config.js`, `styles/tailwind.css`, `postcss.config.js`) and required PostCSS packages were installed (including `autoprefixer` and the Tailwind PostCSS adapter) to satisfy Next's PostCSS pipeline.
+- ProjectCard specifics:
+  - Fixed height: cards use a fixed visual height (13rem) so the grid remains consistent across variable title lengths.
+  - Title area: project title (`name`) wraps within the fixed height; the secondary `HE-XXXX` id sits directly under the title.
+  - Bottom metadata: three blocks (memories count, Created, Updated) share equal width, have a small external 1px gap between them, and stack label/date lines for vertical clarity.
+  - Admin menu: `⋯` is placed at top-right (inline absolute position) as a visual placeholder.
+- Projects panel & inner container: `.projects-panel` is a centered light-gray panel and `.projects-inner` is a white inner container that fills the panel (box-sizing applied to avoid horizontal overflow).
+- Scroll UX: the scroll container hides native scrollbars by default and reveals a thin styled scrollbar while scrolling via a `.scrolling` class toggled by JS (short 800ms hide timeout implemented in `pages/dashboard.js`).
+- Header/title tweaks: the app title was increased to a larger size (`text-4xl`) and the Projects heading to `text-3xl` for clearer hierarchy.
+- Accessibility: `AddProjectCard` is keyboard-accessible (Enter/Space handling) and project cards are focusable (`role="button"`, `tabIndex=0`).
+
+Implementation note: treat these POC patterns as visual and integration examples only. For production, convert inline styles to reusable CSS/Tailwind utilities, add comprehensive accessibility/keyboard tests, and ensure server routes using the admin client remain behind protected server-only access.
+
 When rebuilding a new frontend from this guide, you can reuse these files as examples or re-implement components following the concepts in this document. Treat the POC as a visual/UX reference; do not assume production readiness (wiring and security checks are minimal in the POC).
 
 Routes (logical)

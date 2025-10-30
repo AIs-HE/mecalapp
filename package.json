@@ -1,13 +1,26 @@
 {
-    "name": "mecalapp",
+    "name": "mecalapp-frontend",
     "version": "0.1.0",
     "private": true,
-    "workspaces": [
-        "frontend"
-    ],
     "scripts": {
-        "install:all": "npm install",
-        "dev:frontend": "npm --workspace=frontend run dev",
-        "lint": "npm --workspace=frontend run lint || true"
+        "dev": "next dev",
+        "dev:frontend": "npm run dev",
+        "build": "next build",
+        "start": "next start",
+        "lint": "next lint"
+    },
+    "dependencies": {
+        "@supabase/supabase-js": "^2.0.0",
+        "next": "14",
+        "react": "18",
+        "react-dom": "18",
+        "zod": "^3.0.0"
+    },
+    "devDependencies": {
+        "@tailwindcss/postcss": "^4.1.16",
+        "autoprefixer": "^10.4.21",
+        "postcss": "^8.5.6",
+        "tailwindcss": "^4.0.0",
+        "typescript": "^5.0.0"
     }
 }

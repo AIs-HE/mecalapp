@@ -1,0 +1,250 @@
+:root {
+    --green: #85B726;
+    --gray: #858688;
+    --white: #ffffff;
+    --black: #000000;
+    --shadow: rgba(0, 0, 0, 0.06);
+}
+
+* {
+    box-sizing: border-box
+}
+
+html,
+body,
+#__next {
+    height: 100%
+}
+
+body {
+    margin: 0;
+    font-family: Inter, ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial;
+    background: linear-gradient(180deg, #f7f8f9 0%, #ffffff 100%);
+    color: var(--black);
+}
+
+.page-wrap {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 48px
+}
+
+.card {
+    width: 980px;
+    max-width: 96%;
+    background: linear-gradient(180deg, rgba(255, 255, 255, 0.9), rgba(255, 255, 255, 0.99));
+    border-radius: 12px;
+    box-shadow: 0 8px 24px var(--shadow);
+    overflow: hidden;
+    display: flex
+}
+
+.left {
+    flex: 1;
+    padding: 48px 36px;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    justify-content: center
+}
+
+.right {
+    flex: 1;
+    background: transparent;
+    padding: 36px;
+    display: flex;
+    align-items: center;
+    justify-content: center
+}
+
+.brand {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    margin-bottom: 18px
+}
+
+.brand img {
+    height: 56px;
+    width: auto
+}
+
+.brand .title {
+    font-weight: 700;
+    font-size: 18px;
+    color: var(--gray)
+}
+
+.login-form {
+    max-width: 360px
+}
+
+.login-form label {
+    display: block;
+    font-size: 13px;
+    color: var(--gray);
+    margin: 8px 0 6px
+}
+
+.login-form input {
+    width: 100%;
+    padding: 10px 12px;
+    border-radius: 8px;
+    border: 1px solid #e6e7e8;
+    background: #fff
+}
+
+.login-form button {
+    margin-top: 16px;
+    width: 100%;
+    padding: 10px 12px;
+    border-radius: 10px;
+    border: 0;
+    background: var(--green);
+    color: var(--white);
+    font-weight: 600;
+    cursor: pointer;
+    box-shadow: 0 6px 18px rgba(133, 134, 136, 0.12);
+}
+
+.login-actions {
+    display: flex;
+    gap: 12px;
+    margin-top: 12px;
+    align-items: center
+}
+
+.small-btn {
+    background: var(--white);
+    border: 1px solid #eee;
+    padding: 8px 10px;
+    border-radius: 8px;
+    cursor: pointer
+}
+
+.rects {
+    position: absolute;
+    inset: 0;
+    pointer-events: none
+}
+
+.rects .rect {
+    position: absolute;
+    background: linear-gradient(180deg, rgba(133, 134, 136, 0.06), rgba(133, 134, 136, 0.02));
+    border-radius: 10px;
+    transform: rotate(45deg);
+    opacity: 0.95
+}
+
+/* positions & sizes for several rectangles */
+.r1 {
+    width: 420px;
+    height: 260px;
+    left: -80px;
+    top: 30%
+}
+
+.r2 {
+    width: 260px;
+    height: 160px;
+    left: 40px;
+    top: 10%
+}
+
+.r3 {
+    width: 320px;
+    height: 200px;
+    right: -90px;
+    top: 15%
+}
+
+.r4 {
+    width: 200px;
+    height: 120px;
+    right: 40px;
+    top: 55%
+}
+
+.r5 {
+    width: 140px;
+    height: 90px;
+    left: 30%;
+    top: 65%
+}
+
+/* initial animation */
+.rects.animate-in .rect {
+    animation: slideUp 1200ms cubic-bezier(.2, .8, .2, 1) forwards
+}
+
+.rects.animate-in .r1 {
+    animation-delay: 120ms
+}
+
+.rects.animate-in .r2 {
+    animation-delay: 0ms
+}
+
+.rects.animate-in .r3 {
+    animation-delay: 200ms
+}
+
+.rects.animate-in .r4 {
+    animation-delay: 80ms
+}
+
+.rects.animate-in .r5 {
+    animation-delay: 160ms
+}
+
+@keyframes slideUp {
+    from {
+        transform: rotate(45deg) translateY(40px)
+    }
+
+    to {
+        transform: rotate(45deg) translateY(0px)
+    }
+}
+
+/* additional move on submit */
+.rects.animate-submit .rect {
+    transform: rotate(45deg) translateY(-8px)
+}
+
+/* responsive */
+@media (max-width:900px) {
+    .card {
+        flex-direction: column
+    }
+
+    .right {
+        display: none
+    }
+
+    .left {
+        padding: 28px
+    }
+}
+
+.message {
+    margin-top: 12px;
+    color: var(--gray);
+    font-size: 13px
+}
+
+.dashboard {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center
+}
+
+.dashboard .box {
+    padding: 48px;
+    border-radius: 12px;
+    background: linear-gradient(180deg, #fff, #f8faf8);
+    box-shadow: 0 8px 24px var(--shadow);
+}
