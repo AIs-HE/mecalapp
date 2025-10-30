@@ -29,6 +29,8 @@ Changelog (selected)
 - 2025-10-27 - Frontend scaffold (archived); Supabase client wiring
 - 2025-10-29 - Fixed dev build CSS parse errors; made Supabase client singleton
 - 2025-10-30 - Converted core docs to backend-first guides (preserve DB & types)
+- 2025-10-30 - Added minimal Next.js frontend at repo root (auth UI, theme, parallax) and an example server API route `pages/api/projects.js` using the admin client; removed duplicate `frontend/` copy.
+- 2025-10-30 - Implemented color palette (primary `#85B726`, secondary `#858688`) and exported it via `lib/theme.js`; added global CSS in `styles/globals.css` containing the parallax rectangles and animations.
 
 Developer notes
 ---------------

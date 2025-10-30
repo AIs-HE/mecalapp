@@ -51,6 +51,11 @@ Required environment variables (stored in `.env.local` for local dev):
 - NEXT_PUBLIC_SUPABASE_ANON_KEY — public anon key (for browser client)
 - SUPABASE_SERVICE_ROLE_KEY — server-only, for migrations/seeds (DO NOT expose in browser)
 
+Repository notes (local dev)
+---------------------------
+- For this repository the Next.js app is located at the repo root. During local development the `.env.local` file should be present at the repo root so Next can pick up the `NEXT_PUBLIC_*` variables. The `SUPABASE_SERVICE_ROLE_KEY` must be set in the environment for server routes (CI / hosting) and must not be committed.
+- Server-only operations (migrations, seeds) should use the service role key via the Supabase CLI or in CI with secrets; do not embed it in code.
+
 Design decisions (rationale summary)
 -----------------------------------
 - Use RLS and DB policies as the primary security surface.

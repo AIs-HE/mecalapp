@@ -1,0 +1,203 @@
+:root {
+    --color-main: #85B726;
+    /* user primary */
+    --color-muted: #858688;
+    /* user secondary */
+    --bg-gradient-start: #f7fbf3;
+    --bg-gradient-end: #ffffff;
+    --text: #111827;
+}
+
+* {
+    box-sizing: border-box
+}
+
+html,
+body,
+#__next {
+    height: 100%
+}
+
+body {
+    margin: 0;
+    font-family: Inter, ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+    color: var(--text);
+    background: linear-gradient(180deg, var(--bg-gradient-start), var(--bg-gradient-end));
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+
+.auth-root {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    overflow: hidden;
+    padding: 40px 20px;
+}
+
+.auth-container {
+    width: 100%;
+    max-width: 980px;
+    background: rgba(255, 255, 255, 0.9);
+    border-radius: 14px;
+    box-shadow: 0 10px 30px rgba(16, 24, 40, 0.08);
+    display: grid;
+    grid-template-columns: 1fr 420px;
+    gap: 24px;
+    padding: 28px;
+    align-items: center;
+}
+
+.left-brand {
+    padding: 12px 24px;
+}
+
+.brand-logo {
+    max-width: 260px
+}
+
+.brand-company {
+    max-width: 160px;
+    margin-top: 18px;
+    opacity: 0.95
+}
+
+.auth-card {
+    background: linear-gradient(180deg, rgba(255, 255, 255, 0.9), rgba(250, 250, 250, 0.95));
+    border-radius: 10px;
+    padding: 22px;
+}
+
+form .label {
+    display: block;
+    font-size: 13px;
+    margin-top: 10px;
+    color: var(--color-muted)
+}
+
+form input {
+    width: 100%;
+    padding: 10px 12px;
+    margin-top: 6px;
+    border-radius: 8px;
+    border: 1px solid #e6e6e6
+}
+
+button.btn {
+    margin-top: 14px;
+    display: inline-block;
+    padding: 10px 14px;
+    border-radius: 8px;
+    border: 0;
+    cursor: pointer;
+    background: var(--color-main);
+    color: white;
+    font-weight: 600;
+}
+
+.meta {
+    font-size: 13px;
+    color: #6b7280
+}
+
+/* Parallax rectangles */
+.parallax-rect {
+    position: absolute;
+    border-radius: 10px;
+    opacity: 0.18;
+    filter: blur(4px);
+    transform: translateY(0) rotate(45deg);
+    transform-origin: center;
+}
+
+.rect-a {
+    width: 520px;
+    height: 120px;
+    background: var(--color-main);
+    left: -120px;
+    top: -60px;
+}
+
+.rect-b {
+    width: 420px;
+    height: 100px;
+    background: var(--color-muted);
+    right: -80px;
+    bottom: -80px;
+}
+
+.rect-c {
+    width: 360px;
+    height: 80px;
+    background: var(--color-main);
+    right: 20px;
+    top: 40px;
+    opacity: 0.12;
+}
+
+/* initial entrance animation */
+.animate-in {
+    animation: rectIn 700ms cubic-bezier(.22, .9, .55, 1) forwards;
+}
+
+.animate-up-enter {
+    animation: rectUp 700ms cubic-bezier(.22, .9, .55, 1) forwards;
+}
+
+.animate-up-exit {
+    animation: rectDown 500ms cubic-bezier(.22, .9, .55, 1) forwards;
+}
+
+@keyframes rectIn {
+    from {
+        transform: translateY(40px) rotate(45deg);
+        opacity: 0;
+    }
+
+    to {
+        transform: translateY(0) rotate(45deg);
+        opacity: 0.18;
+    }
+}
+
+@keyframes rectUp {
+    from {
+        transform: translateY(0) rotate(45deg);
+        opacity: 0.18;
+    }
+
+    to {
+        transform: translateY(-160px) rotate(45deg);
+        opacity: 0.04;
+    }
+}
+
+@keyframes rectDown {
+    from {
+        transform: translateY(-160px) rotate(45deg);
+        opacity: 0.04;
+    }
+
+    to {
+        transform: translateY(0) rotate(45deg);
+        opacity: 0.18;
+    }
+}
+
+@media (max-width:900px) {
+    .auth-container {
+        grid-template-columns: 1fr;
+    }
+
+    .left-brand {
+        display: flex;
+        justify-content: center
+    }
+}
+
+/* small helper */
+.projects-list {
+    margin-top: 12px
+}

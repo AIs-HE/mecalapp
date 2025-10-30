@@ -15,6 +15,16 @@ Scope
 - Minimal validation expectations
 - Frontend ↔ backend data contracts (what the backend provides and expects)
 
+Repository implementation note (2025-10-30)
+----------------------------------------
+Although this file is intentionally framework-agnostic, a minimal Next.js implementation now exists in this repository at the repo root. The implemented pieces are intentionally minimal and intended as a POC:
+
+- Routes and files (repo root): `pages/index.js` (auth / entry), `pages/dashboard.js` (placeholder), `pages/api/projects.js` (server API for projects).
+- Helpers: `lib/supabaseClient.js` (browser/client supabase client), `lib/supabaseAdmin.js` (server/admin client, reads `SUPABASE_SERVICE_ROLE_KEY`).
+- Theme & styles: `styles/globals.css` (contains the locked color palette and parallax rectangle CSS) and `lib/theme.js` (exports colors for JS use).
+
+When rebuilding a new frontend from this guide, you can either re-use those files as examples or re-implement components following the concepts in this document.
+
 Routes (logical)
 -----------------
 - / : entry — redirect to authentication or to the application dashboard based on session

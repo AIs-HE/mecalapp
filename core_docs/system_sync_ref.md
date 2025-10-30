@@ -13,6 +13,17 @@ What this file contains
 - Recommended error handling and status mappings
 - Canonical TypeScript types derived from the database schema (for generating types in a new frontend)
 
+Local implementation notes (repository state as of 2025-10-30)
+---------------------------------------------------------
+- Frontend location: a minimal Next.js frontend now exists at the repository root and uses the Top-level `pages/`, `lib/`, `styles/`, and `public/` folders. An older duplicate `frontend/` copy was removed; the root app is canonical.
+- Client helper: `lib/supabaseClient.js` (reads `NEXT_PUBLIC_SUPABASE_URL` and `NEXT_PUBLIC_SUPABASE_ANON_KEY`) — intended for browser calls that are RLS-aware.
+- Server admin helper: `lib/supabaseAdmin.js` (reads `SUPABASE_SERVICE_ROLE_KEY`) — must be used only server-side (for API routes and migration scripts) and never exposed to the browser.
+- Implemented server route: `pages/api/projects.js` — GET returns project list and POST creates a project using the admin client (use for admin/testing flows only; mindful of bypassing RLS).
+- Auth UI: `pages/index.js` implements email/password sign-in with `supabase.auth.signInWithPassword`, session checks via `supabase.auth.getSession()` and `supabase.auth.onAuthStateChange`, and a small dashboard flow used for manual testing.
+- Theme & styles: `styles/globals.css` contains CSS variables for the agreed color palette (primary `#85B726`, secondary `#858688`) and the parallax rectangle animations; the same palette is exported to JS via `lib/theme.js` for consistent usage across components.
+
+These notes are implementation pointers — they do not change the canonical API contracts documented in this file but will help frontend engineers find the implemented helpers and example routes in this repo.
+
 Supabase usage notes
 ---------------------
 - Auth: Supabase Auth manages users and sessions. Use server-side helpers where possible to access session cookies in a secure manner.

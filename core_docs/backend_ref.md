@@ -38,6 +38,10 @@
 3. Update migration files when schema changes
 4. Document WHY a constraint or policy exists, not just what it does
 5. Keep RLS policies in sync with role permissions in `complete_ref.md`
+
+Repository note (2025-10-30)
+---------------------------
+This repository now contains a minimal Frontend implementation at the repo root (Next.js). That implementation is intentionally small and resides only as a POC. DO NOT move backend schema, SQL, or RLS policy semantics into frontend files. Backend authors should continue to treat `backend_ref.md` as the single source of truth for SQL and RLS. The presence of `pages/api/*` routes in the repo is a thin server layer for example/admin flows and does not alter the canonical DB policies.
 6. Update "Last Updated" date at the top
 7. Reference other files like "See `complete_ref.md#Role-Hierarchy`" for context
 
