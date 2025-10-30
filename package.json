@@ -3,13 +3,11 @@
     "version": "0.1.0",
     "private": true,
     "workspaces": [
-        "frontend",
-        "backend"
+        "frontend"
     ],
     "scripts": {
         "install:all": "npm install",
         "dev:frontend": "npm --workspace=frontend run dev",
-        "dev:backend": "npm --workspace=backend run dev",
         "lint": "npm --workspace=frontend run lint || true"
     }
 }
