@@ -42,6 +42,28 @@
 Repository note (2025-10-30)
 ---------------------------
 This repository now contains a minimal Frontend implementation at the repo root (Next.js). That implementation is intentionally small and resides only as a POC. DO NOT move backend schema, SQL, or RLS policy semantics into frontend files. Backend authors should continue to treat `backend_ref.md` as the single source of truth for SQL and RLS. The presence of `pages/api/*` routes in the repo is a thin server layer for example/admin flows and does not alter the canonical DB policies.
+
+Frontend POC (implementation notes)
+-----------------------------------
+The repo currently includes a minimal Next.js frontend (POC). This is intended for manual testing and visual mockups only; it is not a replacement for a production frontend. For clarity, the following files and UI behaviors are present in the repo root and illustrate integration patterns you may reference:
+
+- `lib/supabaseClient.js` — browser/client Supabase client (uses `NEXT_PUBLIC_SUPABASE_URL` and `NEXT_PUBLIC_SUPABASE_ANON_KEY`).
+- `lib/supabaseAdmin.js` — server/admin Supabase client (uses `SUPABASE_SERVICE_ROLE_KEY`) and must only be used in server code.
+- `lib/theme.js` — exports the locked color palette (primary `#85B726`, secondary `#858688`).
+- `styles/globals.css` — global CSS: color variables, parallax/decorative rectangle styles, animations, footer styles and layout helpers used by the POC.
+- `pages/index.js` — authentication entry (email/password) with session persistence and rectangle entrance animations.
+- `pages/dashboard.js` — minimal dashboard rendering header, projects grid, add-project card, and footer; fetches projects from `pages/api/projects.js`.
+- `pages/api/projects.js` — example server route using the admin client to GET project lists and POST new projects (admin/testing flows only).
+- `components/Header.jsx`, `components/ProjectCard.jsx`, `components/AddProjectCard.jsx`, `components/BackgroundRects.jsx`, `components/Footer.jsx`, `components/MemoryCard.jsx` — POC components demonstrating the intended UI layout and interactions.
+
+Notable UI behaviors in the POC:
+- Project cards have a fixed visual size so grid layout remains consistent; cards include a left primary-color accent stripe.
+- The admin three-dots menu is visually positioned at the top-right of each card (UI placeholder for edit/delete actions).
+- An Add project card (`AddProjectCard`) is rendered at the end of the projects grid; it is accessible via keyboard and shows a centered "+".
+- The projects grid becomes scrollable when there are many cards (the `<main>` area grows and scrolls while the footer remains at page end).
+- A decorative clump of rotated rectangles is implemented as `BackgroundRects.jsx` and used on the auth and dashboard pages for the parallax/visual effect.
+
+Security reminder: The presence of `lib/supabaseAdmin.js` and server API routes is for example/admin flows only. Never expose or commit the `SUPABASE_SERVICE_ROLE_KEY`; ensure server routes that use the admin client are protected and audited.
 6. Update "Last Updated" date at the top
 7. Reference other files like "See `complete_ref.md#Role-Hierarchy`" for context
 

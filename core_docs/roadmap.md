@@ -31,6 +31,9 @@ Changelog (selected)
 - 2025-10-30 - Converted core docs to backend-first guides (preserve DB & types)
 - 2025-10-30 - Added minimal Next.js frontend at repo root (auth UI, theme, parallax) and an example server API route `pages/api/projects.js` using the admin client; removed duplicate `frontend/` copy.
 - 2025-10-30 - Implemented color palette (primary `#85B726`, secondary `#858688`) and exported it via `lib/theme.js`; added global CSS in `styles/globals.css` containing the parallax rectangles and animations.
+ - 2025-10-30 - Added minimal Next.js frontend at repo root (auth UI, theme, parallax) and an example server API route `pages/api/projects.js` using the admin client; removed duplicate `frontend/` copy.
+ - 2025-10-30 - Implemented color palette (primary `#85B726`, secondary `#858688`) and exported it via `lib/theme.js`; added global CSS in `styles/globals.css` containing the parallax rectangles and animations.
+ - 2025-10-30 - Frontend POC expanded: added project gallery UI, `ProjectCard` (fixed-height), admin `⋯` menu (top-right placeholder), `AddProjectCard` (appears at end of grid), `BackgroundRects` decorative clump, and a full-width footer. Dashboard layout was adjusted so footer sits at page bottom and main content scrolls when long.
 
 Developer notes
 ---------------

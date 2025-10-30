@@ -56,6 +56,21 @@ Repository notes (local dev)
 - For this repository the Next.js app is located at the repo root. During local development the `.env.local` file should be present at the repo root so Next can pick up the `NEXT_PUBLIC_*` variables. The `SUPABASE_SERVICE_ROLE_KEY` must be set in the environment for server routes (CI / hosting) and must not be committed.
 - Server-only operations (migrations, seeds) should use the service role key via the Supabase CLI or in CI with secrets; do not embed it in code.
 
+Current repository POC (frontend notes)
+-------------------------------------
+There is a small Next.js frontend implemented in-repo as a proof-of-concept. It is intentionally minimal and showcases integration patterns with Supabase and the DB policies. The POC files to reference are:
+
+- `pages/index.js` (auth entry, rectangle entrance animations)
+- `pages/dashboard.js` (projects grid, add-card, scrolling main area, footer)
+- `pages/api/projects.js` (example server-side route using `lib/supabaseAdmin.js`)
+- `lib/supabaseClient.js` and `lib/supabaseAdmin.js` (client and admin helpers)
+- `lib/theme.js` and `styles/globals.css` (color palette and global styles including decorative rectangles)
+- Components in `components/` for header, cards, background rects and footer (visual examples)
+
+Notes:
+- The POC intentionally uses server-side admin client only in `pages/api/*` to demonstrate how admin-only actions could be performed; these routes bypass RLS and therefore must be treated carefully and protected in production.
+- The POC UI includes details that are intentionally superficial (no persistent create/edit flows yet). Use it as a visual reference, not a production-ready implementation.
+
 Design decisions (rationale summary)
 -----------------------------------
 - Use RLS and DB policies as the primary security surface.

@@ -22,6 +22,15 @@ Local implementation notes (repository state as of 2025-10-30)
 - Auth UI: `pages/index.js` implements email/password sign-in with `supabase.auth.signInWithPassword`, session checks via `supabase.auth.getSession()` and `supabase.auth.onAuthStateChange`, and a small dashboard flow used for manual testing.
 - Theme & styles: `styles/globals.css` contains CSS variables for the agreed color palette (primary `#85B726`, secondary `#858688`) and the parallax rectangle animations; the same palette is exported to JS via `lib/theme.js` for consistent usage across components.
 
+Local implementation notes (UI details)
+---------------------------------------------------------
+- The repo contains a small in-repo frontend POC (see `frontend_ref.md` for higher-level notes). Key UI/UX details implemented for quick manual testing:
+  - `components/ProjectCard.jsx` — fixed-height project cards with a left primary-color accent stripe; three-dots admin menu is positioned at the top-right as a placeholder for edit/delete actions.
+  - `components/AddProjectCard.jsx` — accessible add-card with a centered "+" that is rendered at the end of the projects grid. It is shown even when there are no projects.
+  - Project grid behavior: projects are rendered first and the add-card is appended at the end; the grid area is vertically scrollable (so the rest of the page layout and footer remain stable when many items are present).
+  - Decorative rectangles: `components/BackgroundRects.jsx` implements a small clump of rotated rectangles used on auth and dashboard pages replacing the prior single large rectangles.
+  - Footer: `components/Footer.jsx` provides a full-width footer bar with an inner centered `.app-footer` container; the dashboard layout uses a column flex layout so the footer sits at the bottom of the page when content is short.
+
 These notes are implementation pointers — they do not change the canonical API contracts documented in this file but will help frontend engineers find the implemented helpers and example routes in this repo.
 
 Supabase usage notes

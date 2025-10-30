@@ -17,13 +17,32 @@ Scope
 
 Repository implementation note (2025-10-30)
 ----------------------------------------
-Although this file is intentionally framework-agnostic, a minimal Next.js implementation now exists in this repository at the repo root. The implemented pieces are intentionally minimal and intended as a POC:
+Although this file is intentionally framework-agnostic, a minimal Next.js implementation now exists in this repository at the repo root. The implemented pieces are intentionally minimal and intended as a POC. The following is a concise map of what's implemented in the repo (useful when reconciling the conceptual guidance below with the existing POC):
 
-- Routes and files (repo root): `pages/index.js` (auth / entry), `pages/dashboard.js` (placeholder), `pages/api/projects.js` (server API for projects).
-- Helpers: `lib/supabaseClient.js` (browser/client supabase client), `lib/supabaseAdmin.js` (server/admin client, reads `SUPABASE_SERVICE_ROLE_KEY`).
-- Theme & styles: `styles/globals.css` (contains the locked color palette and parallax rectangle CSS) and `lib/theme.js` (exports colors for JS use).
+- Routes and files (repo root):
+  - `pages/index.js` — authentication entry (email/password), session checks and rectangle entrance/exit animations.
+  - `pages/dashboard.js` — minimal dashboard with a project gallery, `AddProjectCard`, decorative background clump, and a full-width footer; projects are fetched from `pages/api/projects.js`.
+  - `pages/api/projects.js` — example server API route using the admin client (`lib/supabaseAdmin.js`) to list/create projects (admin/testing flows only).
 
-When rebuilding a new frontend from this guide, you can either re-use those files as examples or re-implement components following the concepts in this document.
+- Helpers & theme:
+  - `lib/supabaseClient.js` — browser/client supabase client (uses `NEXT_PUBLIC_*` env vars).
+  - `lib/supabaseAdmin.js` — server/admin supabase client (uses `SUPABASE_SERVICE_ROLE_KEY`) — must remain server-only.
+  - `lib/theme.js` — exports the agreed color palette (primary `#85B726`, secondary `#858688`) for use in components.
+  - `styles/globals.css` — global styles including color variables, parallax/decorative rectangle styles, card/grid layout helpers, and footer styles.
+
+- Components (examples for visual reference):
+  - `components/Header.jsx` — header with navigation and sign out
+  - `components/ProjectCard.jsx` — fixed-height project card with left accent stripe and admin three-dots menu (top-right)
+  - `components/AddProjectCard.jsx` — accessible add-card ("+") that appears at the end of the grid
+  - `components/BackgroundRects.jsx` — small clump of decorative rectangles (replaces earlier single large rects)
+  - `components/Footer.jsx` — full-width footer with centered inner content (company info and `company.svg`)
+
+Notes about UI behaviours implemented in the POC:
+- Project cards have a uniform height so the grid is visually consistent.
+- The admin three-dots control is top-right in each card (placeholder for a menu).
+- The `AddProjectCard` appears at the end of the grid and is shown even when no projects exist. The dashboard's main area scrolls when content overflows and the footer remains at page end when content is short.
+
+When rebuilding a new frontend from this guide, you can reuse these files as examples or re-implement components following the concepts in this document. Treat the POC as a visual/UX reference; do not assume production readiness (wiring and security checks are minimal in the POC).
 
 Routes (logical)
 -----------------
