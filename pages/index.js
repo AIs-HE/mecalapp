@@ -75,8 +75,8 @@ export default function Home() {
         <div className="auth-root min-h-screen flex items-center justify-center relative overflow-hidden p-10">
             <BackgroundRects state={rectState} />
 
-            <div className="auth-container w-full max-w-[980px] bg-white rounded-xl shadow-lg grid md:grid-cols-[1fr_420px] gap-6 p-7 items-center">
-                <div className="left-brand p-4 md:p-6 flex flex-col">
+            <div className="auth-container w-full max-w-[980px] bg-white rounded-xl shadow-lg grid md:grid-cols-[1fr_420px] gap-6 p-7 items-stretch">
+                <div className="left-brand p-4 md:p-6 flex flex-col justify-center items-center h-full text-center">
                     <img src="/company.svg" alt="Company" className="brand-logo max-w-[260px] w-full h-auto" style={{ maxWidth: 260, width: '100%', height: 'auto' }} />
                     <p className="meta mt-4">A compact management system — coming soon</p>
                     <img src="/logo.svg" alt="Management" className="brand-company mt-3 max-w-[160px] w-full h-auto" style={{ maxWidth: 160, width: '100%', height: 'auto' }} />

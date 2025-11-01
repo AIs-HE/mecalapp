@@ -6,6 +6,7 @@ import ProjectCard from '../components/ProjectCard'
 import MemoryCard from '../components/MemoryCard'
 import BackgroundRects from '../components/BackgroundRects'
 import AddProjectCard from '../components/AddProjectCard'
+import NewProjectModal from '../components/NewProjectModal'
 import Footer from '../components/Footer'
 
 export default function Dashboard() {
@@ -13,6 +14,8 @@ export default function Dashboard() {
     const [role, setRole] = useState(null)
     const [projects, setProjects] = useState([])
     const [loading, setLoading] = useState(true)
+    const [showNewProject, setShowNewProject] = useState(false)
+    const [editProject, setEditProject] = useState(null)
     const [selectedProject, setSelectedProject] = useState(null)
     const router = useRouter()
     const scrollRef = useRef(null)
@@ -64,20 +67,19 @@ export default function Dashboard() {
         return () => { mounted = false; clearTimeout(t); sub?.subscription?.unsubscribe?.() }
     }, [])
 
-    useEffect(() => {
+    async function loadProjects() {
         if (!user) return
-        async function load() {
-            setLoading(true)
-            try {
-                const res = await fetch('/api/projects')
-                const json = await res.json()
-                if (res.ok) setProjects(json.projects || [])
-                else console.error('Failed to load projects', json)
-            } catch (err) { console.error(err) }
-            setLoading(false)
-        }
-        load()
-    }, [user])
+        setLoading(true)
+        try {
+            const res = await fetch('/api/projects')
+            const json = await res.json()
+            if (res.ok) setProjects(json.projects || [])
+            else console.error('Failed to load projects', json)
+        } catch (err) { console.error(err) }
+        setLoading(false)
+    }
+
+    useEffect(() => { loadProjects() }, [user])
 
     async function handleSignOut() {
         await supabase.auth.signOut()
@@ -89,7 +91,7 @@ export default function Dashboard() {
     return (
         <div className="font-sans min-h-screen relative overflow-hidden flex flex-col">
             <BackgroundRects />
-            <Header title="MeCalApp" user={user} role={role} onSignOut={handleSignOut} />
+            <Header title="MeCalApp" user={user} role={role} onSignOut={handleSignOut} onShowProjects={() => setSelectedProject(null)} isProjectView={!selectedProject} />
 
             <main className="p-5 max-w-5xl mx-auto flex-1 w-full box-border overflow-y-auto">
                 {selectedProject ? (
@@ -114,11 +116,22 @@ export default function Dashboard() {
                                     <div ref={scrollRef} className="projects-scroll max-h-[60vh] overflow-y-auto pr-2">
                                         <div className="grid gap-3" style={{ gridTemplateColumns: 'repeat(auto-fill,minmax(260px,1fr))' }}>
                                             {projects.length > 0 && projects.map(p => (
-                                                <ProjectCard key={p.id} project={p} onClick={() => setSelectedProject(p)} isAdmin={isAdmin} />
+                                                <ProjectCard key={p.id} project={p} onClick={() => setSelectedProject(p)} isAdmin={isAdmin}
+                                                    onEdit={(proj) => { setEditProject(proj); setShowNewProject(true); }}
+                                                    onDelete={async (proj) => {
+                                                        if (!confirm('Delete this project? This cannot be undone.')) return
+                                                        try {
+                                                            const res = await fetch('/api/projects', { method: 'DELETE', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ id: proj.id }) })
+                                                            const j = await res.json()
+                                                            if (!res.ok) throw new Error(j.error || 'Failed to delete project')
+                                                            loadProjects()
+                                                        } catch (err) { console.error(err); alert(err.message || String(err)) }
+                                                    }}
+                                                />
                                             ))}
 
                                             {(projects.length === 0 || isAdmin) && (
-                                                <AddProjectCard onClick={() => alert('Open create project modal (TODO)')} />
+                                                <AddProjectCard onClick={() => { setEditProject(null); setShowNewProject(true); }} />
                                             )}
                                         </div>
 
@@ -134,6 +147,7 @@ export default function Dashboard() {
             </main>
 
             <Footer />
+            <NewProjectModal open={showNewProject} project={editProject} onClose={() => { setShowNewProject(false); setEditProject(null); }} onCreated={(proj) => { setShowNewProject(false); loadProjects(); }} onUpdated={(proj) => { setShowNewProject(false); setEditProject(null); loadProjects(); }} />
         </div>
     )
 }

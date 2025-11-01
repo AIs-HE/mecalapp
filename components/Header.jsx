@@ -1,6 +1,6 @@
 import React from 'react'
 
-export default function Header({ title = 'MeCalApp', user, role, onSignOut }) {
+export default function Header({ title = 'MeCalApp', user, role, onSignOut, onShowProjects, isProjectView = true }) {
     const isAdmin = role === 'admin' || role === 'director'
 
     return (
@@ -11,7 +11,7 @@ export default function Header({ title = 'MeCalApp', user, role, onSignOut }) {
             </div>
 
             <nav className="nav-center flex-1 flex justify-center items-center gap-4" aria-label="Main navigation">
-                <button aria-current="page" className="bg-transparent font-semibold px-3 py-1 rounded">Projects</button>
+                <button onClick={() => onShowProjects && onShowProjects()} aria-current={isProjectView ? 'page' : undefined} className="bg-transparent font-semibold px-3 py-1 rounded">Projects</button>
                 {isAdmin && <button className="bg-transparent font-semibold px-3 py-1 rounded">Summary</button>}
                 <button className="bg-transparent font-semibold px-3 py-1 rounded">Help</button>
             </nav>

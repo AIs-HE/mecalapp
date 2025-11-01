@@ -1,7 +1,7 @@
 ### ProjectContext
 *** Frontend Concepts Guide (ARCHIVAL) ***
 
-**Last Updated:** 2025-10-30
+**Last Updated:** 2025-11-01
 
 Purpose
 -------
@@ -56,6 +56,16 @@ Below are concise, actionable deltas that reflect the concrete POC implementatio
 - Scroll UX: the scroll container hides native scrollbars by default and reveals a thin styled scrollbar while scrolling via a `.scrolling` class toggled by JS (short 800ms hide timeout implemented in `pages/dashboard.js`).
 - Header/title tweaks: the app title was increased to a larger size (`text-4xl`) and the Projects heading to `text-3xl` for clearer hierarchy.
 - Accessibility: `AddProjectCard` is keyboard-accessible (Enter/Space handling) and project cards are focusable (`role="button"`, `tabIndex=0`).
+
+POC deltas & new examples (2025-11-01)
+------------------------------------
+- NewProjectModal: `components/NewProjectModal.jsx` implements an Edit/Create modal that prefetches `project_memories` for the selected project, shows a vertical memory gallery with toggles, and normalizes backend rows by mapping either `type` or `memory_type` into a lowercase `type` key for the UI.
+- Server API: `pages/api/project_memories.js` was added/iterated as an admin-only example route. It now selects/returns `memory_type` (matching seeded CSV fixtures) and the example normalizes a `type` property in responses so frontend code has a stable key (lowercased).
+- Local cache & sync: `lib/cache.js` provides a localStorage-backed cache and an ops queue used by the modal to enqueue create/delete memory ops. A background `syncQueue()` pushes staged ops to the example API endpoints to give optimistic/offline-like behavior for the POC.
+- Debugging aids: the modal contains a temporary debug panel showing the raw `/api/project_memories` response and the normalized map to help iterate mapping issues quickly during development.
+
+Implementation guidance:
+- These example API routes run with the admin/service Supabase client and bypass RLS. Treat them as development/admin helpers only — production endpoints should validate session/roles and never expose the service role key in client code.
 
 Implementation note: treat these POC patterns as visual and integration examples only. For production, convert inline styles to reusable CSS/Tailwind utilities, add comprehensive accessibility/keyboard tests, and ensure server routes using the admin client remain behind protected server-only access.
 

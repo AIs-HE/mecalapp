@@ -1,6 +1,6 @@
 # Backend Reference - MecalApp
 
-**Last Updated:** 2025-10-28  
+**Last Updated:** 2025-11-01  
 **Project Phase:** Phase 1 - Core Infrastructure
 
 ---
@@ -56,7 +56,7 @@ The repo currently includes a minimal Next.js frontend (POC). This is intended f
 - `pages/api/projects.js` — example server route using the admin client to GET project lists and POST new projects (admin/testing flows only).
 - `components/Header.jsx`, `components/ProjectCard.jsx`, `components/AddProjectCard.jsx`, `components/BackgroundRects.jsx`, `components/Footer.jsx`, `components/MemoryCard.jsx` — POC components demonstrating the intended UI layout and interactions.
 
-Recent frontend POC updates (2025-10-30)
+Recent frontend POC updates (2025-10-30 / 2025-11-01)
 ---------------------------------------
 The following concise summary documents the UI and tooling changes that were applied to the in-repo Next.js POC on 2025-10-30. These are implementation notes only (the canonical backend remains in `backend_ref.md`).
 
@@ -87,6 +87,20 @@ Notable UI behaviors in the POC:
 - The projects grid becomes scrollable when there are many cards (the `<main>` area grows and scrolls while the footer remains at page end).
 - A decorative clump of rotated rectangles is implemented as `BackgroundRects.jsx` and used on the auth and dashboard pages for the parallax/visual effect.
 
+Additional POC and API deltas (2025-11-01)
+-----------------------------------------
+- Server API: added/iterated `pages/api/project_memories.js` as an example server route using the server/admin Supabase client. Important behaviour:
+  - The canonical DB column in seeded fixtures is `memory_type` (not `type`). The example API was updated to select/insert `memory_type` and to normalize a `type` property in the JSON response for frontend simplicity (lowercased `memory_type`).
+  - POST/DELETE handlers were adjusted to avoid referencing non-existent columns (for example, `title`) and to return clear debug information during development.
+- Frontend: implemented a New Project / Edit modal (`components/NewProjectModal.jsx`) that fetches `project_memories` for edit prefill, presents a vertical memory gallery and toggles, and normalizes incoming rows (accepts either `type` or `memory_type` and maps to a lowercased `type` key for UI state).
+- Local staging & sync: implemented a small local cache + ops queue at `lib/cache.js` to persist toggle operations in localStorage and to run a background `syncQueue()` that calls the example API endpoints. This provides optimistic/offline-like behavior for the POC.
+- Debugging: added a temporary debug panel inside the New Project modal that prints the raw `/api/project_memories` JSON and the normalized map the UI uses; server routes include console debug messages to help trace Supabase errors during development.
+- Dev guidance: after adding or changing server-side environment variables (for example `SUPABASE_SERVICE_ROLE_KEY` in `.env.local`) restart the Next.js dev server so server routes pick up the new env. Several server 500s encountered during iteration were caused by mismatched column names and by the dev server not picking up server-only env values.
+
+Notes for backend authors (delta):
+- The example API routes under `pages/api/*` are intentionally thin admin helpers for the POC and bypass RLS. Treat them as examples only; production code must rely on validated server-side access patterns and must not leak the service role key.
+
+
 Security reminder: The presence of `lib/supabaseAdmin.js` and server API routes is for example/admin flows only. Never expose or commit the `SUPABASE_SERVICE_ROLE_KEY`; ensure server routes that use the admin client are protected and audited.
 6. Update "Last Updated" date at the top
 7. Reference other files like "See `complete_ref.md#Role-Hierarchy`" for context
@@ -95,7 +109,7 @@ Security reminder: The presence of `lib/supabaseAdmin.js` and server API routes 
 
 # Backend Reference (Supabase schema, RLS, seeds)
 
-**Last Updated:** 2025-10-30
+**Last Updated:** 2025-10-31
 
 This file is the canonical SQL reference for the MecalApp Supabase backend. It includes table definitions, indexes, Row Level Security (RLS) policies, example seed data, and migration guidance. Keep this file authoritative for DB re-creation and migrations.
 
@@ -127,6 +141,7 @@ CREATE TABLE IF NOT EXISTS public.projects (
   id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
   client_id uuid REFERENCES public.clients(id),
   name text NOT NULL,
+  cost_center text,
   status text DEFAULT 'draft',
   created_by uuid REFERENCES public.profiles(id),
   created_at timestamptz DEFAULT now()

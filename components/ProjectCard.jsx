@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useState, useRef, useEffect } from 'react'
 
 function formatProjectId(id) {
     if (!id) return 'HE-0000'
@@ -6,7 +6,7 @@ function formatProjectId(id) {
     return `HE-${last}`
 }
 
-export default function ProjectCard({ project, onClick, isAdmin }) {
+export default function ProjectCard({ project, onClick, isAdmin, onEdit = () => { }, onDelete = () => { } }) {
     const { name, id, created_at, updated_at } = project || {}
     const displayId = formatProjectId(id)
     const memoriesCount = project?.memories_count ?? project?.memoriesCount ?? 0
@@ -59,14 +59,79 @@ export default function ProjectCard({ project, onClick, isAdmin }) {
             </div>
 
             {isAdmin && (
-                <button
-                    aria-label="More"
-                    onClick={e => { e.stopPropagation(); /* TODO: open menu */ }}
-                    className="bg-transparent p-2 cursor-pointer text-gray-400 text-lg"
-                    style={{ border: 'none', position: 'absolute', right: 8, left: 'auto', top: 8, color: '#9CA3AF', zIndex: 10 }}
-                >
-                    ⋯
-                </button>
+                <ProjectMenu
+                    onEdit={() => onEdit(project)}
+                    onDelete={() => onDelete(project)}
+                />
+            )}
+        </div>
+    )
+}
+
+function ProjectMenu({ onEdit, onDelete }) {
+    const [open, setOpen] = useState(false)
+    const btnRef = useRef(null)
+    const menuRef = useRef(null)
+
+    useEffect(() => {
+        function onDocClick(e) {
+            if (menuRef.current && !menuRef.current.contains(e.target) && btnRef.current && !btnRef.current.contains(e.target)) {
+                setOpen(false)
+            }
+        }
+        function onEsc(e) {
+            if (e.key === 'Escape') setOpen(false)
+        }
+        document.addEventListener('mousedown', onDocClick)
+        document.addEventListener('touchstart', onDocClick)
+        document.addEventListener('keydown', onEsc)
+        return () => {
+            document.removeEventListener('mousedown', onDocClick)
+            document.removeEventListener('touchstart', onDocClick)
+            document.removeEventListener('keydown', onEsc)
+        }
+    }, [])
+
+    return (
+        <div style={{ position: 'absolute', right: 8, top: 8, zIndex: 20 }}>
+            <button
+                ref={btnRef}
+                aria-haspopup="true"
+                aria-expanded={open}
+                aria-label="More"
+                onClick={e => { e.stopPropagation(); setOpen(o => !o) }}
+                className="bg-transparent p-2 cursor-pointer text-gray-400 text-lg"
+                style={{ border: 'none', color: '#9CA3AF' }}
+            >
+                ⋯
+            </button>
+
+            {open && (
+                <div ref={menuRef} role="menu" aria-label="Project actions" style={{ marginTop: 8, background: '#fff', boxShadow: '0 10px 30px rgba(2,6,23,0.12)', borderRadius: 10, minWidth: 200 }} onClick={e => e.stopPropagation()}>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: 4, padding: 6 }}>
+                        <button
+                            role="menuitem"
+                            onClick={() => { setOpen(false); onEdit(); }}
+                            className="w-full text-left px-4 py-2"
+                            style={{ display: 'flex', alignItems: 'center', gap: 10, background: 'transparent', border: 'none', borderRadius: 8, cursor: 'pointer' }}
+                            onMouseDown={e => e.preventDefault()}
+                        >
+                            <span style={{ width: 22, textAlign: 'center', fontSize: 16 }}>✎</span>
+                            <span style={{ fontSize: '0.875rem', color: '#6B7280' }}>Edit project</span>
+                        </button>
+
+                        <button
+                            role="menuitem"
+                            onClick={() => { setOpen(false); if (confirm('Delete this project? This cannot be undone.')) onDelete(); }}
+                            className="w-full text-left px-4 py-2"
+                            style={{ display: 'flex', alignItems: 'center', gap: 10, background: 'transparent', border: 'none', borderRadius: 8, cursor: 'pointer', color: '#dc2626' }}
+                            onMouseDown={e => e.preventDefault()}
+                        >
+                            <span style={{ width: 22, textAlign: 'center', fontSize: 16 }}>🗑</span>
+                            <span style={{ fontSize: '0.875rem', color: '#dc2626' }}>Delete project</span>
+                        </button>
+                    </div>
+                </div>
             )}
         </div>
     )

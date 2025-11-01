@@ -1,0 +1,5 @@
+id,role,full_name,email,created_at,updated_at,is_active
+1489a992-ae12-4f93-ada8-38894ed6038c,employee,Employee One,employee1@mecalapp.com,2025-10-28 18:34:00.001236+00,2025-10-28 18:34:59.79441+00,true
+40830f08-424a-4466-bc3a-78fecc494691,admin,Admin User,admin@mecalapp.com,2025-10-28 18:47:02.731425+00,2025-10-28 18:47:02.731425+00,true
+737452f2-d88d-4eeb-a78e-30421381fa0b,director,Director User,director@mecalapp.com,2025-10-28 18:34:39.121251+00,2025-10-28 18:34:59.79441+00,true
+9edb395f-9dee-4af3-8437-c6f7eecf656b,employee,Employee Two,employee2@mecalapp.com,2025-10-28 18:34:21.007998+00,2025-10-28 18:34:59.79441+00,true

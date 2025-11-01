@@ -1,6 +1,6 @@
 # Complete Reference - MecalApp Project (Backend/Architecture Focus)
 
-**Last Updated:** 2025-10-30
+**Last Updated:** 2025-11-01
 **Project Phase:** Phase 1 - Core Infrastructure
 
 Purpose
@@ -67,7 +67,7 @@ There is a small Next.js frontend implemented in-repo as a proof-of-concept. It 
 - `lib/theme.js` and `styles/globals.css` (color palette and global styles including decorative rectangles)
 - Components in `components/` for header, cards, background rects and footer (visual examples)
 
-Recent frontend POC updates (2025-10-30)
+Recent frontend POC updates (2025-10-30 / 2025-11-01)
 ---------------------------------------
 A small Next.js frontend POC was added at the repository root to provide visual validation of integration patterns with Supabase. It is intentionally minimal and non-production. Key applied updates:
 
@@ -76,6 +76,15 @@ A small Next.js frontend POC was added at the repository root to provide visual 
 - UI adjustments: project cards are uniform height (13rem), left primary accent stripe, top-right admin menu placeholder, an Add card at the end of the grid, and a centered projects panel (`.projects-panel`) containing a white `.projects-inner`.
 - Scroll UX: the projects list uses a scroll container that hides the native scrollbar by default and reveals a thin styled scrollbar while the user scrolls (JS toggles a `.scrolling` class; CSS rules reveal the thumb).
 - Header: increased the app title size and the Projects heading for clearer hierarchy.
+
+Additional deltas (2025-11-01)
+----------------------------
+- `pages/api/project_memories.js` was added/iterated as a server-side example for listing/creating/deleting project memory rows. The handler was corrected to use the actual seeded column `memory_type` and to normalize a `type` property in responses for frontend convenience.
+- `components/NewProjectModal.jsx` implements the Create/Edit modal used by the POC. It prefetches project memories on open and maps DB rows (either `memory_type` or `type`) to a normalized `type` key used by the UI memory gallery.
+- Local cache & sync: `lib/cache.js` was added to provide a localStorage-backed cache and an ops queue; toggle operations from the modal enqueue create/delete ops and a background `syncQueue()` pushes them to the example API endpoints.
+- Debugging aids: the New Project modal contains a temporary debug panel that shows the raw API response and the normalized map so developers can quickly validate mapping behavior during iteration.
+
+Dev note: server-side environment variables (for example `SUPABASE_SERVICE_ROLE_KEY`) must be present in the running environment — restart the Next.js dev server after `.env.local` edits so server routes pick up updated values.
 
 Reminder: this POC is for reference only — backend RLS, migrations, and schema remain authoritative and unchanged by the POC.
 

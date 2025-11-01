@@ -1,6 +1,6 @@
 # Roadmap & Changelog (Backend-focused)
 
-**Last Updated:** 2025-10-30
+**Last Updated:** 2025-11-01
 
 Purpose
 -------
@@ -37,6 +37,8 @@ Changelog (selected)
  - 2025-10-30 - Tooling fixes & Tailwind bootstrap: added Tailwind entry files and installed PostCSS dependencies (including `autoprefixer` and the Tailwind PostCSS adapter) to resolve Next/PostCSS pipeline issues.
  - 2025-10-30 - UI polish: project cards use a fixed height (13rem); bottom metadata blocks were reworked to equal-width items with 1px gaps; memories label uses primary green; projects inner container and panel were adjusted to avoid horizontal overflow (box-sizing applied).
  - 2025-10-30 - Scroll UX: scrollbars are hidden by default and revealed only while the user scrolls via JS toggling `.scrolling` class on the projects scroll container; CSS provides a thin styled scrollbar while scrolling.
+
+- 2025-11-01 - POC API & UX deltas: added/iterated `pages/api/project_memories.js` (admin example) and corrected server handlers to use `memory_type` (seeded CSV uses `memory_type`). Added `components/NewProjectModal.jsx` (create/edit modal with memory gallery), `lib/cache.js` (localStorage-backed cache + ops queue), and a temporary debug panel to assist mapping/debugging during development.
 
 Developer notes
 ---------------

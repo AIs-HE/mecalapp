@@ -1,6 +1,6 @@
 # System Sync Reference - MecalApp (Backend-focused)
 
-**Last Updated:** 2025-10-30
+**Last Updated:** 2025-11-01
 
 Purpose
 -------
@@ -41,6 +41,13 @@ Short, concrete notes about the implemented POC in the repo (useful when wiring 
 - Scrollbar UX: the projects scroll container hides native scrollbars by default and reveals a thin, styled scrollbar only while the user is scrolling. JS in `pages/dashboard.js` toggles a `.scrolling` class on the scroll container and CSS in `styles/globals.css` provides the visual thumb.
 - Header & headings: `MeCalApp` title was increased to `text-4xl` and the Projects heading in the dashboard was increased to `text-3xl` for visual hierarchy.
 - Accessibility: `AddProjectCard` is keyboard-accessible and project cards are focusable (`role="button"`, `tabIndex=0`).
+
+Implementation deltas (2025-11-01)
+--------------------------------
+- API mapping: `pages/api/project_memories.js` was added/iterated as an example server route. The example was corrected to use the seeded column `memory_type` and to avoid referencing non-existent columns (such as `title`). The API normalizes output rows by adding a stable `type` property (lowercased), so frontend code can rely on a consistent key regardless of the DB naming variant.
+- Frontend modal: `components/NewProjectModal.jsx` now prefetches `project_memories` for edit mode and normalizes rows that might include `type` or `memory_type`. The modal presents a vertical memory gallery with toggles that stage operations locally.
+- Local staging & sync: `lib/cache.js` provides a small localStorage-backed cache and an ops queue. Toggle actions are enqueued locally and a background `syncQueue()` pushes staged create/delete ops to the example API endpoints to provide optimistic/offline-like behaviour in the POC.
+- Developer note: during iterations several 500 errors were caused by schema mismatches (expecting `type` vs `memory_type`) and by the dev server not picking up server-only env vars. Restart the Next dev server after editing `.env.local` so server routes pick up `SUPABASE_SERVICE_ROLE_KEY`.
 
 Implementation note: these are UI/tooling conveniences for the POC and do not change the canonical API or RLS policies. When porting to a production frontend, move inline styles to CSS/Tailwind, add aria attributes and keyboard testing, and ensure server routes using the admin client remain server-only.
 

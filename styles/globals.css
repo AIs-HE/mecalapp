@@ -223,7 +223,38 @@ body {
         }
     }
 
-    /* Additional large parallax rectangles to add depth (three more) */
+    /* Large parallax rectangles (a..h) — used for layered background depth */
+    .rect-a {
+        width: 520px;
+        height: 110px;
+        background: #eef6ea;
+        /* pale greenish */
+        left: -260px;
+        top: -40px;
+        opacity: 0.06;
+    }
+
+    .rect-b {
+        width: 380px;
+        height: 92px;
+        background: #eef2f6;
+        /* very light neutral gray */
+        left: -80px;
+        bottom: -20px;
+        opacity: 0.05;
+    }
+
+    .rect-c {
+        width: 320px;
+        height: 76px;
+        background: #f3f7f2;
+        /* soft pale */
+        right: -100px;
+        top: 20px;
+        opacity: 0.05;
+    }
+
+    /* Additional large parallax rectangles to add depth (d..f existing, plus g,h added) */
     .rect-d {
         width: 460px;
         height: 90px;
@@ -251,6 +282,24 @@ body {
         left: 60px;
         top: 160px;
         opacity: 0.10;
+    }
+
+    .rect-g {
+        width: 200px;
+        height: 64px;
+        background: #edf7e6;
+        right: 40px;
+        bottom: 80px;
+        opacity: 0.06;
+    }
+
+    .rect-h {
+        width: 140px;
+        height: 56px;
+        background: #f6f9f6;
+        left: 220px;
+        top: 220px;
+        opacity: 0.05;
     }
 
     /* initial entrance animation */
@@ -466,6 +515,24 @@ body {
     opacity: 0.04;
 }
 
+.decor-rect-12 {
+    width: 110px;
+    height: 48px;
+    background: #f9fbf9;
+    right: 180px;
+    top: 60px;
+    opacity: 0.045;
+}
+
+.decor-rect-13 {
+    width: 150px;
+    height: 60px;
+    background: #f4f6f5;
+    left: 300px;
+    bottom: 30px;
+    opacity: 0.04;
+}
+
 /* Reuse the existing entrance/up/down animations */
 .animate-in {
     animation: rectIn 700ms cubic-bezier(.22, .9, .55, 1) forwards;
@@ -623,6 +690,47 @@ main h2 {
     border-left-style: dashed;
     border-left-color: var(--color-main);
     color: var(--color-main);
+}
+
+/* Circle + button inside the Add Project card */
+.add-project-card .add-project-circle {
+    width: 2.75rem;
+    /* reduced to ~50% of previous size */
+    height: 2.75rem;
+    border-radius: 999px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    /* allow absolute centering of the plus */
+    background: rgba(133, 183, 38, 0.5);
+    /* var(--color-main) @ 50% */
+    box-shadow: 0 6px 18px rgba(16, 24, 40, 0.06);
+}
+
+.add-project-card .add-project-plus {
+    /* absolutely center the plus glyph inside the circle to avoid font-metric offsets */
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    /* nudge up slightly to correct optical baseline */
+    transform: translate(-50%, -60%);
+    font-size: 2.25rem;
+    /* prominent */
+    color: white;
+    font-weight: 800;
+    line-height: 1;
+}
+
+@media (max-width: 640px) {
+    .add-project-card .add-project-circle {
+        width: 2.125rem;
+        height: 2.125rem;
+    }
+
+    .add-project-card .add-project-plus {
+        font-size: 1.75rem;
+    }
 }
 
 .memory-card {
