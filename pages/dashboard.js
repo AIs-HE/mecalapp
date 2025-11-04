@@ -6,6 +6,7 @@ import ProjectCard from '../components/ProjectCard'
 import MemoryCard from '../components/MemoryCard'
 import BackgroundRects from '../components/BackgroundRects'
 import AddProjectCard from '../components/AddProjectCard'
+import AddMemoryCard from '../components/AddMemoryCard'
 import NewProjectModal from '../components/NewProjectModal'
 import Footer from '../components/Footer'
 
@@ -20,6 +21,7 @@ export default function Dashboard() {
     const router = useRouter()
     const scrollRef = useRef(null)
     const scrollTimeoutRef = useRef(null)
+    const [memRefreshSignal, setMemRefreshSignal] = useState(0)
 
     // show scrollbar only while the user is actively scrolling
     useEffect(() => {
@@ -95,13 +97,7 @@ export default function Dashboard() {
 
             <main className="p-5 max-w-5xl mx-auto flex-1 w-full box-border overflow-y-auto">
                 {selectedProject ? (
-                    <section>
-                        <button onClick={() => setSelectedProject(null)} className="mb-3 text-sm text-gray-700">← Back to projects</button>
-                        <h2 className="text-2xl font-bold">Memories for {selectedProject.name}</h2>
-                        <div className="grid grid-cols-[repeat(auto-fill,minmax(240px,1fr))] gap-3 mt-3">
-                            <div className="col-span-full text-gray-500">Memory list will appear here (to be implemented)</div>
-                        </div>
-                    </section>
+                    <ProjectMemoriesView project={selectedProject} isAdmin={isAdmin} onBack={() => setSelectedProject(null)} onEditProject={(proj) => { setEditProject(proj); setShowNewProject(true); }} refreshSignal={memRefreshSignal} />
                 ) : (
                     <section>
                         <div className="projects-panel bg-gray-50/60 rounded-lg p-4">
@@ -147,8 +143,92 @@ export default function Dashboard() {
             </main>
 
             <Footer />
-            <NewProjectModal open={showNewProject} project={editProject} onClose={() => { setShowNewProject(false); setEditProject(null); }} onCreated={(proj) => { setShowNewProject(false); loadProjects(); }} onUpdated={(proj) => { setShowNewProject(false); setEditProject(null); loadProjects(); }} />
+            <NewProjectModal open={showNewProject} project={editProject} onClose={() => { setShowNewProject(false); setEditProject(null); }} onCreated={(proj) => { setShowNewProject(false); loadProjects(); }} onUpdated={(proj) => { setShowNewProject(false); setEditProject(null); loadProjects(); setMemRefreshSignal(s => s + 1); }} />
         </div>
+    )
+}
+
+function ProjectMemoriesView({ project, isAdmin, onBack, onEditProject, refreshSignal }) {
+    const [memories, setMemories] = useState([])
+    const [loading, setLoading] = useState(true)
+    const [error, setError] = useState(null)
+
+    useEffect(() => {
+        let mounted = true
+        async function load() {
+            setLoading(true)
+            setError(null)
+            try {
+                const res = await fetch(`/api/project_memories?project_id=${project.id}`)
+                if (!res.ok) {
+                    const j = await res.json().catch(() => ({}))
+                    throw new Error(j.error || `Failed to load memories (${res.status})`)
+                }
+                const j = await res.json()
+                if (!mounted) return
+                setMemories(j.memories || [])
+            } catch (err) {
+                console.error('Failed to load project memories', err)
+                if (!mounted) return
+                setError(err.message || String(err))
+            }
+            if (mounted) setLoading(false)
+        }
+        load()
+        return () => { mounted = false }
+    }, [project?.id, refreshSignal])
+
+    async function refresh() {
+        try {
+            const res = await fetch(`/api/project_memories?project_id=${project.id}`)
+            const j = await res.json()
+            setMemories(j.memories || [])
+        } catch (e) {
+            console.error(e)
+        }
+    }
+
+    return (
+        <section>
+            <div className="projects-panel bg-gray-50/60 rounded-lg p-4">
+                <div className="flex justify-between items-center mb-6">
+                    <h2 className="projects-heading text-3xl font-bold">{project.cost_center ? `${project.cost_center} - ` : ''}{project.name}</h2>
+                    <div>
+                        {loading ? (
+                            <div className="text-sm text-gray-600">Loading…</div>
+                        ) : (
+                            <div style={{ display: 'flex', alignItems: 'center' }}>
+                                <div style={{ flex: '0 0 auto', color: 'var(--color-main)', backgroundColor: 'rgba(133,183,38,0.08)', borderRadius: 12, padding: '6px 10px', fontSize: '0.85rem', textAlign: 'center', display: 'flex', alignItems: 'center', justifyContent: 'center', flexDirection: 'column' }}>
+                                    <div>{memories.length}</div>
+                                    <div style={{ fontSize: '0.75rem', color: 'var(--color-main)', marginTop: 2 }}>memories</div>
+                                </div>
+                            </div>
+                        )}
+                    </div>
+                </div>
+
+                {error ? (
+                    <div className="mt-4 text-red-600">Error loading memories: {error}</div>
+                ) : (
+                    <div className="projects-inner">
+                        <div className="projects-scroll max-h-[60vh] overflow-y-auto pr-2">
+                            <div className="grid gap-3 mt-3" style={{ gridTemplateColumns: 'repeat(auto-fill,minmax(260px,1fr))' }}>
+                                {loading && <div className="col-span-full text-gray-500">Loading memories…</div>}
+                                {!loading && memories.length === 0 && (
+                                    <div className="col-span-full text-gray-500">No memories found for this project.</div>
+                                )}
+                                {!loading && memories.map(m => (
+                                    <MemoryCard key={m.id || `${m.project_id}_${m.memory_type}`} memory={m} isAdmin={isAdmin} onDelete={async () => { await refresh() }} />
+                                ))}
+                                {isAdmin && (
+                                    <AddMemoryCard onClick={() => onEditProject && onEditProject(project)} />
+                                )}
+                            </div>
+                        </div>
+                    </div>
+                )}
+            </div>
+        </section>
     )
 }
 

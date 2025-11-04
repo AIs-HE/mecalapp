@@ -1,6 +1,7 @@
 # Backend Reference - MecalApp
 
-**Last Updated:** 2025-11-01  
+**Last Updated:** 2025-11-04  
+**Note:** Updated to reflect recent POC deltas (assignment API behaviour, local memory types mapping, and example admin API updates).
 **Project Phase:** Phase 1 - Core Infrastructure
 
 ---
@@ -160,11 +161,16 @@ CREATE TABLE IF NOT EXISTS public.project_memories (
 );
 
 -- memory_assignments: junction table linking profiles to memories
+-- NOTE (2025-11-04): The repo's POC and API evolved to treat a memory as having
+-- at most one active assignment. For audit/history keep an append-only
+-- `audit_logs` table (see below). The canonical schema recommendation is
+-- to enforce a unique constraint on memory_id to prevent duplicates at the DB level.
 CREATE TABLE IF NOT EXISTS public.memory_assignments (
   id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
-  memory_id uuid REFERENCES public.project_memories(id),
-  profile_id uuid REFERENCES public.profiles(id),
-  assigned_at timestamptz DEFAULT now()
+  memory_id uuid NOT NULL REFERENCES public.project_memories(id) ON DELETE CASCADE,
+  user_id uuid NOT NULL REFERENCES public.profiles(id) ON DELETE CASCADE,
+  assigned_at timestamptz NOT NULL DEFAULT now(),
+  assigned_by uuid REFERENCES public.profiles(id) ON DELETE SET NULL
 );
 
 -- audit_logs: event tracking
@@ -180,7 +186,9 @@ Indexes
 -------
 CREATE INDEX IF NOT EXISTS idx_projects_client_id ON public.projects(client_id);
 CREATE INDEX IF NOT EXISTS idx_memories_project_id ON public.project_memories(project_id);
-CREATE INDEX IF NOT EXISTS idx_assignments_profile_id ON public.memory_assignments(profile_id);
+-- prior naming varied between `profile_id` and `user_id` in different places;
+-- canonical index uses `user_id` to match current code and APIs
+CREATE INDEX IF NOT EXISTS idx_assignments_user_id ON public.memory_assignments(user_id);
 
 Row Level Security (RLS) policies - intent & examples
 ----------------------------------------------------

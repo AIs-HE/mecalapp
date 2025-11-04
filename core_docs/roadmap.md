@@ -39,6 +39,10 @@ Changelog (selected)
  - 2025-10-30 - Scroll UX: scrollbars are hidden by default and revealed only while the user scrolls via JS toggling `.scrolling` class on the projects scroll container; CSS provides a thin styled scrollbar while scrolling.
 
 - 2025-11-01 - POC API & UX deltas: added/iterated `pages/api/project_memories.js` (admin example) and corrected server handlers to use `memory_type` (seeded CSV uses `memory_type`). Added `components/NewProjectModal.jsx` (create/edit modal with memory gallery), `lib/cache.js` (localStorage-backed cache + ops queue), and a temporary debug panel to assist mapping/debugging during development.
+ - 2025-11-01 - POC API & UX deltas: added/iterated `pages/api/project_memories.js` (admin example) and corrected server handlers to use `memory_type` (seeded CSV uses `memory_type`). Added `components/NewProjectModal.jsx` (create/edit modal with memory gallery), `lib/cache.js` (localStorage-backed cache + ops queue), and a temporary debug panel to assist mapping/debugging during development.
+
+ - 2025-11-04 - Assignment API & UI: updated `pages/api/memory_assignments.js` POST to perform an update-if-exists by `memory_id` (ensuring a memory can only have one active assignment). Added `components/AssignMemoryModal.jsx` and wiring in `components/MemoryCard.jsx` so the UI displays assigned user's full name. Recommend using `audit_logs` to preserve assignment history and adding a DB unique index on `memory_id` after deduplication.
+ - 2025-11-04 - Memory types mapping: added `data/memory_types.json` and wired `components/MemoryCard.jsx` to show canonical full memory names (e.g., `CIRCUIT` -> `CIRCUIT DIMENSION`). The temporary Help link on cards was removed from the POC.
 
 Developer notes
 ---------------

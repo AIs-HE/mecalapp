@@ -1,6 +1,7 @@
 # Complete Reference - MecalApp Project (Backend/Architecture Focus)
 
 **Last Updated:** 2025-11-01
+**Last Updated (updated):** 2025-11-04
 **Project Phase:** Phase 1 - Core Infrastructure
 
 Purpose
@@ -82,6 +83,9 @@ Additional deltas (2025-11-01)
 - `pages/api/project_memories.js` was added/iterated as a server-side example for listing/creating/deleting project memory rows. The handler was corrected to use the actual seeded column `memory_type` and to normalize a `type` property in responses for frontend convenience.
 - `components/NewProjectModal.jsx` implements the Create/Edit modal used by the POC. It prefetches project memories on open and maps DB rows (either `memory_type` or `type`) to a normalized `type` key used by the UI memory gallery.
 - Local cache & sync: `lib/cache.js` was added to provide a localStorage-backed cache and an ops queue; toggle operations from the modal enqueue create/delete ops and a background `syncQueue()` pushes them to the example API endpoints.
+ - Local cache & sync: `lib/cache.js` was added to provide a localStorage-backed cache and an ops queue; toggle operations from the modal enqueue create/delete ops and a background `syncQueue()` pushes them to the example API endpoints.
+ - Assignment behaviour (API): `pages/api/memory_assignments.js` was updated so POST operations perform an update-if-exists for the same `memory_id` (ensuring one active assignment per memory) and will remove duplicate older rows if present. Audit/history is recommended to be stored in `audit_logs` rather than keeping multiple assignment rows.
+ - Memory types mapping: A small local lookup `data/memory_types.json` was added and `components/MemoryCard.jsx` now uses this mapping to display the canonical full memory name (e.g., `CIRCUIT` -> `CIRCUIT DIMENSION`). The POC removed the previously visible 'Help' link from the card title.
 - Debugging aids: the New Project modal contains a temporary debug panel that shows the raw API response and the normalized map so developers can quickly validate mapping behavior during iteration.
 
 Dev note: server-side environment variables (for example `SUPABASE_SERVICE_ROLE_KEY`) must be present in the running environment — restart the Next.js dev server after `.env.local` edits so server routes pick up updated values.

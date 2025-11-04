@@ -63,6 +63,8 @@ POC deltas & new examples (2025-11-01)
 - Server API: `pages/api/project_memories.js` was added/iterated as an admin-only example route. It now selects/returns `memory_type` (matching seeded CSV fixtures) and the example normalizes a `type` property in responses so frontend code has a stable key (lowercased).
 - Local cache & sync: `lib/cache.js` provides a localStorage-backed cache and an ops queue used by the modal to enqueue create/delete memory ops. A background `syncQueue()` pushes staged ops to the example API endpoints to give optimistic/offline-like behavior for the POC.
 - Debugging aids: the modal contains a temporary debug panel showing the raw `/api/project_memories` response and the normalized map to help iterate mapping issues quickly during development.
+ - Assignment workflow and UI: `components/AssignMemoryModal.jsx` and `components/MemoryCard.jsx` provide a small admin assignment UX. The example assignment API (`pages/api/memory_assignments.js`) was updated so POST behaves as update-or-insert for the same `memory_id` (ensuring one active assignment per memory) and will remove older duplicate rows if present. The MemoryCard displays the assigned user's full name.
+ - Memory types mapping: a local lookup file `data/memory_types.json` maps memory short types to canonical display names (for example `CIRCUIT` -> `CIRCUIT DIMENSION`). `components/MemoryCard.jsx` now uses this mapping to derive the title shown on cards; the transient Help link was removed from the POC.
 
 Implementation guidance:
 - These example API routes run with the admin/service Supabase client and bypass RLS. Treat them as development/admin helpers only — production endpoints should validate session/roles and never expose the service role key in client code.

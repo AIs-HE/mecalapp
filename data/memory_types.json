@@ -1,0 +1,32 @@
+{
+    "CIRCUIT": {
+        "memory_type": "CIRCUIT",
+        "memory_name": "CIRCUIT DIMENSION",
+        "memory_help": "/docs/memory/circuit-dimension.md"
+    },
+    "PROTECTION": {
+        "memory_type": "PROTECTION",
+        "memory_name": "PROTECTION COORDINATION",
+        "memory_help": "/docs/memory/protection-coordination.md"
+    },
+    "DUCTS": {
+        "memory_type": "DUCTS",
+        "memory_name": "DUCTS AND TRAYS",
+        "memory_help": "/docs/memory/ducts-and-trays.md"
+    },
+    "INSTALLATION": {
+        "memory_type": "INSTALLATION",
+        "memory_name": "INSTALLATION TEST",
+        "memory_help": "/docs/memory/installation-test.md"
+    },
+    "INSTALLTION": {
+        "memory_type": "INSTALLTION",
+        "memory_name": "INSTALLATION TEST",
+        "memory_help": "/docs/memory/installation-test.md"
+    },
+    "TESTING": {
+        "memory_type": "TESTING",
+        "memory_name": "TESTING TEST",
+        "memory_help": "/docs/memory/testing-test.md"
+    }
+}

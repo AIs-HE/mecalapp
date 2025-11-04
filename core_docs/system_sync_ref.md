@@ -92,7 +92,8 @@ Below are the expected request and response shapes for the main flows. All reque
 
 5) Assign memory
   - Request: { memory_id: uuid, user_id: uuid, assigned_by: uuid }
-  - Response: memory_assignments row
+  - Response: memory_assignments row (POC note: the example admin POST now performs an update-if-exists by memory_id to ensure a memory has at most one active assignment; it returns the resulting assignment with attached `user` profile information)
+  - Note: For audit/history preserve assignment changes in `audit_logs` rather than storing multiple active assignment rows for the same memory. A DB-level unique index on `memory_id` is recommended after cleaning duplicates.
 
 Error handling principles
 -------------------------

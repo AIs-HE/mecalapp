@@ -1,12 +1,22 @@
 import React, { useState, useRef, useEffect } from 'react'
+import AssignMemoryModal from './AssignMemoryModal'
+import memoryTypes from '../data/memory_types.json'
 
 export default function MemoryCard({ memory, isAdmin, onDelete = () => { } }) {
-    const { name, version, created_at, updated_at } = memory || {}
+    const { name, version, created_at, updated_at, type, memory_type } = memory || {}
+    const displayType = type || memory_type || ''
+    // derive full memory name and help link from local JSON table
+    const normalizedType = (displayType || '').toString().toUpperCase()
+    const typeMeta = memoryTypes[normalizedType] || null
+    const memoryFullName = typeMeta?.memory_name || name || 'Untitled memory'
+    const memoryHelp = typeMeta?.memory_help || null
     const [open, setOpen] = useState(false)
     const btnRef = useRef(null)
     const menuRef = useRef(null)
 
     const [deleting, setDeleting] = useState(false)
+    const [showAssign, setShowAssign] = useState(false)
+    const [assignedName, setAssignedName] = useState(null)
 
     useEffect(() => {
         function onDocClick(e) {
@@ -24,6 +34,25 @@ export default function MemoryCard({ memory, isAdmin, onDelete = () => { } }) {
             document.removeEventListener('keydown', onEsc)
         }
     }, [])
+
+    useEffect(() => {
+        let mounted = true
+        async function loadAssignment() {
+            if (!memory || !memory.id) return
+            try {
+                const res = await fetch(`/api/memory_assignments?memory_id=${memory.id}`)
+                const j = await res.json()
+                if (res.ok) {
+                    const a = (j.assignments || [])[0]
+                    if (mounted) setAssignedName(a?.user?.full_name || null)
+                } else {
+                    console.debug('Failed to load assignment', j)
+                }
+            } catch (e) { console.error('Failed to fetch assignment', e) }
+        }
+        loadAssignment()
+        return () => { mounted = false }
+    }, [memory?.id])
 
     async function handleDelete(e) {
         e.stopPropagation()
@@ -66,32 +95,73 @@ export default function MemoryCard({ memory, isAdmin, onDelete = () => { } }) {
     }
 
     return (
-        <div className="bg-white rounded-lg p-3 shadow-sm memory-card" style={{ borderLeft: '4px solid var(--color-main)' }}>
-            <div className="flex justify-between">
-                <div>
-                    <div className="text-sm font-bold">{name || 'Untitled memory'}</div>
-                    <div className="text-xs text-gray-500">v{version || '—'}</div>
-                </div>
-                {isAdmin && (
-                    <div style={{ position: 'relative' }}>
-                        <button ref={btnRef} aria-haspopup="true" aria-expanded={open} aria-label="More" className="bg-transparent border-0 cursor-pointer" onClick={e => { e.stopPropagation(); setOpen(o => !o) }}>⋯</button>
-                        {open && (
-                            <div ref={menuRef} role="menu" aria-label="Memory actions" style={{ position: 'absolute', right: 0, top: '100%', marginTop: 8, background: '#fff', boxShadow: '0 10px 30px rgba(2,6,23,0.12)', borderRadius: 8, minWidth: 180 }} onClick={e => e.stopPropagation()}>
-                                <div style={{ display: 'flex', flexDirection: 'column', gap: 4, padding: 6 }}>
-                                    <button role="menuitem" onClick={handleDelete} className="w-full text-left px-4 py-2" style={{ display: 'flex', alignItems: 'center', gap: 8, background: 'transparent', border: 'none', borderRadius: 6, cursor: 'pointer', color: '#dc2626' }} onMouseDown={e => e.preventDefault()}>
-                                        <span style={{ width: 20, textAlign: 'center' }}>🗑</span>
-                                        <span style={{ fontSize: '0.875rem', color: '#dc2626' }}>Delete memory</span>
-                                    </button>
-                                </div>
-                            </div>
-                        )}
+        <div
+            className="bg-white rounded-xl p-5 shadow-md cursor-pointer transition-transform duration-150 hover:-translate-y-1 border-l-4 flex flex-col justify-between relative overflow-hidden project-card"
+            style={{ borderLeftColor: 'var(--color-main)', minHeight: '11rem' }}
+        >
+            <div className="relative" style={{ zIndex: 10, paddingRight: 44 }}>
+                <div className="text-lg font-extrabold text-gray-900">{memoryFullName}</div>
+                <div className="text-xs text-gray-500 mt-1">{displayType ? displayType.toUpperCase() : `v${version || '—'}`}</div>
+                {/* Assigned badge */}
+                <div style={{ marginTop: 8 }}>
+                    <div style={{ color: '#374151', backgroundColor: 'transparent', border: '1px solid rgba(209,213,219,1)', borderRadius: 12, padding: '6px 10px', fontSize: '0.85rem', textAlign: 'center', display: 'inline-flex', alignItems: 'center', gap: 8 }}>
+                        <span style={{ fontSize: 14 }}>👤</span>
+                        <span style={{ fontSize: '0.875rem', color: '#374151' }}>{assignedName ? assignedName : 'Not assigned yet'}</span>
                     </div>
-                )}
+                </div>
             </div>
-            <div className="mt-2 text-sm text-gray-700">
-                <div>Created: {created_at ? new Date(created_at).toLocaleDateString() : '—'}</div>
-                <div>Updated: {updated_at ? new Date(updated_at).toLocaleDateString() : '—'}</div>
+
+            <div className="flex items-stretch" style={{ gap: 0, marginTop: 8 }}>
+                <div style={{ flex: '1 1 0', minWidth: 0, margin: '0 1px', color: 'var(--color-main)', backgroundColor: 'rgba(133,183,38,0.08)', borderRadius: 12, padding: '6px 10px', fontSize: '0.85rem', textAlign: 'center', display: 'flex', alignItems: 'center', justifyContent: 'center', flexDirection: 'column' }}>
+                    <div>{version || '—'}</div>
+                    <div style={{ fontSize: '0.75rem', color: 'var(--color-main)', marginTop: 2 }}>version</div>
+                </div>
+
+                <div style={{ flex: '1 1 0', minWidth: 0, margin: '0 1px', padding: '6px 8px', color: 'rgba(55,65,81,0.6)', fontSize: '0.78rem', textAlign: 'center' }}>
+                    <div style={{ fontSize: '0.78rem', fontWeight: 600 }}>Created:</div>
+                    <div style={{ marginTop: 4, fontSize: '0.75rem' }}>{created_at ? new Date(created_at).toLocaleDateString() : '—'}</div>
+                </div>
+
+                <div style={{ flex: '1 1 0', minWidth: 0, margin: '0 1px', padding: '6px 8px', color: 'rgba(55,65,81,0.6)', fontSize: '0.78rem', textAlign: 'center' }}>
+                    <div style={{ fontSize: '0.78rem', fontWeight: 600 }}>Updated:</div>
+                    <div style={{ marginTop: 4, fontSize: '0.75rem' }}>{updated_at ? new Date(updated_at).toLocaleDateString() : '—'}</div>
+                </div>
             </div>
+
+            {isAdmin && (
+                <div style={{ position: 'absolute', right: 8, top: 8, zIndex: 20 }}>
+                    <button
+                        ref={btnRef}
+                        aria-haspopup="true"
+                        aria-expanded={open}
+                        aria-label="More"
+                        onClick={e => { e.stopPropagation(); setOpen(o => !o) }}
+                        className="bg-transparent p-2 cursor-pointer text-gray-400 text-lg"
+                        style={{ border: 'none', color: '#9CA3AF' }}
+                    >
+                        ⋯
+                    </button>
+
+                    {open && (
+                        <div ref={menuRef} role="menu" aria-label="Memory actions" style={{ marginTop: 8, background: '#fff', boxShadow: '0 10px 30px rgba(2,6,23,0.12)', borderRadius: 10, minWidth: 180 }} onClick={e => e.stopPropagation()}>
+                            <div style={{ display: 'flex', flexDirection: 'column', gap: 4, padding: 6 }}>
+                                <button role="menuitem" onClick={() => { setOpen(false); setShowAssign(true) }} className="w-full text-left px-4 py-2" style={{ display: 'flex', alignItems: 'center', gap: 10, background: 'transparent', border: 'none', borderRadius: 8, cursor: 'pointer' }} onMouseDown={e => e.preventDefault()}>
+                                    <span style={{ width: 22, textAlign: 'center', fontSize: 16 }}>👤</span>
+                                    <span style={{ fontSize: '0.875rem', color: '#6B7280' }}>Assign memory</span>
+                                </button>
+
+                                <button role="menuitem" onClick={handleDelete} className="w-full text-left px-4 py-2" style={{ display: 'flex', alignItems: 'center', gap: 10, background: 'transparent', border: 'none', borderRadius: 8, cursor: 'pointer', color: '#dc2626' }} onMouseDown={e => e.preventDefault()}>
+                                    <span style={{ width: 22, textAlign: 'center' }}>🗑</span>
+                                    <span style={{ fontSize: '0.875rem', color: '#dc2626' }}>Delete memory</span>
+                                </button>
+                            </div>
+                        </div>
+                    )}
+                </div>
+            )}
+            {showAssign && (
+                <AssignMemoryModal open={showAssign} memory={memory} onClose={() => setShowAssign(false)} onAssigned={(a) => { setShowAssign(false); setAssignedName(a?.user?.full_name || null); }} />
+            )}
         </div>
     )
 }
