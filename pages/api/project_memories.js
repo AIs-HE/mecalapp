@@ -4,8 +4,11 @@ export default async function handler(req, res) {
     console.debug('/api/project_memories', req.method, req.query, req.body)
     if (req.method === 'POST') {
         try {
-            const { project_id, memory_type, version = null } = req.body
+            // prefer an explicit version; some DBs enforce NOT NULL on `version` so default to '1.0' when absent
+            const { project_id, memory_type } = req.body
+            let version = req.body.version ?? undefined
             if (!project_id || !memory_type) return res.status(400).json({ error: 'project_id and memory_type are required' })
+            if (!version) version = '1.0'
 
             // DB columns (based on CSV/backend_ref) are: memory_type, version, status, created_by, timestamps
             // Avoid inserting `title` because the DB may not have that column. Insert a minimal payload.
@@ -13,8 +16,12 @@ export default async function handler(req, res) {
                 project_id,
                 memory_type: memory_type,
                 version,
-                status: 'open'
+                // align with seeded fixtures / DB check-constraint which use 'draft'|'in_progress'|'completed'
+                // use 'draft' as a safe initial status for newly created memories
+                status: 'draft'
             }
+
+            console.debug('API /api/project_memories POST payload', { payload })
 
             const { data, error } = await supabaseAdmin.from('project_memories').insert(payload).select().single()
             if (error) throw error

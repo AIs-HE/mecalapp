@@ -1,8 +1,24 @@
 import supabaseAdmin from '../../lib/supabaseAdmin'
 
 export default async function handler(req, res) {
+    // Defensive check: ensure server admin client is configured
+    if (!process.env.SUPABASE_SERVICE_ROLE_KEY || !process.env.NEXT_PUBLIC_SUPABASE_URL) {
+        console.error('API /api/projects: missing SUPABASE_SERVICE_ROLE_KEY or NEXT_PUBLIC_SUPABASE_URL')
+        return res.status(500).json({ error: 'Server misconfiguration: missing Supabase admin credentials. Set SUPABASE_SERVICE_ROLE_KEY and NEXT_PUBLIC_SUPABASE_URL in .env.local' })
+    }
     if (req.method === 'GET') {
         try {
+            // support fetching a single project by id for edit-prefill
+            const { id } = req.query || {}
+            if (id) {
+                const { data: single, error: singleErr } = await supabaseAdmin.from('projects').select('id, name, cost_center, status, created_at, client_id').eq('id', id).single()
+                if (singleErr) throw singleErr
+                // compute memories_count for this project
+                const { data: mems } = await supabaseAdmin.from('project_memories').select('id').eq('project_id', id)
+                const project = { ...single, memories_count: Array.isArray(mems) ? mems.length : 0 }
+                return res.status(200).json({ project })
+            }
+
             // fetch projects and include nested project_memories (ids) so we can compute counts server-side
             const { data, error } = await supabaseAdmin.from('projects').select('id, name, cost_center, status, created_at, client_id, project_memories(id)')
             if (error) throw error
@@ -14,6 +30,8 @@ export default async function handler(req, res) {
                 status: p.status,
                 created_at: p.created_at,
                 client_id: p.client_id,
+                // include cost_center so the UI can display the provided HE-XXXX value
+                cost_center: p.cost_center || null,
                 memories_count: Array.isArray(p.project_memories) ? p.project_memories.length : 0
             }))
 

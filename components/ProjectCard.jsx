@@ -9,6 +9,7 @@ function formatProjectId(id) {
 export default function ProjectCard({ project, onClick, isAdmin, onEdit = () => { }, onDelete = () => { } }) {
     const { name, id, created_at, updated_at } = project || {}
     const displayId = formatProjectId(id)
+    const displayCostCenter = project?.cost_center || null
     const memoriesCount = project?.memories_count ?? project?.memoriesCount ?? 0
 
     return (
@@ -21,7 +22,7 @@ export default function ProjectCard({ project, onClick, isAdmin, onEdit = () => 
         >
             <div className="relative" style={{ zIndex: 10, paddingRight: 44 }}>
                 <div className="text-lg font-extrabold text-gray-900">{name}</div>
-                <div className="text-xs text-gray-500 mt-1">{displayId}</div>
+                <div className="text-xs text-gray-500 mt-1">{displayCostCenter ? displayCostCenter : displayId}</div>
             </div>
 
             {/* evenly spread three items with 1px external gap/margin */}
@@ -122,7 +123,7 @@ function ProjectMenu({ onEdit, onDelete }) {
 
                         <button
                             role="menuitem"
-                            onClick={() => { setOpen(false); if (confirm('Delete this project? This cannot be undone.')) onDelete(); }}
+                            onClick={() => { setOpen(false); onDelete(); }}
                             className="w-full text-left px-4 py-2"
                             style={{ display: 'flex', alignItems: 'center', gap: 10, background: 'transparent', border: 'none', borderRadius: 8, cursor: 'pointer', color: '#dc2626' }}
                             onMouseDown={e => e.preventDefault()}

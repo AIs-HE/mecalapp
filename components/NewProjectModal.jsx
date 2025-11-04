@@ -33,11 +33,30 @@ export default function NewProjectModal({ open = false, project = null, onClose 
         loadClients()
         // if editing, prefill fields and load existing memories
         if (project) {
-            setName(project.name || '')
-            setCostCenter(project.cost_center || '')
-            if (project.client_id) setClientId(project.client_id);
-            // fetch project memories
+            // fetch latest project details from server to ensure cost_center and other fields are present
             (async () => {
+                try {
+                    const rProj = await fetch(`/api/projects?id=${project.id}`)
+                    if (rProj.ok) {
+                        const jProj = await rProj.json()
+                        const srv = jProj.project || project
+                        setName(srv.name || project.name || '')
+                        setCostCenter(srv.cost_center || project.cost_center || '')
+                        if (srv.client_id) setClientId(srv.client_id)
+                    } else {
+                        // fallback to provided project object
+                        setName(project.name || '')
+                        setCostCenter(project.cost_center || '')
+                        if (project.client_id) setClientId(project.client_id)
+                    }
+                } catch (e) {
+                    console.error('Failed to fetch project details', e)
+                    setName(project.name || '')
+                    setCostCenter(project.cost_center || '')
+                    if (project.client_id) setClientId(project.client_id)
+                }
+
+                // fetch project memories
                 try {
                     const r = await fetch(`/api/project_memories?project_id=${project.id}`)
                     const j = await r.json()
@@ -109,10 +128,12 @@ export default function NewProjectModal({ open = false, project = null, onClose 
                 setSyncStatus('error')
                 setSyncError(res.error || res.reason || 'unknown')
             }
+            return res
         } catch (e) {
             console.error('startSync error', e)
             setSyncStatus('error')
             setSyncError(String(e))
+            return { ok: false, error: String(e) }
         }
     }
 
@@ -183,8 +204,18 @@ export default function NewProjectModal({ open = false, project = null, onClose 
                 }
                 try { cache.setProjectMemories(newProject.id, selected.map(t => ({ type: t }))) } catch (e) { console.error(e) }
                 setSyncStatus('pending')
-                startSync()
+                // wait for background sync to complete so server-side counts reflect the new memories
+                const syncRes = await startSync()
+                if (!syncRes.ok || (syncRes.remaining && syncRes.remaining.length > 0)) {
+                    // if sync failed, surface a warning but still proceed (user chose wait-for-sync)
+                    const msg = syncRes.error || (syncRes.remaining ? `Failed to sync ${syncRes.remaining.length} ops` : 'Unknown sync error')
+                    setSyncStatus('error')
+                    setSyncError(msg)
+                    // optionally alert the user
+                    alert('Warning: some memory operations failed to sync. The project was created but memory counts may be incomplete.')
+                }
 
+                // now inform parent (dashboard) that project was created; dashboard will reload projects from server
                 onCreated && onCreated(newProject)
                 // reset
                 setName('')
@@ -267,18 +298,7 @@ export default function NewProjectModal({ open = false, project = null, onClose 
                             </div>
                         </div>
                         <div className="meta" style={{ marginTop: 10 }}>Tip: click Select to mark memories to be created. When you press "Create project" those selected memories will be added to the new project.</div>
-                        {/* DEBUG: visible only for diagnostics */}
-                        <div style={{ marginTop: 12 }}>
-                            <details open style={{ background: '#fff', padding: 8, borderRadius: 8, border: '1px solid rgba(0,0,0,0.04)' }}>
-                                <summary style={{ cursor: 'pointer', fontWeight: 700, marginBottom: 6 }}>Debug: fetched memories & normalized map</summary>
-                                <div style={{ maxHeight: 200, overflow: 'auto' }}>
-                                    <div style={{ fontSize: 12, color: '#374151', marginBottom: 6 }}>fetched raw memories (from /api/project_memories):</div>
-                                    <pre style={{ whiteSpace: 'pre-wrap', fontSize: 12, background: '#f9fafb', padding: 8, borderRadius: 6 }}>{JSON.stringify(debugFetchedMemories, null, 2)}</pre>
-                                    <div style={{ fontSize: 12, color: '#374151', marginTop: 8, marginBottom: 6 }}>normalized existing map (keys used to mark buttons):</div>
-                                    <pre style={{ whiteSpace: 'pre-wrap', fontSize: 12, background: '#f9fafb', padding: 8, borderRadius: 6 }}>{JSON.stringify(debugExistingMap, null, 2)}</pre>
-                                </div>
-                            </details>
-                        </div>
+                        {/* Debug panel removed - no longer needed */}
                     </div>
                 </form>
             </div>
