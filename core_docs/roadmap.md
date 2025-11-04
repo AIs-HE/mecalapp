@@ -1,6 +1,6 @@
 # Roadmap & Changelog (Backend-focused)
 
-**Last Updated:** 2025-11-01
+**Last Updated:** 2025-11-04
 
 Purpose
 -------
@@ -43,6 +43,7 @@ Changelog (selected)
 
  - 2025-11-04 - Assignment API & UI: updated `pages/api/memory_assignments.js` POST to perform an update-if-exists by `memory_id` (ensuring a memory can only have one active assignment). Added `components/AssignMemoryModal.jsx` and wiring in `components/MemoryCard.jsx` so the UI displays assigned user's full name. Recommend using `audit_logs` to preserve assignment history and adding a DB unique index on `memory_id` after deduplication.
  - 2025-11-04 - Memory types mapping: added `data/memory_types.json` and wired `components/MemoryCard.jsx` to show canonical full memory names (e.g., `CIRCUIT` -> `CIRCUIT DIMENSION`). The temporary Help link on cards was removed from the POC.
+ - 2025-11-04 - API hardening & smoke test: example server APIs were hardened to derive the acting user's id server-side from Authorization Bearer tokens or the `sb-access-token` cookie (the example routes no longer accept `user_id` query params). Assignment POSTs require an authenticated actor and set `assigned_by` server-side. A local smoke test was executed during POC verification that created a project and two memories and validated memory counts.
 
 Developer notes
 ---------------

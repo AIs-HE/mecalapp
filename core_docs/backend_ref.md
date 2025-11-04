@@ -101,6 +101,12 @@ Additional POC and API deltas (2025-11-01)
 Notes for backend authors (delta):
 - The example API routes under `pages/api/*` are intentionally thin admin helpers for the POC and bypass RLS. Treat them as examples only; production code must rely on validated server-side access patterns and must not leak the service role key.
 
+POC security & API hardening (2025-11-04)
+----------------------------------------
+- Server APIs (example `pages/api/*`) were updated to derive the requesting user's id server-side from the Authorization Bearer token or the `sb-access-token` cookie instead of trusting a `user_id` query parameter. This reduces spoofing risk for user-scoped responses and ensures the acting user is attributable for assignment actions.
+- Assignment behaviour: the example `memory_assignments` POST now requires an authenticated actor (the server sets `assigned_by`) and implements update-or-insert semantics keyed by `memory_id`. The route also performs a lightweight dedupe cleanup when duplicate assignment rows are detected. Recommendation: run a dedicated DB migration to remove duplicates and then add a UNIQUE index/constraint on `memory_id` to enforce one-active-assignment at the DB level; preserve history in `audit_logs`.
+- Developer note: server-only env vars (for example `SUPABASE_SERVICE_ROLE_KEY`) must be present in the running environment and the Next.js dev server restarted after edits so server routes pick up updated values. Several transient 500s encountered during development were caused by stale server env/state.
+
 
 Security reminder: The presence of `lib/supabaseAdmin.js` and server API routes is for example/admin flows only. Never expose or commit the `SUPABASE_SERVICE_ROLE_KEY`; ensure server routes that use the admin client are protected and audited.
 6. Update "Last Updated" date at the top

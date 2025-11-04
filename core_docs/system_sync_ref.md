@@ -1,6 +1,6 @@
 # System Sync Reference - MecalApp (Backend-focused)
 
-**Last Updated:** 2025-11-01
+**Last Updated:** 2025-11-04
 
 Purpose
 -------
@@ -48,6 +48,12 @@ Implementation deltas (2025-11-01)
 - Frontend modal: `components/NewProjectModal.jsx` now prefetches `project_memories` for edit mode and normalizes rows that might include `type` or `memory_type`. The modal presents a vertical memory gallery with toggles that stage operations locally.
 - Local staging & sync: `lib/cache.js` provides a small localStorage-backed cache and an ops queue. Toggle actions are enqueued locally and a background `syncQueue()` pushes staged create/delete ops to the example API endpoints to provide optimistic/offline-like behaviour in the POC.
 - Developer note: during iterations several 500 errors were caused by schema mismatches (expecting `type` vs `memory_type`) and by the dev server not picking up server-only env vars. Restart the Next dev server after editing `.env.local` so server routes pick up `SUPABASE_SERVICE_ROLE_KEY`.
+
+POC security & API hardening (2025-11-04)
+---------------------------------------
+- Server-side auth derivation: example server APIs (`pages/api/*`) were changed to derive the requesting user's id server-side from an Authorization Bearer token or the `sb-access-token` cookie instead of relying on a `user_id` query parameter. Clients must attach the user's access token for employee-scoped requests.
+- Assignment semantics: the example `memory_assignments` POST now requires the acting user (server sets `assigned_by`) and performs update-or-insert semantics keyed by `memory_id`. The route also tries to dedupe older duplicate rows when it finds them. Production guidance: run a DB migration to clean duplicates and then add a UNIQUE index/constraint on `memory_id`, preserving history in `audit_logs`.
+- Local staging & sync: the POC uses `lib/cache.js` for local staging of toggle ops and a background `syncQueue()` for pushing operations to the example API; this is intentionally lightweight and intended for dev/POC only.
 
 Implementation note: these are UI/tooling conveniences for the POC and do not change the canonical API or RLS policies. When porting to a production frontend, move inline styles to CSS/Tailwind, add aria attributes and keyboard testing, and ensure server routes using the admin client remain server-only.
 

@@ -1,7 +1,7 @@
 ### ProjectContext
 *** Frontend Concepts Guide (ARCHIVAL) ***
 
-**Last Updated:** 2025-11-01
+**Last Updated:** 2025-11-04
 
 Purpose
 -------
@@ -65,6 +65,14 @@ POC deltas & new examples (2025-11-01)
 - Debugging aids: the modal contains a temporary debug panel showing the raw `/api/project_memories` response and the normalized map to help iterate mapping issues quickly during development.
  - Assignment workflow and UI: `components/AssignMemoryModal.jsx` and `components/MemoryCard.jsx` provide a small admin assignment UX. The example assignment API (`pages/api/memory_assignments.js`) was updated so POST behaves as update-or-insert for the same `memory_id` (ensuring one active assignment per memory) and will remove older duplicate rows if present. The MemoryCard displays the assigned user's full name.
  - Memory types mapping: a local lookup file `data/memory_types.json` maps memory short types to canonical display names (for example `CIRCUIT` -> `CIRCUIT DIMENSION`). `components/MemoryCard.jsx` now uses this mapping to derive the title shown on cards; the transient Help link was removed from the POC.
+
+POC security & server changes (2025-11-04)
+-----------------------------------------
+- Server-side auth hardening: example server routes under `pages/api/*` were updated to derive the acting user's id server-side from an Authorization Bearer token or from the `sb-access-token` cookie. The APIs no longer accept a `user_id` query parameter for user-scoped responses. This reduces the risk of client-side spoofing for employee-scoped queries. These `pages/api/*` routes remain admin/testing helpers and bypass RLS — treat them as development-only utilities.
+- Assignment semantics: the `memory_assignments` example POST now requires an authenticated acting user (the server sets `assigned_by`) and performs update-or-insert behavior keyed by `memory_id` so a single memory has at most one active assignment in practice. The server also performs lightweight dedupe cleanup when duplicates are detected. For production, run a DB migration to dedupe existing rows and add a UNIQUE index/constraint on `memory_id` and preserve assignment history in `audit_logs`.
+- Local cache & ops queue: the New Project modal and memory toggle UI use `lib/cache.js`, a small localStorage-backed staging area plus an ops queue and background `syncQueue()` that pushes operations to example API endpoints for optimistic/offline-like UX during development. Replace or upgrade this approach for production sync needs.
+
+Developer note: after editing server-only environment variables (for example `SUPABASE_SERVICE_ROLE_KEY`) restart the Next.js dev server so server routes pick up the new values; several transient 500s during development were caused by stale server env/state.
 
 Implementation guidance:
 - These example API routes run with the admin/service Supabase client and bypass RLS. Treat them as development/admin helpers only — production endpoints should validate session/roles and never expose the service role key in client code.

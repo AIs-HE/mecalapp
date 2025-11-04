@@ -88,6 +88,12 @@ Additional deltas (2025-11-01)
  - Memory types mapping: A small local lookup `data/memory_types.json` was added and `components/MemoryCard.jsx` now uses this mapping to display the canonical full memory name (e.g., `CIRCUIT` -> `CIRCUIT DIMENSION`). The POC removed the previously visible 'Help' link from the card title.
 - Debugging aids: the New Project modal contains a temporary debug panel that shows the raw API response and the normalized map so developers can quickly validate mapping behavior during iteration.
 
+POC security & API hardening (2025-11-04)
+---------------------------------------
+- Server APIs used by the POC were hardened so the server derives the requesting user's id from an Authorization Bearer token or the `sb-access-token` cookie. The example routes no longer accept a `user_id` query parameter for user-scoped results. Assignment POSTs require an authenticated actor and set `assigned_by` server-side to ensure proper attribution.
+- Assignment semantics: the example `memory_assignments` POST performs update-or-insert semantics keyed by `memory_id` and removes older duplicate rows when detected. It is recommended to run a DB migration to dedupe existing rows and add a UNIQUE index on `memory_id` if you plan to enforce one-active-assignment at the DB level; persist history in `audit_logs`.
+- Local developer note: a small local smoke test was executed during POC iteration to validate end-to-end example flows (project + memory creation and memory counts). When changing server-only environment variables (for example `SUPABASE_SERVICE_ROLE_KEY`) restart the Next.js dev server so routes pick up updated values — several transient 500s found during development were caused by stale server env/state.
+
 Dev note: server-side environment variables (for example `SUPABASE_SERVICE_ROLE_KEY`) must be present in the running environment — restart the Next.js dev server after `.env.local` edits so server routes pick up updated values.
 
 Reminder: this POC is for reference only — backend RLS, migrations, and schema remain authoritative and unchanged by the POC.
