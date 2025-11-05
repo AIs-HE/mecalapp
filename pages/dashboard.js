@@ -73,7 +73,17 @@ export default function Dashboard() {
         if (!user) return
         setLoading(true)
         try {
-            const res = await fetch('/api/projects')
+            // If the current user is an employee, request a user-scoped project list
+            // by attaching the user's access token as an Authorization header. The server
+            // derives the user from the token and will return only projects with assigned memories.
+            const url = '/api/projects'
+            const headers = { 'Content-Type': 'application/json' }
+            if (role === 'employee') {
+                const { data } = await supabase.auth.getSession()
+                const token = data?.session?.access_token
+                if (token) headers['Authorization'] = `Bearer ${token}`
+            }
+            const res = await fetch(url, { headers })
             const json = await res.json()
             if (res.ok) setProjects(json.projects || [])
             else console.error('Failed to load projects', json)
@@ -81,7 +91,7 @@ export default function Dashboard() {
         setLoading(false)
     }
 
-    useEffect(() => { loadProjects() }, [user])
+    useEffect(() => { loadProjects() }, [user, role])
 
     async function handleSignOut() {
         await supabase.auth.signOut()
@@ -97,7 +107,7 @@ export default function Dashboard() {
 
             <main className="p-5 max-w-5xl mx-auto flex-1 w-full box-border overflow-y-auto">
                 {selectedProject ? (
-                    <ProjectMemoriesView project={selectedProject} isAdmin={isAdmin} onBack={() => setSelectedProject(null)} onEditProject={(proj) => { setEditProject(proj); setShowNewProject(true); }} refreshSignal={memRefreshSignal} />
+                    <ProjectMemoriesView project={selectedProject} isAdmin={isAdmin} user={user} onBack={() => setSelectedProject(null)} onEditProject={(proj) => { setEditProject(proj); setShowNewProject(true); }} refreshSignal={memRefreshSignal} />
                 ) : (
                     <section>
                         <div className="projects-panel bg-gray-50/60 rounded-lg p-4">
@@ -109,7 +119,11 @@ export default function Dashboard() {
                                 <div>Loading projects…</div>
                             ) : (
                                 <div className="projects-inner">
-                                    <div ref={scrollRef} className="projects-scroll max-h-[60vh] overflow-y-auto pr-2">
+                                    <div
+                                        ref={scrollRef}
+                                        className="projects-scroll max-h-[60vh] overflow-y-auto pr-2"
+                                        style={projects.length === 0 ? { minHeight: '13rem' } : undefined}
+                                    >
                                         <div className="grid gap-3" style={{ gridTemplateColumns: 'repeat(auto-fill,minmax(260px,1fr))' }}>
                                             {projects.length > 0 && projects.map(p => (
                                                 <ProjectCard key={p.id} project={p} onClick={() => setSelectedProject(p)} isAdmin={isAdmin}
@@ -126,7 +140,7 @@ export default function Dashboard() {
                                                 />
                                             ))}
 
-                                            {(projects.length === 0 || isAdmin) && (
+                                            {isAdmin && (
                                                 <AddProjectCard onClick={() => { setEditProject(null); setShowNewProject(true); }} />
                                             )}
                                         </div>
@@ -148,7 +162,7 @@ export default function Dashboard() {
     )
 }
 
-function ProjectMemoriesView({ project, isAdmin, onBack, onEditProject, refreshSignal }) {
+function ProjectMemoriesView({ project, isAdmin, user, onBack, onEditProject, refreshSignal }) {
     const [memories, setMemories] = useState([])
     const [loading, setLoading] = useState(true)
     const [error, setError] = useState(null)
@@ -159,7 +173,14 @@ function ProjectMemoriesView({ project, isAdmin, onBack, onEditProject, refreshS
             setLoading(true)
             setError(null)
             try {
-                const res = await fetch(`/api/project_memories?project_id=${project.id}`)
+                const url = `/api/project_memories?project_id=${project.id}`
+                const headers = { 'Content-Type': 'application/json' }
+                if (!isAdmin) {
+                    const { data } = await supabase.auth.getSession()
+                    const token = data?.session?.access_token
+                    if (token) headers['Authorization'] = `Bearer ${token}`
+                }
+                const res = await fetch(url, { headers })
                 if (!res.ok) {
                     const j = await res.json().catch(() => ({}))
                     throw new Error(j.error || `Failed to load memories (${res.status})`)
@@ -176,11 +197,18 @@ function ProjectMemoriesView({ project, isAdmin, onBack, onEditProject, refreshS
         }
         load()
         return () => { mounted = false }
-    }, [project?.id, refreshSignal])
+    }, [project?.id, refreshSignal, user?.id, isAdmin])
 
     async function refresh() {
         try {
-            const res = await fetch(`/api/project_memories?project_id=${project.id}`)
+            const url = `/api/project_memories?project_id=${project.id}`
+            const headers = { 'Content-Type': 'application/json' }
+            if (!isAdmin) {
+                const { data } = await supabase.auth.getSession()
+                const token = data?.session?.access_token
+                if (token) headers['Authorization'] = `Bearer ${token}`
+            }
+            const res = await fetch(url, { headers })
             const j = await res.json()
             setMemories(j.memories || [])
         } catch (e) {
@@ -214,7 +242,7 @@ function ProjectMemoriesView({ project, isAdmin, onBack, onEditProject, refreshS
                         <div className="projects-scroll max-h-[60vh] overflow-y-auto pr-2">
                             <div className="grid gap-3 mt-3" style={{ gridTemplateColumns: 'repeat(auto-fill,minmax(260px,1fr))' }}>
                                 {loading && <div className="col-span-full text-gray-500">Loading memories…</div>}
-                                {!loading && memories.length === 0 && (
+                                {!loading && memories.length === 0 && !isAdmin && (
                                     <div className="col-span-full text-gray-500">No memories found for this project.</div>
                                 )}
                                 {!loading && memories.map(m => (

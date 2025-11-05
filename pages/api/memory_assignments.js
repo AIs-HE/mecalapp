@@ -7,13 +7,49 @@ export default async function handler(req, res) {
         return res.status(500).json({ error: 'Server misconfiguration: missing Supabase admin credentials. Set SUPABASE_SERVICE_ROLE_KEY and NEXT_PUBLIC_SUPABASE_URL in .env.local' })
     }
 
+    // helpers
+    async function deriveUserId(req) {
+        const auth = req.headers?.authorization || req.headers?.Authorization || ''
+        if (auth && auth.toLowerCase().startsWith('bearer ')) {
+            const token = auth.split(' ')[1]
+            try {
+                const { data, error } = await supabaseAdmin.auth.getUser(token)
+                if (!error && data && data.user && data.user.id) return data.user.id
+            } catch (e) { /* ignore */ }
+        }
+        const cookies = req.headers?.cookie || ''
+        const match = cookies.match(/sb-access-token=([^;\s]+)/)
+        if (match) {
+            try {
+                const token = decodeURIComponent(match[1])
+                const { data, error } = await supabaseAdmin.auth.getUser(token)
+                if (!error && data && data.user && data.user.id) return data.user.id
+            } catch (e) { /* ignore */ }
+        }
+        return null
+    }
+
+    function genRequestId() { return `${Date.now()}-${Math.random().toString(36).slice(2, 10)}` }
+
+    async function insertAudit({ table_name, record_id, action, user_id = null, changes = null, source = null, request_id = null }) {
+        try {
+            await supabaseAdmin.from('audit_logs').insert([{ table_name, record_id, action, user_id, changes, source, request_id }])
+        } catch (e) { console.debug('Failed to write audit log', e) }
+    }
+
     try {
         if (req.method === 'POST') {
-            const { memory_id, user_id, assigned_by } = req.body || {}
+            const { memory_id, user_id } = req.body || {}
             if (!memory_id || !user_id) return res.status(400).json({ error: 'memory_id and user_id are required' })
 
-            const payload = { memory_id, user_id }
-            if (assigned_by) payload.assigned_by = assigned_by
+            // require an authenticated actor to set assigned_by (prevent spoofing)
+            const derivedActingUser = await deriveUserId(req)
+            if (!derivedActingUser) {
+                return res.status(401).json({ error: 'Authorization required to assign memory. Include a Bearer token or sb-access-token cookie.' })
+            }
+            const assigned_by = derivedActingUser
+
+            const payload = { memory_id, user_id, assigned_by }
 
             // Ensure a memory has at most one assignment. If an assignment already exists for this memory,
             // update it to point to the new user. Otherwise insert a new assignment.
@@ -45,6 +81,7 @@ export default async function handler(req, res) {
                             console.debug('Failed to clean duplicate memory_assignments', e)
                         }
                     }
+
                 } else {
                     // create the assignment
                     const { data: created, error: insertErr } = await supabaseAdmin.from('memory_assignments').insert(payload).select('id,memory_id,user_id,assigned_at,assigned_by').single()
@@ -53,6 +90,7 @@ export default async function handler(req, res) {
                         return res.status(500).json({ error: insertErr.message || String(insertErr), details: insertErr })
                     }
                     assignment = created
+
                 }
             } catch (e) {
                 console.error('API /api/memory_assignments POST unexpected error', e)
@@ -75,18 +113,52 @@ export default async function handler(req, res) {
             const { id, memory_id, user_id } = req.body || {}
             if (!id && !(memory_id && user_id)) return res.status(400).json({ error: 'id or (memory_id and user_id) required' })
 
+            // capture rows to be deleted for audit
+            let fetchQ = supabaseAdmin.from('memory_assignments').select('id,memory_id,user_id,assigned_at,assigned_by')
+            if (id) fetchQ = fetchQ.eq('id', id)
+            else fetchQ = fetchQ.eq('memory_id', memory_id).eq('user_id', user_id)
+            const { data: rowsToDelete, error: fetchErr } = await fetchQ
+            if (fetchErr) return res.status(500).json({ error: fetchErr.message || String(fetchErr) })
+
             let q = supabaseAdmin.from('memory_assignments').delete()
             if (id) q = q.eq('id', id)
             else q = q.eq('memory_id', memory_id).eq('user_id', user_id)
 
             const { error } = await q
             if (error) throw error
+
+            // note: audit for memory_assignments is performed by the DB trigger (trigger.memory_assignments)
+            // to avoid duplicate rows we do not insert API-level audit entries here.
+
             return res.status(200).json({ ok: true })
         }
 
         if (req.method === 'GET') {
             // optional query params: memory_id or user_id
-            const { memory_id, user_id } = req.query || {}
+            const { memory_id } = req.query || {}
+            // derive user id server-side if a caller wants their assignments
+            async function deriveUserId(req) {
+                const auth = req.headers?.authorization || req.headers?.Authorization || ''
+                if (auth && auth.toLowerCase().startsWith('bearer ')) {
+                    const token = auth.split(' ')[1]
+                    try {
+                        const { data, error } = await supabaseAdmin.auth.getUser(token)
+                        if (!error && data && data.user && data.user.id) return data.user.id
+                    } catch (e) { /* ignore */ }
+                }
+                const cookies = req.headers?.cookie || ''
+                const match = cookies.match(/sb-access-token=([^;\s]+)/)
+                if (match) {
+                    try {
+                        const token = decodeURIComponent(match[1])
+                        const { data, error } = await supabaseAdmin.auth.getUser(token)
+                        if (!error && data && data.user && data.user.id) return data.user.id
+                    } catch (e) { /* ignore */ }
+                }
+                return null
+            }
+
+            const user_id = await deriveUserId(req)
             // fetch assignments
             let q = supabaseAdmin.from('memory_assignments').select('id,memory_id,user_id,assigned_at,assigned_by')
             if (memory_id) q = q.eq('memory_id', memory_id)

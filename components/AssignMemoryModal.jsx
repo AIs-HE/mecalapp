@@ -12,7 +12,14 @@ export default function AssignMemoryModal({ open = false, memory = null, onClose
         async function load() {
             setLoading(true)
             try {
-                const res = await fetch('/api/profiles')
+                // include Authorization header when available so server can derive user if needed
+                let headers = { 'Content-Type': 'application/json' }
+                try {
+                    const sess = await supabase.auth.getSession()
+                    const token = sess?.data?.session?.access_token
+                    if (token) headers.Authorization = `Bearer ${token}`
+                } catch (e) { /* ignore */ }
+                const res = await fetch('/api/profiles', { headers })
                 const j = await res.json()
                 if (res.ok) {
                     setProfiles(j.profiles || [])
@@ -34,17 +41,19 @@ export default function AssignMemoryModal({ open = false, memory = null, onClose
         if (!selectedUser) return alert('Choose a user')
         setSaving(true)
         try {
-            // try to get current user id to set assigned_by (best-effort)
-            let assigned_by = null
+            // include Authorization bearer token so server can derive acting user
+            let headers = { 'Content-Type': 'application/json' }
             try {
                 const sess = await supabase.auth.getSession()
-                assigned_by = sess?.data?.session?.user?.id || null
+                const token = sess?.data?.session?.access_token
+                if (token) headers.Authorization = `Bearer ${token}`
             } catch (e) { /* ignore */ }
 
             const res = await fetch('/api/memory_assignments', {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ memory_id: memory.id, user_id: selectedUser, assigned_by })
+                headers,
+                // server derives assigned_by from token; do not send assigned_by in body
+                body: JSON.stringify({ memory_id: memory.id, user_id: selectedUser })
             })
             const j = await res.json()
             if (!res.ok) throw new Error(j.error || 'Failed to assign')
