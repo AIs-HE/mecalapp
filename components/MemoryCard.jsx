@@ -1,10 +1,12 @@
 import React, { useState, useRef, useEffect } from 'react'
+import { useRouter } from 'next/router'
 import AssignMemoryModal from './AssignMemoryModal'
 import memoryTypes from '../data/memory_types.json'
 
 export default function MemoryCard({ memory, isAdmin, onDelete = () => { } }) {
     const { name, version, created_at, updated_at, type, memory_type } = memory || {}
     const displayType = type || memory_type || ''
+    const router = useRouter()
     // derive full memory name and help link from local JSON table
     const normalizedType = (displayType || '').toString().toUpperCase()
     const typeMeta = memoryTypes[normalizedType] || null
@@ -98,6 +100,18 @@ export default function MemoryCard({ memory, isAdmin, onDelete = () => { } }) {
         <div
             className="bg-white rounded-xl p-5 shadow-md cursor-pointer transition-transform duration-150 hover:-translate-y-1 border-l-4 flex flex-col justify-between relative overflow-hidden project-card"
             style={{ borderLeftColor: 'var(--color-main)', minHeight: '11rem' }}
+            onClick={(e) => {
+                // ignore clicks that originate from controls that stopPropagation
+                try {
+                    const t = String(displayType || '').toLowerCase() || 'unknown'
+                    const pid = memory?.project_id || memory?.projectId || ''
+                    const mid = memory?.id || ''
+                    const path = `/calc/${encodeURIComponent(t)}?memory_id=${encodeURIComponent(mid)}&project_id=${encodeURIComponent(pid)}`
+                    router.push(path)
+                } catch (err) {
+                    console.debug('Failed to navigate to calc page', err)
+                }
+            }}
         >
             <div className="relative" style={{ zIndex: 10, paddingRight: 44 }}>
                 <div className="text-lg font-extrabold text-gray-900">{memoryFullName}</div>
