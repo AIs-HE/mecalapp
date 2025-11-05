@@ -1,6 +1,6 @@
 # Backend Reference - MecalApp
 
-**Last Updated:** 2025-11-04  
+**Last Updated:** 2025-11-05  
 **Note:** Updated to reflect recent POC deltas (assignment API behaviour, local memory types mapping, and example admin API updates).
 **Project Phase:** Phase 1 - Core Infrastructure
 
@@ -107,6 +107,27 @@ POC security & API hardening (2025-11-04)
 - Assignment behaviour: the example `memory_assignments` POST now requires an authenticated actor (the server sets `assigned_by`) and implements update-or-insert semantics keyed by `memory_id`. The route also performs a lightweight dedupe cleanup when duplicate assignment rows are detected. Recommendation: run a dedicated DB migration to remove duplicates and then add a UNIQUE index/constraint on `memory_id` to enforce one-active-assignment at the DB level; preserve history in `audit_logs`.
 - Developer note: server-only env vars (for example `SUPABASE_SERVICE_ROLE_KEY`) must be present in the running environment and the Next.js dev server restarted after edits so server routes pick up updated values. Several transient 500s encountered during development were caused by stale server env/state.
 
+Audit logging (current POC state and recommendations)
+----------------------------------------------------
+- Migration status: An `audit_logs` table and helper RPC were applied to the Supabase DB during POC iteration (SQL migration executed by operator on 2025-11-04/2025-11-05).
+- Current behaviour in workspace:
+  - Example server APIs for projects and project_memories insert API-level audit rows (these remain in the server example routes in `pages/api/projects.js` and `pages/api/project_memories.js`).
+  - `memory_assignments` audit events are produced by a DB trigger (`trg_audit_memory_assignments`) to guarantee low-level, append-only audit records. During iteration API-level audit writes for assignments were removed to avoid duplicate rows (the trigger is the canonical source for assignment events).
+
+- Recommendation and rationale:
+  - Prefer a single source of truth for low-level change events. For row-level assignment changes the DB trigger is the most reliable (it captures changes regardless of the caller: UI, API, or background job).
+  - If you need request-scoped context (for example `request_id` or caller IP) to appear in trigger-originated audit rows, propagate a per-request session variable from the API before performing DML. Example (server-side, before DML):
+
+    SELECT set_config('request.request_id', '<uuid-v4-here>', true);
+
+    This sets a session-local config value that triggers can read (via current_setting) and store in `audit_logs.request_id`. Without this propagation triggers will record `request_id` as NULL.
+
+  - Avoid inserting audit rows for the same low-level event both in DB triggers and in API code; this causes duplicates and complicates dedup/forensics.
+
+- Suggested follow-ups:
+  1. Decide whether to keep trigger-only audit for assignment events (recommended) or to implement session propagation + trigger so triggers include `request_id` (recommended if you require HTTP-level traceability inside trigger logs).
+ 2. If you prefer to annotate trigger logs with request ids, update API routes to call `select set_config('request.request_id', '<uuid>', true)` (or an RPC wrapper) prior to DML. Use a stable UUID generator for `request_id` and log the same UUID in any API-level audit rows you add for multi-row business events.
+ 3. Add integration tests that perform assign/unassign flows and assert a single audit row per logical action after the chosen strategy is implemented.
 
 Security reminder: The presence of `lib/supabaseAdmin.js` and server API routes is for example/admin flows only. Never expose or commit the `SUPABASE_SERVICE_ROLE_KEY`; ensure server routes that use the admin client are protected and audited.
 6. Update "Last Updated" date at the top

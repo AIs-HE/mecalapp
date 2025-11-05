@@ -1,7 +1,7 @@
 ### ProjectContext
 *** Frontend Concepts Guide (ARCHIVAL) ***
 
-**Last Updated:** 2025-11-04
+**Last Updated:** 2025-11-05
 
 Purpose
 -------
@@ -64,6 +64,8 @@ POC deltas & new examples (2025-11-01)
 - Local cache & sync: `lib/cache.js` provides a localStorage-backed cache and an ops queue used by the modal to enqueue create/delete memory ops. A background `syncQueue()` pushes staged ops to the example API endpoints to give optimistic/offline-like behavior for the POC.
 - Debugging aids: the modal contains a temporary debug panel showing the raw `/api/project_memories` response and the normalized map to help iterate mapping issues quickly during development.
  - Assignment workflow and UI: `components/AssignMemoryModal.jsx` and `components/MemoryCard.jsx` provide a small admin assignment UX. The example assignment API (`pages/api/memory_assignments.js`) was updated so POST behaves as update-or-insert for the same `memory_id` (ensuring one active assignment per memory) and will remove older duplicate rows if present. The MemoryCard displays the assigned user's full name.
+  - Frontend fix (2025-11-04/05): `AssignMemoryModal.jsx` now attaches `Authorization: Bearer <access_token>` to user-scoped API requests (for example `/api/memory_assignments` and `/api/profiles`). The server derives `assigned_by` from the token; clients must not send `assigned_by` in the request body. This resolved a 401 seen during POC testing when the header was missing.
+  - Audit note: assignment audit events are recorded by a DB trigger in the POC and the API-level audit writes for `memory_assignments` were removed to avoid duplicate audit rows. If you require HTTP-level metadata (request_id) in trigger logs, implement request/session propagation from the API before DML so triggers can capture it.
  - Memory types mapping: a local lookup file `data/memory_types.json` maps memory short types to canonical display names (for example `CIRCUIT` -> `CIRCUIT DIMENSION`). `components/MemoryCard.jsx` now uses this mapping to derive the title shown on cards; the transient Help link was removed from the POC.
 
 POC security & server changes (2025-11-04)

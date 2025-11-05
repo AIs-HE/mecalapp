@@ -1,6 +1,6 @@
 # Roadmap & Changelog (Backend-focused)
 
-**Last Updated:** 2025-11-04
+**Last Updated:** 2025-11-05
 
 Purpose
 -------
@@ -44,6 +44,10 @@ Changelog (selected)
  - 2025-11-04 - Assignment API & UI: updated `pages/api/memory_assignments.js` POST to perform an update-if-exists by `memory_id` (ensuring a memory can only have one active assignment). Added `components/AssignMemoryModal.jsx` and wiring in `components/MemoryCard.jsx` so the UI displays assigned user's full name. Recommend using `audit_logs` to preserve assignment history and adding a DB unique index on `memory_id` after deduplication.
  - 2025-11-04 - Memory types mapping: added `data/memory_types.json` and wired `components/MemoryCard.jsx` to show canonical full memory names (e.g., `CIRCUIT` -> `CIRCUIT DIMENSION`). The temporary Help link on cards was removed from the POC.
  - 2025-11-04 - API hardening & smoke test: example server APIs were hardened to derive the acting user's id server-side from Authorization Bearer tokens or the `sb-access-token` cookie (the example routes no longer accept `user_id` query params). Assignment POSTs require an authenticated actor and set `assigned_by` server-side. A local smoke test was executed during POC verification that created a project and two memories and validated memory counts.
+
+ - 2025-11-05 - Audit migration & audit behavior: `audit_logs` table and helper RPC were applied in the Supabase project. Example API routes insert audit rows for projects and project_memories; `memory_assignments` audit events are produced by a DB trigger to avoid duplicate rows. Recommendation: either rely on triggers (canonical) or propagate a `request_id` into the DB session from the API before DML so triggers can capture request-level metadata.
+ - 2025-11-05 - Frontend fix: `components/AssignMemoryModal.jsx` updated to attach `Authorization: Bearer <access_token>` to user-scoped requests; server now derives `assigned_by` from the token (clients must not send `assigned_by`). This resolved a 401 encountered during manual testing.
+ - 2025-11-05 - Docs: updated core docs to include audit and auth deltas and pushed the updates to `backup/remove-frontend-copy` branch.
 
 Developer notes
 ---------------

@@ -1,6 +1,6 @@
 # System Sync Reference - MecalApp (Backend-focused)
 
-**Last Updated:** 2025-11-04
+**Last Updated:** 2025-11-05
 
 Purpose
 -------
@@ -97,9 +97,10 @@ Below are the expected request and response shapes for the main flows. All reque
   - Response: created memory row
 
 5) Assign memory
-  - Request: { memory_id: uuid, user_id: uuid, assigned_by: uuid }
+  - Request: { memory_id: uuid, user_id: uuid }
   - Response: memory_assignments row (POC note: the example admin POST now performs an update-if-exists by memory_id to ensure a memory has at most one active assignment; it returns the resulting assignment with attached `user` profile information)
   - Note: For audit/history preserve assignment changes in `audit_logs` rather than storing multiple active assignment rows for the same memory. A DB-level unique index on `memory_id` is recommended after cleaning duplicates.
+  - Client behavior: clients must not send `assigned_by` — the server derives the acting user from the access token or `sb-access-token` cookie and sets `assigned_by` on the resulting row. Ensure the frontend attaches `Authorization: Bearer <access_token>` for user-scoped assignment requests.
 
 Error handling principles
 -------------------------

@@ -1,6 +1,6 @@
 # Complete Reference - MecalApp Project (Backend/Architecture Focus)
 
-**Last Updated:** 2025-11-01
+**Last Updated:** 2025-11-05
 **Last Updated (updated):** 2025-11-04
 **Project Phase:** Phase 1 - Core Infrastructure
 
@@ -96,7 +96,20 @@ POC security & API hardening (2025-11-04)
 
 Dev note: server-side environment variables (for example `SUPABASE_SERVICE_ROLE_KEY`) must be present in the running environment — restart the Next.js dev server after `.env.local` edits so server routes pick up updated values.
 
-Reminder: this POC is for reference only — backend RLS, migrations, and schema remain authoritative and unchanged by the POC.
+-Reminder: this POC is for reference only — backend RLS, migrations, and schema remain authoritative and unchanged by the POC.
+
+Audit logging & request propagation (2025-11-05)
+------------------------------------------------
+- Migration state: an `audit_logs` table and helper RPC were applied in the Supabase project during POC iteration (migration executed by the operator in the Supabase SQL editor).
+- Current repo behaviour:
+	- Example API routes for projects and project_memories insert API-level audit rows for higher-level business events.
+	- For `memory_assignments` audit rows are produced by a DB trigger (`trg_audit_memory_assignments`) and API-level audit writes for assignments were removed to avoid duplicates; the trigger is canonical for assignment events.
+
+- If you require HTTP-level traceability in trigger-originated audit rows, propagate a per-request `request_id` from the API into the PostgreSQL session before DML. Example server-side call (once per request before DML):
+
+		SELECT set_config('request.request_id', '<uuid-v4>', true);
+
+	Triggers can then call `current_setting('request.request_id', true)` and persist that value into audit rows so audit logs include both the DB-level event and HTTP request correlation.
 
 Notes:
 - The POC intentionally uses server-side admin client only in `pages/api/*` to demonstrate how admin-only actions could be performed; these routes bypass RLS and therefore must be treated carefully and protected in production.
