@@ -49,6 +49,9 @@ Changelog (selected)
  - 2025-11-05 - Frontend fix: `components/AssignMemoryModal.jsx` updated to attach `Authorization: Bearer <access_token>` to user-scoped requests; server now derives `assigned_by` from the token (clients must not send `assigned_by`). This resolved a 401 encountered during manual testing.
  - 2025-11-05 - Docs: updated core docs to include audit and auth deltas and pushed the updates to `backup/remove-frontend-copy` branch.
 
+- 2025-11-11 - Deployment platform selection: After extensive evaluation of self-hosted ARM deployment (QNAP) vs cloud platforms, selected Vercel for production deployment due to Next.js optimization, zero configuration, and ARM binary compatibility issues with self-hosted solutions. QNAP deployment abandoned due to complex SWC/LightningCSS ARM binary conflicts on TS-x31K architecture.
+ - 2025-11-11 - Configuration cleanup: Removed all ARM-specific modifications from next.config.js and related files that were added for QNAP compatibility. Restored standard Next.js configuration suitable for Vercel deployment.
+
 Developer notes
 ---------------
 - Always use migrations for schema changes; do not edit production DB manually.

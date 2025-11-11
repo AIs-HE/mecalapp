@@ -52,6 +52,32 @@ Required environment variables (stored in `.env.local` for local dev):
 - NEXT_PUBLIC_SUPABASE_ANON_KEY — public anon key (for browser client)
 - SUPABASE_SERVICE_ROLE_KEY — server-only, for migrations/seeds (DO NOT expose in browser)
 
+Deployment Strategy (2025-11-11)
+--------------------------------
+**Selected Platform: Vercel**
+
+After evaluating multiple deployment options including self-hosted solutions (QNAP ARM), the team selected Vercel as the production deployment platform for the following reasons:
+
+**Why Vercel:**
+- Perfect Next.js integration (made by Next.js creators)
+- Zero configuration deployment
+- Global CDN with excellent performance
+- FREE tier sufficient for project needs (100GB bandwidth/month)
+- Automatic deployments from GitHub
+- Built-in SSL certificates and custom domains
+- No ARM binary compatibility issues
+
+**Abandoned Options:**
+- QNAP self-hosting: Complex ARM architecture compatibility issues with SWC and LightningCSS native binaries
+- Other platforms: More expensive or less optimized for Next.js
+
+**Deployment Process:**
+1. Push code to GitHub repository
+2. Connect Vercel to GitHub repo
+3. Configure environment variables in Vercel dashboard
+4. Automatic deployment on git push
+5. Continue using existing Supabase backend (no migration needed)
+
 Repository notes (local dev)
 ---------------------------
 - For this repository the Next.js app is located at the repo root. During local development the `.env.local` file should be present at the repo root so Next can pick up the `NEXT_PUBLIC_*` variables. The `SUPABASE_SERVICE_ROLE_KEY` must be set in the environment for server routes (CI / hosting) and must not be committed.
@@ -127,5 +153,6 @@ Where to find implementation details
 - Integration contracts and canonical types: `system_sync_ref.md`
 - Frontend concepts for future rebuilding: `frontend_ref.md`
 - Project roadmap and deployment notes: `roadmap.md`
+- Production deployment guide: `deployment_guide.md`
 
 End of Complete Reference
