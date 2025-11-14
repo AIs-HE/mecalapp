@@ -1,6 +1,6 @@
 # Backend Reference - MecalApp
 
-**Last Updated:** 2025-11-05  
+**Last Updated:** 2025-11-14
 **Note:** Updated to reflect recent POC deltas (assignment API behaviour, local memory types mapping, and example admin API updates).
 **Project Phase:** Phase 1 - Core Infrastructure
 
@@ -137,7 +137,7 @@ Security reminder: The presence of `lib/supabaseAdmin.js` and server API routes 
 
 # Backend Reference (Supabase schema, RLS, seeds)
 
-**Last Updated:** 2025-10-31
+**Last Updated:** 2025-11-14
 
 This file is the canonical SQL reference for the MecalApp Supabase backend. It includes table definitions, indexes, Row Level Security (RLS) policies, example seed data, and migration guidance. Keep this file authoritative for DB re-creation and migrations.
 
@@ -180,18 +180,34 @@ CREATE TABLE IF NOT EXISTS public.project_memories (
   id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
   project_id uuid REFERENCES public.projects(id),
   title text,
-  type text,
+  memory_type text, -- Note: canonical column is memory_type (e.g., 'circuit', 'protection', 'ducts')
   version text,
   status text DEFAULT 'open',
   created_by uuid REFERENCES public.profiles(id),
   created_at timestamptz DEFAULT now()
 );
 
+-- Circuit Dimension Memory Implementation (2025-11-05)
+-- Supports circuit dimension calculation workflow with configurable parameters
+-- JSON schema for circuit memory type configuration:
+-- {
+--   "isHighVoltage": boolean,
+--   "isSubstation": boolean,
+--   "hasManualInputs": boolean,
+--   "hasPresetTemplates": boolean,
+--   "numCircuits": number,
+--   "maxVoltage": number,
+--   "equipmentType": "indoor" | "outdoor"
+-- }
+-- Main calculation page: /calc/circuit-dimension-main
+
 -- memory_assignments: junction table linking profiles to memories
 -- NOTE (2025-11-04): The repo's POC and API evolved to treat a memory as having
 -- at most one active assignment. For audit/history keep an append-only
 -- `audit_logs` table (see below). The canonical schema recommendation is
 -- to enforce a unique constraint on memory_id to prevent duplicates at the DB level.
+-- NOTE (2025-11-05): Circuit Dimension memories (memory_type='circuit') route to
+-- /calc/circuit-dimension-main via MemoryCard navigation logic
 CREATE TABLE IF NOT EXISTS public.memory_assignments (
   id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
   memory_id uuid NOT NULL REFERENCES public.project_memories(id) ON DELETE CASCADE,
@@ -288,7 +304,7 @@ INSERT INTO public.projects (id, client_id, name, created_by) VALUES
   ('22222222-2222-2222-2222-222222222222', '11111111-1111-1111-1111-111111111111', 'Main Substation Upgrade', '00000000-0000-0000-0000-000000000001')
 ON CONFLICT (id) DO NOTHING;
 
-INSERT INTO public.project_memories (id, project_id, title, type, created_by) VALUES
+INSERT INTO public.project_memories (id, project_id, title, memory_type, created_by) VALUES
   ('33333333-3333-3333-3333-333333333333', '22222222-2222-2222-2222-222222222222', 'Initial Load Study', 'circuit', '00000000-0000-0000-0000-000000000001')
 ON CONFLICT (id) DO NOTHING;
 

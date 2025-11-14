@@ -29,28 +29,13 @@ Changelog (selected)
 - 2025-10-27 - Frontend scaffold (archived); Supabase client wiring
 - 2025-10-29 - Fixed dev build CSS parse errors; made Supabase client singleton
 - 2025-10-30 - Converted core docs to backend-first guides (preserve DB & types)
-- 2025-10-30 - Added minimal Next.js frontend at repo root (auth UI, theme, parallax) and an example server API route `pages/api/projects.js` using the admin client; removed duplicate `frontend/` copy.
-- 2025-10-30 - Implemented color palette (primary `#85B726`, secondary `#858688`) and exported it via `lib/theme.js`; added global CSS in `styles/globals.css` containing the parallax rectangles and animations.
- - 2025-10-30 - Added minimal Next.js frontend at repo root (auth UI, theme, parallax) and an example server API route `pages/api/projects.js` using the admin client; removed duplicate `frontend/` copy.
- - 2025-10-30 - Implemented color palette (primary `#85B726`, secondary `#858688`) and exported it via `lib/theme.js`; added global CSS in `styles/globals.css` containing the parallax rectangles and animations.
- - 2025-10-30 - Frontend POC expanded: added project gallery UI, `ProjectCard` (fixed-height), admin `⋯` menu (top-right placeholder), `AddProjectCard` (appears at end of grid), `BackgroundRects` decorative clump, and a full-width footer. Dashboard layout was adjusted so footer sits at page bottom and main content scrolls when long.
- - 2025-10-30 - Tooling fixes & Tailwind bootstrap: added Tailwind entry files and installed PostCSS dependencies (including `autoprefixer` and the Tailwind PostCSS adapter) to resolve Next/PostCSS pipeline issues.
- - 2025-10-30 - UI polish: project cards use a fixed height (13rem); bottom metadata blocks were reworked to equal-width items with 1px gaps; memories label uses primary green; projects inner container and panel were adjusted to avoid horizontal overflow (box-sizing applied).
- - 2025-10-30 - Scroll UX: scrollbars are hidden by default and revealed only while the user scrolls via JS toggling `.scrolling` class on the projects scroll container; CSS provides a thin styled scrollbar while scrolling.
-
-- 2025-11-01 - POC API & UX deltas: added/iterated `pages/api/project_memories.js` (admin example) and corrected server handlers to use `memory_type` (seeded CSV uses `memory_type`). Added `components/NewProjectModal.jsx` (create/edit modal with memory gallery), `lib/cache.js` (localStorage-backed cache + ops queue), and a temporary debug panel to assist mapping/debugging during development.
- - 2025-11-01 - POC API & UX deltas: added/iterated `pages/api/project_memories.js` (admin example) and corrected server handlers to use `memory_type` (seeded CSV uses `memory_type`). Added `components/NewProjectModal.jsx` (create/edit modal with memory gallery), `lib/cache.js` (localStorage-backed cache + ops queue), and a temporary debug panel to assist mapping/debugging during development.
-
- - 2025-11-04 - Assignment API & UI: updated `pages/api/memory_assignments.js` POST to perform an update-if-exists by `memory_id` (ensuring a memory can only have one active assignment). Added `components/AssignMemoryModal.jsx` and wiring in `components/MemoryCard.jsx` so the UI displays assigned user's full name. Recommend using `audit_logs` to preserve assignment history and adding a DB unique index on `memory_id` after deduplication.
- - 2025-11-04 - Memory types mapping: added `data/memory_types.json` and wired `components/MemoryCard.jsx` to show canonical full memory names (e.g., `CIRCUIT` -> `CIRCUIT DIMENSION`). The temporary Help link on cards was removed from the POC.
- - 2025-11-04 - API hardening & smoke test: example server APIs were hardened to derive the acting user's id server-side from Authorization Bearer tokens or the `sb-access-token` cookie (the example routes no longer accept `user_id` query params). Assignment POSTs require an authenticated actor and set `assigned_by` server-side. A local smoke test was executed during POC verification that created a project and two memories and validated memory counts.
-
- - 2025-11-05 - Audit migration & audit behavior: `audit_logs` table and helper RPC were applied in the Supabase project. Example API routes insert audit rows for projects and project_memories; `memory_assignments` audit events are produced by a DB trigger to avoid duplicate rows. Recommendation: either rely on triggers (canonical) or propagate a `request_id` into the DB session from the API before DML so triggers can capture request-level metadata.
- - 2025-11-05 - Frontend fix: `components/AssignMemoryModal.jsx` updated to attach `Authorization: Bearer <access_token>` to user-scoped requests; server now derives `assigned_by` from the token (clients must not send `assigned_by`). This resolved a 401 encountered during manual testing.
- - 2025-11-05 - Docs: updated core docs to include audit and auth deltas and pushed the updates to `backup/remove-frontend-copy` branch.
-
-- 2025-11-11 - Deployment platform selection: After extensive evaluation of self-hosted ARM deployment (QNAP) vs cloud platforms, selected Vercel for production deployment due to Next.js optimization, zero configuration, and ARM binary compatibility issues with self-hosted solutions. QNAP deployment abandoned due to complex SWC/LightningCSS ARM binary conflicts on TS-x31K architecture.
- - 2025-11-11 - Configuration cleanup: Removed all ARM-specific modifications from next.config.js and related files that were added for QNAP compatibility. Restored standard Next.js configuration suitable for Vercel deployment.
+- 2025-10-30 - Added minimal Next.js frontend at repo root (auth UI, theme, parallax) and example server API route `pages/api/projects.js` using the admin client; removed duplicate `frontend/` copy
+- 2025-10-30 - Implemented color palette and global styles; added project gallery POC UI
+- 2025-11-01 - POC API & UX deltas: `pages/api/project_memories.js`, `components/NewProjectModal.jsx`, and `lib/cache.js` (local staging + sync)
+- 2025-11-04 - Assignment API & UI: update-or-insert assignment POST; `AssignMemoryModal.jsx` and `MemoryCard.jsx` wiring; memory types mapping (`data/memory_types.json`)
+- 2025-11-05 - Audit migration & audit behavior: `audit_logs` table + trigger-based assignment audit; docs updated
+- 2025-11-11 - Deployment platform selection: Vercel chosen; removed QNAP/ARM workarounds
+- 2025-11-14 - Circuit Dimension: Added `/calc/circuit-dimension-main` page, 7-question modal configuration, `MemoryCard` navigation fix for `memory_type='circuit'`, `localStorage` persistence for modal config, and a scaffolded secondary 4-container layout (Dark Blue header, Emerald Green project info, Purple tabs & gallery, White draft controls)
 
 Developer notes
 ---------------

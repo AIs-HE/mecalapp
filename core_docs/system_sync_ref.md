@@ -1,6 +1,6 @@
 # System Sync Reference - MecalApp (Backend-focused)
 
-**Last Updated:** 2025-11-05
+**Last Updated:** 2025-11-14
 
 Purpose
 -------
@@ -48,6 +48,8 @@ Implementation deltas (2025-11-01)
 - Frontend modal: `components/NewProjectModal.jsx` now prefetches `project_memories` for edit mode and normalizes rows that might include `type` or `memory_type`. The modal presents a vertical memory gallery with toggles that stage operations locally.
 - Local staging & sync: `lib/cache.js` provides a small localStorage-backed cache and an ops queue. Toggle actions are enqueued locally and a background `syncQueue()` pushes staged create/delete ops to the example API endpoints to provide optimistic/offline-like behaviour in the POC.
 - Developer note: during iterations several 500 errors were caused by schema mismatches (expecting `type` vs `memory_type`) and by the dev server not picking up server-only env vars. Restart the Next dev server after editing `.env.local` so server routes pick up `SUPABASE_SERVICE_ROLE_KEY`.
+
+- 2025-11-14 - Circuit Dimension memory: Frontend added `/calc/circuit-dimension-main` and `MemoryCard` navigation was updated to route `memory_type='circuit'` to the configuration page. Creation API contracts continue to use `memory_type: 'circuit'` and frontend POC persists configuration in `localStorage` for the secondary layout.
 
 POC security & API hardening (2025-11-04)
 ---------------------------------------

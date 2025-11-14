@@ -1,6 +1,6 @@
 # Complete Reference - MecalApp Project (Backend/Architecture Focus)
 
-**Last Updated:** 2025-11-05
+**Last Updated:** 2025-11-14
 **Last Updated (updated):** 2025-11-04
 **Project Phase:** Phase 1 - Core Infrastructure
 
@@ -113,6 +113,10 @@ Additional deltas (2025-11-01)
  - Assignment behaviour (API): `pages/api/memory_assignments.js` was updated so POST operations perform an update-if-exists for the same `memory_id` (ensuring one active assignment per memory) and will remove duplicate older rows if present. Audit/history is recommended to be stored in `audit_logs` rather than keeping multiple assignment rows.
  - Memory types mapping: A small local lookup `data/memory_types.json` was added and `components/MemoryCard.jsx` now uses this mapping to display the canonical full memory name (e.g., `CIRCUIT` -> `CIRCUIT DIMENSION`). The POC removed the previously visible 'Help' link from the card title.
 - Debugging aids: the New Project modal contains a temporary debug panel that shows the raw API response and the normalized map so developers can quickly validate mapping behavior during iteration.
+
+Recent POC delta (2025-11-14)
+-----------------------------
+- Circuit Dimension implementation: Added a configuration-first calculation entry point at `/calc/circuit-dimension-main` with a 7-question modal and localStorage persistence. Navigation from memory cards was updated so `memory_type='circuit'` routes to the new page. A scaffolded secondary layout (4-container) is present to host calculation UI and will be wired to the documented calculation engine (see `calculation_guidelines/circuit_dimmension_architecture.md`).
 
 POC security & API hardening (2025-11-04)
 ---------------------------------------

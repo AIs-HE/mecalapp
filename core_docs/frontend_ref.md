@@ -1,7 +1,7 @@
 ### ProjectContext
 *** Frontend Concepts Guide (ARCHIVAL) ***
 
-**Last Updated:** 2025-11-05
+**Last Updated:** 2025-11-14
 
 Purpose
 -------
@@ -90,14 +90,16 @@ Routes (logical)
 - /dashboard : projects overview (project summaries)
 - /project/:projectId : list of memories belonging to a project
 - /memory/:memoryId : memory details / placeholder UI
+- /calc/circuit-dimension-main : Circuit Dimension calculation page with configuration modal (2025-11-05)
 
 Component responsibilities (conceptual)
 -------------------------------------
 - Header: display app title, current user's display name + role, and sign out action
 - ProjectCard: displays project metadata; triggers selection/navigation
-- MemoryCard: displays memory metadata and role-based actions
+- MemoryCard: displays memory metadata and role-based actions; handles navigation to calculation pages based on memory type (circuit → circuit-dimension-main)
 - Modal: focus-trapped dialog used for create/edit forms
 - Forms: client-side minimal validation and surface server validation results
+- CircuitDimensionMain: Configuration page for circuit dimension calculations with 7-question modal interface (2025-11-05)
 
 Key UX flows
 ------------
@@ -112,6 +114,23 @@ Frontend ↔ Backend expectations
 - Create project: accepts { name, client_id, status } and returns created row
 - Create memory: accepts { project_id, memory_type, version } and returns created row
 - Assign memory: accepts { memory_id, user_id, assigned_by } and returns assignment entry
+- Circuit Dimension Configuration: stores { isHighVoltage, isSubstation, hasManualInputs, hasPresetTemplates, numCircuits, maxVoltage, equipmentType } in localStorage (2025-11-05)
+
+Circuit Dimension Memory Implementation (2025-11-05)
+---------------------------------------------------
+- Main page: `/calc/circuit-dimension-main` - Configuration interface for circuit dimension calculations
+- Modal interface: 7-question configuration form with boolean toggles and numeric inputs
+- Configuration schema:
+  - isHighVoltage: boolean (toggle)
+  - isSubstation: boolean (toggle)
+  - hasManualInputs: boolean (toggle)
+  - hasPresetTemplates: boolean (toggle)
+  - numCircuits: number (numeric input)
+  - maxVoltage: number (numeric input)
+  - equipmentType: "indoor" | "outdoor" (selection)
+- Navigation: MemoryCard with memory_type="circuit" routes to circuit-dimension-main page
+- Storage: Configuration persisted in localStorage with project/memory context
+- Secondary layout: Placeholder for additional calculation components after configuration
 
 Validation guidance (suggested)
 ------------------------------

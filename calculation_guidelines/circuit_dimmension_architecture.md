@@ -6,6 +6,7 @@ This document provides a comprehensive specification for recreating the electric
 ## Circuit Dimmension memory - Main page Layout
 
 A Modal UI with all the project information as header and then a series of Yes/No questions with a toggle button with default option "No". The toggle buttons give bolleans their values. Each boolean activates tabs or sections in the Secondary page layout.
+From question #5 on are to configure specific numeric factors with inputboxes, these values will be saved into variables to be used in the Secondary page layout.
 
 ## Questions & Boolean:
 
@@ -13,6 +14,12 @@ A Modal UI with all the project information as header and then a series of Yes/N
 2) Does the SLD includes DC loads? & DCBool
 3) Does the SLD includes Transfer Panel? & TranBool
 4) Does the SLD includes A Generator Set? & GenBool
+
+## Questions & Variables:
+
+5) What is the correction factor for Nominal Current? & niFactor (placeholder 1.25) 
+6) What is the aceptable %ΔV [%]? & deltaV (placeholder 5)
+7) What is the aceptable % of Losses [%]? & percLoss (placeholder 3.88)
 
 ---
 
@@ -274,27 +281,29 @@ When `activeTab === 'transformers_&_generators'`, no Common Inputs Area (RED CON
 | 3 | Pha.Qty. | `phases` | Select | 60px | ✅ | 1 or 3 phases | Default "3" |
 | 4 | I.P.[kVA] | `installedPower` | Number | 80px | ✅ | Installed power | Decimal up to 2 places > 0|
 | 5 | U.F. | `usageFactor` | Number | 60px | ✅ | Utilization factor | Decimal up to 2 places, between 0 and 1  |
-| 6 | Dem.P. | `demandedPower` | Number | 80px | ❌ | Calculated demand | Decimal up to 2 places |
+| 6 | Dem.P. | `demandedPowerCal` | Number | 80px | ❌ | Calculated demand | Decimal up to 2 places |
 | 7 | Inx1.25 | `iNominalx125` | Number | 80px | ❌ | Nominal current × 1.25 | Decimal up to 2 places |
 | 8 | Prot.I | `protectionCurrent` | Number | 70px | ✅ | Protection current | Integer > 0 |
 | 9 | CxPha | `conductorsPerPhase` | Number | 60px | ✅ | Conductors per phase | Integer > 0 |
-| 10 | Cal | `caliber` | Select | 70px | ✅ | Wire calibers | Ref: calibers in Ampacity tables NPFA - No default |
+| 10 | Cal | `caliber` | Select | 70px | ✅ | Wire calibers | Column AWGKcmil row values in ampacityTable - 3.3.6 Local Data |
 | 11 | xN | `calculatedAmpacity` | Number | 60px | ❌ | Calculated ampacity | Integer |
 | 12 | xN.Fac | `calculatedAmpacityFac` | Number | 80px | ❌ | Factored current capacity | Integer |
 | 13 | L[km] | `conductorLenght` | Number | 70px | ✅ | Conductor length | Decimal up to 2 places > 0 |
 | 14 | R[Ω/km] | `resistance` | Number | 80px | ✅ | Resistance | Decimal up to 3 places > 0|
 | 15 | Xl[Ω/km] | `inductiveReactance` | Number | 80px | ✅ | Inductive reactance | Decimal up to 3 places > 0|
 | 16 | REG | `regulation` | Number | 50px | ❌ | Regulation verification | % up to 2 places|
-| 17 | LOS | `losses` | Number | 50px | ❌ | Loss verification | % up to 2 places|
+| 17 | LOS | `lossesPerc` | Number | 50px | ❌ | Loss verification | % up to 2 places|
 | 18 | Del | - | Button | 50px | ❌ | Delete button (🗑️) | N/A|
 
-#### Columns Calculations:
-- **demandedPower:** installedPower * usageFactor
-- **iNominalx125:** if phases = 1 then  1.25 * installedPower / tensionKV; elseif phases = 3 then 1.25 * installedPower / ( tensionKV * sqrt(3))
-- **xN:** ampacityValue * conductorsPerPhase; ampacityValue is described in 3.3.3 Calculations - Parallel Calculations
-- **xN.Fac:** xN * temperatureFac * groupingFac; groupingFac and temperatureFac are described in 3.3.3 Calculations - Parallel Calculations
-**REG:** voltageDrop / (tensionKV * 1000); voltageDrop is described in 3.3.3 Calculations - Parallel Calculations
-**LOS:** losses / (powerFactor * installedPower * 1000); losses is described in 3.3.3 Calculations - Parallel Calculations
+#### Columns Function Calculations:
+variables are calculated from functions in 5.3 Calculation Engine - Electrical Calculations
+
+- **demandedPowerCal:** calculateDemandedPower() 
+- **iNominalx125:** calculateINominalx125()
+- **calculatedAmpacity:** calculateAmpacity()
+- **calculatedAmpacityFac:** calculateAmpacityFactored()
+- **regulation:** calculateRegulation()
+- **lossesPerc:** calculateLossesPerc()
 
 #### Column Configuration (for Transfer Panels & Outputs tab):
 
@@ -309,24 +318,24 @@ When `activeTab === 'transformers_&_generators'`, no Common Inputs Area (RED CON
 | 7 | Inx1.25 | `iNominalx125` | Number | 80px | ❌ | Nominal current × 1.25 | Decimal up to 2 places |
 | 8 | Prot.I | `protectionCurrent` | Number | 70px | ✅ | Protection current | Integer > 0 |
 | 9 | CxPha | `conductorsPerPhase` | Number | 60px | ✅ | Conductors per phase | Integer > 0 |
-| 10 | Cal | `caliber` | Select | 70px | ✅ | Wire calibers | Ref: calibers in Ampacity tables NPFA - No default |
+| 10 | Cal | `caliber` | Select | 70px | ✅ | Wire calibers | Column AWGKcmil row values in ampacityTable - 3.3.6 Local Data |
 | 11 | xN | `calculatedAmpacity` | Number | 60px | ❌ | Calculated ampacity | Integer > 0 |
 | 12 | xN.Fac | `calculatedAmpacityFac` | Number | 80px | ❌ | Factored current capacity | |
 | 13 | L[km] | `conductorLenght` | Number | 70px | ✅ | Conductor length | Decimal up to 2 places > 0 |
 | 14 | R[Ω/km] | `resistance` | Number | 80px | ✅ | Resistance | Decimal up to 3 places > 0|
 | 15 | Xl[Ω/km] | `inductiveReactance` | Number | 80px | ✅ | Inductive reactance | Decimal up to 3 places > 0|
 | 16 | REG | `regulation` | Number | 50px | ❌ | Regulation verification | % up to 2 places |
-| 17 | LOS | `losses` | Number | 50px | ❌ | Loss verification | % up to 2 places|
+| 17 | LOS | `lossesPerc` | Number | 50px | ❌ | Loss verification | % up to 2 places|
 | 18 | Del | - | Button | 50px | ❌ | Delete button (🗑️) | N/A|
 
 #### Columns Calculations:
-- **usageFactor:** demandedPower / installedPower
-- **demandedPower:** sumation of all demanded powers of Esential, Non Esential or Esential and Non Esential loads 
-- **iNominalx125:** if phases = 1 then  1.25 * installedPower / tensionKV; elseif phases = 3 then 1.25 * installedPower / ( tensionKV * sqrt(3))
-- **xN:** ampacityValue * conductorsPerPhase; ampacityValue is described in 3.3.3 Calculations - Parallel Calculations
-- **xN.Fac:** xN * temperatureFac * groupingFac; groupingFac and temperatureFac are described in 3.3.3 Calculations - Parallel Calculations
-**REG:** voltageDrop / (tensionKV * 1000); voltageDrop is described in 3.3.3 Calculations - Parallel Calculations
-**LOS:** losses / (powerFactor * installedPower * 1000); losses is described in 3.3.3 Calculations - Parallel Calculations
+- **usageFactor:** calculateUsageFactor()
+- **demandedPower:** calculateSumationDemandedPower()
+- **iNominalx125:** calculateINominalx125()
+- **calculatedAmpacity:** calculateAmpacity()
+- **calculatedAmpacityFac:** calculateAmpacityFactored()
+- **regulation:** calculateRegulation()
+- **lossesPerc:** calculateLossesPerc()
 
 #### Column Configuration (for DC Panel Tab):
 
@@ -341,12 +350,12 @@ When `activeTab === 'transformers_&_generators'`, no Common Inputs Area (RED CON
 | 7 | Nom.CxF | `InFac` | Number | 90px | ❌ | Corrected nominal current | Decimal up to 2 places > 0 |
 | 8 | Prot.I | `dcprotectionCurrent` | Number | 70px | ✅ | Protection current | Integer > 0 |
 | 9 | CxPha | `dcconductorsPerPhase` | Number | 60px | ✅ | Conductors per phase | Integer > 0 |
-| 10 | Cal | `dccaliber` | Select | 60px | ✅ | Wire caliber | Ref: calibers in Ampacity tables NPFA - No default |
+| 10 | Cal | `dccaliber` | Select | 60px | ✅ | Wire caliber | Column AWGKcmil row values in ampacityTable - 3.3.6 Local Data |
 | 11 | xN | `dccalculatedAmpacity` | Number | 60px | ❌ | Calculated ampacity | Integer |
 | 12 | L[km] | `dcconductorLenght` | Number | 70px | ✅ | Conductor length | Decimal up to 2 places > 0 |
 | 13 | R[Ω/km] | `dcresistance` | Number | 80px | ✅ | Resistance |  Decimal up to 3 places > 0 |
 | 14 | REG | `dcregulation` | Percent | 60px | ❌ | Regulation verification | % up to 2 places |
-| 15 | LOS | `dclosses` | Number | 60px | ❌ | Losses verification | % up to 2 places |
+| 15 | LOS | `dclossesPerc` | Number | 60px | ❌ | Losses verification | % up to 2 places |
 | 16 | Del | - | Button | 50px | ❌ | Delete button (🗑️) | N/A |
 
 #### Columns Calculations:
@@ -362,21 +371,21 @@ will be specified in the future.
 - **Effect:** Activates the Row Color Coding and Special Caliber Column in 3.3.4 Editing system
 
 #### Parallel Calculations:
-- **ampacityValue:** Obtained from ampacityTable described in 3.3.6 Local Data using caliber, tensionKV, conductorMaterial and conductorTemperature values
-- **temperatureFac:** Obtained from temFacTable described in 3.3.6 Local Data using ambientTemperature value
-- **groupingFac:** Obtained from groFacTable described in 3.3.6 Local Data using conductorsPerConduit value
-- **activePower:** (iNominalx125 / 1.25) * conductorLenght * (resistance * cos(acos(powerFactor)) + inductiveReactance * sin(acos(powerFactor)))
-- **voltageDrop:** if phases = 1 then activePower * 2; elseif phases = 3 then activePower / sqrt(3)
-- **Losses:** if phases = 1 then 2 * ((iNominalx125 / 1.25) ^ 2) * resistance * L[km]; else if phases = 3 then 3 * ((iNominalx125 / 1.25) ^ 2) * resistance * L[km]
-- **ICBBool:** is true if ((protectionCurrent > iNominalx125) and (xN.Fac > protectionCurrent)), everything else will give false
-- **REGBool:** is true if 5% > regulation value, else is false
-- **REGBool:** is true if 3.88% > losses value, else is false
+- **ampacityValue:** ampacityFromTable()
+- **temperatureFac:** tempFacFromTable()
+- **groupingFac:** groupingFacFromTable()
+- **activePower:** calculateActivePower()
+- **voltageDrop:** calculateVoltageDrop()
+- **Losses:** calculateLosses()
+- **ICBBool:** verifyICB()
+- **REGBool:** verifyREG()
+- **LOSBool:** verifyLOS()
 
 #### Placeholder Calculations:
 - **Trigger:** Any Inline Editing described in 3.3.4 Editing System - Inline Editing.
-- **caliber:** Using the installationType, conductorMaterial and conductorTemperature to select the column of the ampacityTable in 3.3.6 Local Data, obtain the lowest caliber value which's ampacityValue (from the selected column) is greater than the protectionCurrent value. That lowest caliber value shouldbe the place holder value of the column. 
-- **Resistance:** using the caliber, conductorMaterial and conduitMaterial obtain the value of resistance from ampacityTable 3.3.6 Local Data.
-- **inductiveReactance:** using the caliber and conduitMaterial obtain the value of inductiveReactance from ampacityTable 3.3.6 Local Data.
+- **caliberPlaHol:** Placeholder text for caliber not selected rows = caliberFromTable() 
+- **ResistancePlaHol:** Placeholder text for resistance empty rows = resistanceFromTable()
+- **inductiveReactancePlaHol:** Placeholder text for inductiveReactance empty rows = inductiveReactanceFromTable()
 
 ### 3.3.4 Editing System
 
@@ -642,12 +651,26 @@ interface Equipment {
 - **NTC-2050/RETIE Standards:** Colombian electrical code compliance
 - **Real-time Updates:** Calculations run on every input change
 - **Functions:**
-  - `calculatePotenciaDemandada()` - P.Dem = P.I. × F.U.
-  - `calculateINominalx125()` - Current calculation with safety factor
-  - `calculateCapacidadCorriente()` - Wire capacity based on ampacity tables
-  - `verificarICB()` - Current capacity vs protection verification
-  - `verificarREG()` - Voltage regulation verification
-  - `verificarPER()` - Power loss verification
+  - `calculateDemandedPower()` returns demandedPowerCal = installedPower * usageFactor
+  - `calculateINominalx125()` returns iNominalx125 = if (phases = 1) then  niFactor * installedPower / tensionKV; elseif (phases = 3) then niFactor * installedPower / ( tensionKV * sqrt(3))
+  - `calculateAmpacity()` returns calculatedAmpacity = ampacityValue * conductorsPerPhase; ampacityValue is obtained with  ampacityFromTable() function
+  - `calculateAmpacityFactored()` returns calculatedAmpacityFac = calculatedAmpacity * temperatureFac * groupingFac; groupingFac and temperatureFac are obtained with tempFacFromTable() and groupingFacFromTable() functions
+  - `calculateRegulation()` returns regulation = voltageDrop / (tensionKV * 1000); voltageDrop is calculated with calculateVoltageDrop() function
+  - `calculateLossesPerc()` returns lossesPerc = losses / (powerFactor * installedPower * 1000); losses is calculated with calculateLosses() function
+  - `calculateUsageFactor()` returns usageFactor = demandedPower / installedPower
+  - `calculateSumationDemandedPower()` returns demandedPower = sumation of either all demanded powers of Esential loads or all demanded powers of Non Esential loads or all demanded powers of Esential and Non Esential loads 
+  - `calculateActivePower()` returns activePower = (iNominalx125 / niFactor) * conductorLenght * (resistance * cos(acos(powerFactor)) + inductiveReactance * sin(acos(powerFactor)))
+  - `calculateVoltageDrop()` returns voltageDrop = if (phases = 1) then activePower * 2; elseif (phases = 3) then activePower / sqrt(3)
+  - `calculateLosses()` returns losses = if (phases = 1) then 2 * ((iNominalx125 / niFactor) ^ 2) * resistance * conductorLenght; elseif (phases = 3) then 3 * ((iNominalx125 / niFactor) ^ 2) * resistance * conductorLenght
+  - `ampacityFromTable()` returns ampacityValue = Obtained from ampacityTable described in 3.3.6 Local Data using caliber, tensionKV, conductorMaterial and conductorTemperature values
+  - `tempFacFromTable()` returns temperatureFac = Obtained from temFacTable described in 3.3.6 Local Data using ambientTemperature value
+  - `groupingFacFromTable()` returns groupingFac Obtained from groFacTable described in 3.3.6 Local Data using conductorsPerConduit value
+  - `caliberFromTable()` returns caliberPlaHol = Using the installationType, conductorMaterial and conductorTemperature to select the column of the ampacityTable in 3.3.6 Local Data, obtain the lowest caliber value which's ampacityValue (from the selected column) is greater than the protectionCurrent value. If function returns error or null caliberPlaHol = "".
+  - `resistanceFromTable()` returns resistancePlaHol = using the caliber, conductorMaterial and conduitMaterial obtain the value of resistance from ampacityTable 3.3.6 Local Data. If function returns error or null resistancePlaHol = "".
+  - `inductiveReactanceFromTable()` returns inductiveReactancePlaHol = using the caliber and conduitMaterial obtain the value of inductiveReactance from ampacityTable 3.3.6 Local Data. If function returns error or null inductiveReactancePlaHol = "".
+  - `verifyICB()` returns ICBBool = true if ((protectionCurrent > iNominalx125) and (xN.Fac > protectionCurrent)), everything else will give false
+  - `verifyREG()` returns REGBool = true if deltaV > regulation value, else is false
+  - `verifyLOS()` returns LOSBool = true if percLoss > losses value, else is false
 
 #### Validation System:
 - **Common Inputs Validation:** Ensures all required fields are complete
@@ -669,7 +692,6 @@ interface Equipment {
 - **Keyboard Navigation:** Enter/Escape for save/cancel
 - **Collapsible Sections:** Common inputs and project info can collapse
 - **Hover Effects:** Visual feedback on interactive elements
-- **Loading States:** Spinners and disabled states during operations
 
 ### 6.3 Error Handling
 - **Validation Messages:** Real-time validation feedback
@@ -747,3 +769,30 @@ interface Equipment {
 ---
 
 This specification provides all necessary information to recreate the electrical calculation page with full functionality, proper styling, and appropriate user interactions. The modular component design allows for easy maintenance and extension of features.
+
+---
+
+## Implementation Status (2025-11-14)
+
+The following items document the current implementation present in the repository (branch: `circuit-dimension-memory`). Keep this section as a short, living summary of what was built and where to look in the codebase.
+
+- **Circuit Dimension Main Page:** Implemented at `/calc/circuit-dimension-main` — a full-page route that hosts the configuration modal and loads project + memory context from query parameters.
+- **Modal Configuration UI:** A 7-question modal (4 boolean toggles + 3 numeric inputs) was added. Defaults: `NonEseBool=false`, `DCBool=false`, `TranBool=false`, `GenBool=false`, `niFactor=1.25`, `deltaV=5`, `percLoss=3.88`.
+- **Navigation:** `components/MemoryCard.jsx` was updated to handle `memory_type: 'circuit'` and route users to the Circuit Dimension main page. This fixed an earlier redirect issue where `memory_type` values did not match the frontend expectation.
+- **Configuration Persistence:** Modal values are saved to `localStorage` so the Secondary page layout can read and apply them immediately without a DB round-trip. This supports optimistic UX and draft workflows.
+- **Secondary Layout (scaffold):** A 4-container secondary layout is present to accept configuration and display the calculation UI (Dark Blue header, Emerald Green project info, Purple tabs & gallery, White draft controls). Calculation engines and per-row functions are documented in this spec and are ready to be wired into the secondary layout.
+
+Where to look (code pointers):
+
+- `pages/calc/circuit-dimension-main.jsx` — main page + modal wiring and localStorage persistence
+- `components/MemoryCard.jsx` — navigation logic to route `memory_type='circuit'` to the configuration page
+- `lib/cache.js` — local staging + ops queue used across POC components
+- `calculation_guidelines/circuit_dimmension_architecture.md` — this conceptual and component-level specification
+
+Next recommended steps:
+
+1. Commit and push these documentation updates and any related code changes on branch `circuit-dimension-memory`.
+2. Wire the documented calculation functions (section 5.3) into the Secondary layout components and add unit tests for the calculation engine.
+3. Review naming consistency: consider renaming internal occurrences of "Dimmension" → "Dimension" if desired (note: file and path names contain the current spelling and renaming is optional and potentially breaking).
+
+If you want, I can commit and push these documentation edits now, and open a PR — tell me to proceed and I'll run the Git commands.
