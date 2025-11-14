@@ -17,7 +17,7 @@ export default function CircuitDimensionMainPage() {
         DCBool: false,        // Does the SLD includes DC loads?
         TranBool: false,      // Does the SLD includes Transfer Panel?
         GenBool: false,       // Does the SLD includes A Generator Set?
-        
+
         // Numeric factor questions
         niFactor: 1.25,       // Correction factor for Nominal Current
         deltaV: 5,            // Acceptable %ΔV [%]
@@ -48,7 +48,7 @@ export default function CircuitDimensionMainPage() {
                     .select('*')
                     .eq('id', memory_id)
                     .single()
-                
+
                 if (!memErr) setMemoryData(memory)
             }
 
@@ -102,7 +102,7 @@ export default function CircuitDimensionMainPage() {
                         <div className="bg-slate-800 text-white p-6 rounded-t-lg">
                             <div className="flex justify-between items-center">
                                 <h2 className="text-xl font-bold">Circuit Dimension Memory Configuration</h2>
-                                <button 
+                                <button
                                     onClick={() => router.back()}
                                     className="text-white hover:text-gray-300"
                                 >
@@ -137,18 +137,16 @@ export default function CircuitDimensionMainPage() {
                                                     <span className="mr-2 text-sm text-gray-600">No</span>
                                                     <button
                                                         onClick={() => handleToggle(question.key)}
-                                                        className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
-                                                            formData[question.key] 
-                                                                ? 'bg-blue-600' 
+                                                        className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${formData[question.key]
+                                                                ? 'bg-blue-600'
                                                                 : 'bg-gray-300'
-                                                        }`}
+                                                            }`}
                                                     >
                                                         <span
-                                                            className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
-                                                                formData[question.key] 
-                                                                    ? 'translate-x-6' 
+                                                            className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${formData[question.key]
+                                                                    ? 'translate-x-6'
                                                                     : 'translate-x-1'
-                                                            }`}
+                                                                }`}
                                                         />
                                                     </button>
                                                     <span className="ml-2 text-sm text-gray-600">Yes</span>
@@ -238,13 +236,13 @@ export default function CircuitDimensionMainPage() {
                                 <span className="text-sm">CDM - Circuit Dimension memory</span>
                             </div>
                             <div className="flex items-center space-x-4 text-sm">
-                                <button 
+                                <button
                                     onClick={() => setShowModal(true)}
                                     className="bg-blue-600 px-3 py-1 rounded hover:bg-blue-700"
                                 >
                                     Back to Config
                                 </button>
-                                <button 
+                                <button
                                     onClick={() => router.push('/dashboard')}
                                     className="bg-gray-600 px-3 py-1 rounded hover:bg-gray-700"
                                 >
@@ -296,7 +294,7 @@ export default function CircuitDimensionMainPage() {
                             ) : (
                                 <p>Project information will be displayed here</p>
                             )}
-                            
+
                             <div className="mt-6 border-2 border-dashed border-emerald-400 p-4 rounded">
                                 <p className="text-sm">AI Integration Placeholder</p>
                             </div>

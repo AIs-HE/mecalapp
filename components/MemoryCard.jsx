@@ -106,13 +106,17 @@ export default function MemoryCard({ memory, isAdmin, onDelete = () => { } }) {
                     const t = String(displayType || '').toLowerCase() || 'unknown'
                     const pid = memory?.project_id || memory?.projectId || ''
                     const mid = memory?.id || ''
-                    
-                    // Special routing for circuit-dimension memory type
-                    if (t === 'circuit-dimension') {
+
+                    console.log('MemoryCard navigation debug:', { originalType: displayType, normalizedType: t, memory })
+
+                    // Special routing for circuit dimension memory type (handle various possible naming)
+                    if (t === 'circuit' || t === 'circuit-dimension' || t === 'circuit dimension' || t === 'circuitdimension' || t === 'circuit_dimension') {
                         const path = `/calc/circuit-dimension-main?memory_id=${encodeURIComponent(mid)}&project_id=${encodeURIComponent(pid)}`
+                        console.log('Redirecting to circuit dimension main:', path)
                         router.push(path)
                     } else {
                         const path = `/calc/${encodeURIComponent(t)}?memory_id=${encodeURIComponent(mid)}&project_id=${encodeURIComponent(pid)}`
+                        console.log('Redirecting to standard calc page:', path)
                         router.push(path)
                     }
                 } catch (err) {
