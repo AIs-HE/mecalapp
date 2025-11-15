@@ -1,6 +1,6 @@
 # Roadmap & Changelog (Backend-focused)
 
-**Last Updated:** 2025-11-05
+**Last Updated:** 2025-11-15
 
 Purpose
 -------

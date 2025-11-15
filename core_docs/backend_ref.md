@@ -1,6 +1,6 @@
 # Backend Reference - MecalApp
 
-**Last Updated:** 2025-11-14
+**Last Updated:** 2025-11-15
 **Note:** Updated to reflect recent POC deltas (assignment API behaviour, local memory types mapping, and example admin API updates).
 **Project Phase:** Phase 1 - Core Infrastructure
 
