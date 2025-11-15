@@ -11,7 +11,7 @@ type Payload = {
     requested_at: string
 }
 
-export default function CalcTypePage(): JSX.Element {
+export default function CalcTypePage(): React.ReactElement {
     const router = useRouter()
     const { type } = router.query as { type?: string }
     const [loading, setLoading] = useState<boolean>(true)
