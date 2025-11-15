@@ -1,7 +1,10 @@
-// @ts-nocheck
 import React from 'react'
 
-export default function AddProjectCard({ onClick }) {
+type Props = {
+    onClick?: () => void
+}
+
+export default function AddProjectCard({ onClick }: Props) {
     return (
         <div
             role="button"

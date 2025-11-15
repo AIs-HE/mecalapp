@@ -1,7 +1,11 @@
-// @ts-nocheck
 import React from 'react'
+import { MemoryInfo } from '../types/interfaces'
 
-export default function AddMemoryCard({ onClick }) {
+type Props = {
+    onClick?: () => void
+}
+
+export default function AddMemoryCard({ onClick }: Props) {
     return (
         <div
             role="button"

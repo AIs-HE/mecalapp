@@ -1,11 +1,18 @@
-// @ts-nocheck
 import React, { useEffect, useState } from 'react'
 import supabase from '../lib/supabaseClient'
+import { MemoryInfo, UserInfo } from '../types/interfaces'
 
-export default function AssignMemoryModal({ open = false, memory = null, onClose = () => { }, onAssigned = () => { } }) {
-    const [profiles, setProfiles] = useState([])
+type Props = {
+    open?: boolean
+    memory?: MemoryInfo | null
+    onClose?: () => void
+    onAssigned?: (assignment: any) => void
+}
+
+export default function AssignMemoryModal({ open = false, memory = null, onClose = () => { }, onAssigned = () => { } }: Props) {
+    const [profiles, setProfiles] = useState<UserInfo[]>([])
     const [loading, setLoading] = useState(false)
-    const [selectedUser, setSelectedUser] = useState(null)
+    const [selectedUser, setSelectedUser] = useState<string | number | null>(null)
     const [saving, setSaving] = useState(false)
 
     useEffect(() => {

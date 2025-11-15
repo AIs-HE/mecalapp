@@ -1,8 +1,12 @@
-// @ts-nocheck
 import React from 'react'
 import Link from 'next/link'
+import { UserInfo } from '../types/interfaces'
 
-export default function Header({ user = null }) {
+type Props = {
+    user?: UserInfo | null
+}
+
+export default function Header({ user = null }: Props) {
     return (
         <header className="w-full bg-white/60 backdrop-blur-md border-b border-gray-100">
             <div className="max-w-6xl mx-auto px-4 py-3 flex items-center justify-between">

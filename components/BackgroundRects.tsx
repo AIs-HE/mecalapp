@@ -1,10 +1,10 @@
-// @ts-nocheck
 import React from 'react'
 
 // Decorative background rectangle clump used on multiple pages.
 // Accepts an optional `state` prop: 'in' | 'enter' | 'exit' to match existing auth animation classes.
-export default function BackgroundRects({ state } = {}) {
-    const cls = s => (state === 'in' ? 'animate-in' : state === 'enter' ? 'animate-up-enter' : state === 'exit' ? 'animate-up-exit' : '')
+type Props = { state?: 'in' | 'enter' | 'exit' }
+export default function BackgroundRects({ state }: Props = {}) {
+    const cls = (s?: string) => (state === 'in' ? 'animate-in' : state === 'enter' ? 'animate-up-enter' : state === 'exit' ? 'animate-up-exit' : '')
 
     return (
         <div className="bg-clump" aria-hidden="true">

@@ -1,10 +1,16 @@
-// @ts-nocheck
 import React, { useState, useRef, useEffect } from 'react'
 import { useRouter } from 'next/router'
 import AssignMemoryModal from './AssignMemoryModal'
 import memoryTypes from '../data/memory_types.json'
+import { MemoryInfo } from '../types/interfaces'
 
-export default function MemoryCard({ memory, isAdmin, onDelete = () => { } }) {
+type Props = {
+    memory: MemoryInfo
+    isAdmin?: boolean
+    onDelete?: (m: MemoryInfo) => void
+}
+
+export default function MemoryCard({ memory, isAdmin, onDelete = () => { } }: Props) {
     const { name, version, created_at, updated_at, type, memory_type } = memory || {}
     const displayType = type || memory_type || ''
     const router = useRouter()

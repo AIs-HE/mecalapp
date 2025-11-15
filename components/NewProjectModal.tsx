@@ -1,9 +1,17 @@
-// @ts-nocheck
 import { useEffect, useState } from 'react'
 import COLORS from '../lib/theme'
 import cache from '../lib/cache'
+import { ProjectInfo } from '../types/interfaces'
 
-export default function NewProjectModal({ open = false, project = null, onClose = () => { }, onCreated = () => { }, onUpdated = () => { } }) {
+type Props = {
+    open?: boolean
+    project?: ProjectInfo | null
+    onClose?: () => void
+    onCreated?: (p: any) => void
+    onUpdated?: (p: any) => void
+}
+
+export default function NewProjectModal({ open = false, project = null, onClose = () => { }, onCreated = () => { }, onUpdated = () => { } }: Props) {
     const [clients, setClients] = useState([])
     const [loadingClients, setLoadingClients] = useState(false)
     const [name, setName] = useState('')

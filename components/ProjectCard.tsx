@@ -1,13 +1,22 @@
-// @ts-nocheck
+// SPDX: typed
 import React, { useState, useRef, useEffect } from 'react'
+import { ProjectInfo } from '../types/interfaces'
 
-function formatProjectId(id) {
+function formatProjectId(id: string | number | undefined) {
     if (!id) return 'HE-0000'
     const last = id.replace(/-/g, '').slice(-4).toUpperCase()
     return `HE-${last}`
 }
 
-export default function ProjectCard({ project, onClick, isAdmin, onEdit = () => { }, onDelete = () => { } }) {
+type Props = {
+    project: ProjectInfo & Record<string, any>
+    onClick?: (p: any) => void
+    isAdmin?: boolean
+    onEdit?: (p: any) => void
+    onDelete?: (p: any) => void
+}
+
+export default function ProjectCard({ project, onClick, isAdmin, onEdit = () => { }, onDelete = () => { } }: Props) {
     const { name, id, created_at, updated_at } = project || {}
     const displayId = formatProjectId(id)
     const displayCostCenter = project?.cost_center || null

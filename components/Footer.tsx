@@ -1,7 +1,6 @@
-// @ts-nocheck
 import React from 'react'
 
-export default function Footer() {
+export default function Footer(): JSX.Element {
     return (
         <footer className="w-full border-t border-gray-100 bg-white/50 backdrop-blur-sm">
             <div className="max-w-6xl mx-auto px-4 py-6 text-sm text-gray-600 flex items-center justify-between">
