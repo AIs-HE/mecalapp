@@ -5,13 +5,13 @@ import supabase from '../../lib/supabaseClient'
 export default function CircuitDimensionMainPage() {
     const router = useRouter()
     const [loading, setLoading] = useState(true)
-    const [projectData, setProjectData] = useState(null)
-    const [memoryData, setMemoryData] = useState(null)
+    const [projectData, setProjectData] = useState<any>(null)
+    const [memoryData, setMemoryData] = useState<any>(null)
     const [showModal, setShowModal] = useState(true)
-    const [error, setError] = useState(null)
+    const [error, setError] = useState<string | null>(null)
 
     // Form state for the modal questions
-    const [formData, setFormData] = useState({
+    const [formData, setFormData] = useState<Record<string, any>>({
         // Boolean questions (default: No/false)
         NonEseBool: false,    // Does the SLD includes Non Essential panel?
         DCBool: false,        // Does the SLD includes DC loads?
@@ -36,7 +36,7 @@ export default function CircuitDimensionMainPage() {
 
             // Load project data if project_id provided
             if (project_id) {
-                const res = await fetch(`/api/projects?id=${encodeURIComponent(project_id)}`)
+                const res = await fetch(`/api/projects?id=${encodeURIComponent(String(project_id))}`)
                 const data = await res.json()
                 if (res.ok) setProjectData(data.project)
             }
@@ -60,14 +60,14 @@ export default function CircuitDimensionMainPage() {
         }
     }
 
-    const handleToggle = (field) => {
+    const handleToggle = (field: string) => {
         setFormData(prev => ({
             ...prev,
             [field]: !prev[field]
         }))
     }
 
-    const handleNumberChange = (field, value) => {
+    const handleNumberChange = (field: string, value: string) => {
         setFormData(prev => ({
             ...prev,
             [field]: parseFloat(value) || 0
@@ -138,14 +138,14 @@ export default function CircuitDimensionMainPage() {
                                                     <button
                                                         onClick={() => handleToggle(question.key)}
                                                         className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${formData[question.key]
-                                                                ? 'bg-blue-600'
-                                                                : 'bg-gray-300'
+                                                            ? 'bg-blue-600'
+                                                            : 'bg-gray-300'
                                                             }`}
                                                     >
                                                         <span
                                                             className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${formData[question.key]
-                                                                    ? 'translate-x-6'
-                                                                    : 'translate-x-1'
+                                                                ? 'translate-x-6'
+                                                                : 'translate-x-1'
                                                                 }`}
                                                         />
                                                     </button>

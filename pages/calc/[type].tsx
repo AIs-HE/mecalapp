@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react'
 import { useRouter } from 'next/router'
 import supabase from '../../lib/supabaseClient'
-import { UserInfo, ProjectInfo, MemoryInfo } from '../../types/interfaces'
+import type { UserInfo, ProjectInfo, MemoryInfo } from '../../types/interfaces'
 
 type Payload = {
     user: Partial<UserInfo> | null
@@ -44,7 +44,10 @@ export default function CalcTypePage(): React.ReactElement {
                     if (memoryId) {
                         try {
                             const { data: m, error: merr } = await supabase.from('project_memories').select('id,project_id,memory_type,version,status,created_by,created_at,updated_at').eq('id', memoryId).single()
-                            if (!merr) memory = { ...m, type: (m.type || m.memory_type || '').toString().toLowerCase() }
+                            if (!merr) {
+                                const mt = ((m as any).type || m.memory_type || '')
+                                memory = { ...(m as any), type: String(mt).toLowerCase() }
+                            }
                         } catch (e) { /* ignore */ }
                     }
 
@@ -70,7 +73,7 @@ export default function CalcTypePage(): React.ReactElement {
                     }
 
                     const out: Payload = {
-                        user: user ? { id: user.id, email: user.email } : null,
+                        user: user ? ({ id: user.id, ...(user.email ? { email: user.email } : {}) }) : null,
                         profile: profile ? { id: profile.id, full_name: profile.full_name, role: profile.role } : null,
                         memory: memory || (type ? { type, note: 'No memory found - this is a dummy calculation page.' } : null),
                         project: project ? { id: project.id, name: project.name, cost_center: project.cost_center || null } : null,

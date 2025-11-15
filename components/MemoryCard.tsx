@@ -25,7 +25,7 @@ export default function MemoryCard({ memory, isAdmin, onDelete = () => { } }: Pr
 
     const [deleting, setDeleting] = useState(false)
     const [showAssign, setShowAssign] = useState(false)
-    const [assignedName, setAssignedName] = useState(null)
+    const [assignedName, setAssignedName] = useState<string | null>(null)
 
     useEffect(() => {
         function onDocClick(e: Event) {
@@ -95,9 +95,10 @@ export default function MemoryCard({ memory, isAdmin, onDelete = () => { } }: Pr
             console.debug('MemoryCard.handleDelete: api response', { ok: res.ok, body: j })
             if (!res.ok) throw new Error(j.error || 'Failed to delete memory')
             onDelete && onDelete(memory)
-        } catch (err) {
+        } catch (err: unknown) {
             console.error(err)
-            alert(err.message || String(err))
+            const msg = err instanceof Error ? err.message : String(err)
+            alert(msg)
         } finally {
             setDeleting(false)
             console.debug('MemoryCard.handleDelete FINALLY: deleting reset')
@@ -127,7 +128,7 @@ export default function MemoryCard({ memory, isAdmin, onDelete = () => { } }: Pr
                         console.log('Redirecting to standard calc page:', path)
                         router.push(path)
                     }
-                } catch (err) {
+                } catch (err: unknown) {
                     console.debug('Failed to navigate to calc page', err)
                 }
             }}

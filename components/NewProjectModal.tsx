@@ -124,7 +124,7 @@ export default function NewProjectModal({ open = false, project = null, onClose 
         try {
             setSyncError(null)
             setSyncStatus('syncing')
-            const res = await cache.syncQueue({ onProgress: (p) => { /* could update per-item UI */ } })
+            const res = await cache.syncQueue({ onProgress: (_: unknown) => { /* could update per-item UI */ } })
             if (res.ok) {
                 if (res.remaining && res.remaining.length > 0) {
                     setSyncStatus('pending')
@@ -167,11 +167,11 @@ export default function NewProjectModal({ open = false, project = null, onClose 
                 const r0 = await fetch(`/api/project_memories?project_id=${project.id}`)
                 const j0 = await r0.json()
                 console.debug('NewProjectModal: sync fetch project_memories', { ok: r0.ok, body: j0 })
-                const existing = (j0.memories || []).reduce((acc, m) => {
+                const existing = ((j0.memories || []) as any[]).reduce((acc: Record<string, boolean>, m: any) => {
                     const t = (m?.type || m?.memory_type || '')
                     if (t) acc[String(t).toLowerCase().trim()] = true
                     return acc
-                }, {})
+                }, {} as Record<string, boolean>)
                 setDebugFetchedMemories(j0.memories || null)
                 setDebugExistingMap(existing)
                 // for each memory type decide create or delete -> enqueue ops and persist locally
@@ -232,9 +232,10 @@ export default function NewProjectModal({ open = false, project = null, onClose 
                 setSelectedMemories({})
                 onClose()
             }
-        } catch (err) {
+        } catch (err: unknown) {
             console.error(err)
-            alert(err.message || String(err))
+            const msg = err instanceof Error ? err.message : String(err)
+            alert(msg)
         }
         setSaving(false)
     }

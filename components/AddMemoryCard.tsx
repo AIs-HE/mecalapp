@@ -9,7 +9,7 @@ export default function AddMemoryCard({ onClick }: Props) {
             role="button"
             tabIndex={0}
             onClick={() => onClick && onClick()}
-            onKeyDown={e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onClick && onClick() } }}
+            onKeyDown={(e: React.KeyboardEvent<HTMLDivElement>) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onClick && onClick() } }}
             className="bg-white rounded-xl p-5 shadow-sm cursor-pointer transition-transform duration-150 hover:-translate-y-1 border-l-4 border-dashed flex items-center justify-center add-project-card"
             style={{ borderLeftColor: 'var(--color-main)', color: 'var(--color-main)', height: '13rem', minHeight: '13rem' }}
         >

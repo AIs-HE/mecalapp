@@ -12,7 +12,7 @@ type Props = {
 export default function AssignMemoryModal({ open = false, memory = null, onClose = () => { }, onAssigned = () => { } }: Props) {
     const [profiles, setProfiles] = useState<UserInfo[]>([])
     const [loading, setLoading] = useState<boolean>(false)
-    const [selectedUser, setSelectedUser] = useState<string | number | null>(null)
+    const [selectedUser, setSelectedUser] = useState<string | null>(null)
     const [saving, setSaving] = useState<boolean>(false)
 
     useEffect(() => {
@@ -31,7 +31,7 @@ export default function AssignMemoryModal({ open = false, memory = null, onClose
                 const j = await res.json()
                 if (res.ok) {
                     setProfiles(j.profiles || [])
-                    if ((j.profiles || []).length > 0) setSelectedUser((j.profiles || [])[0].id)
+                    if ((j.profiles || []).length > 0) setSelectedUser(String((j.profiles || [])[0].id))
                 } else {
                     console.error('Failed to load profiles', j)
                 }
@@ -96,9 +96,9 @@ export default function AssignMemoryModal({ open = false, memory = null, onClose
                         {loading ? (
                             <div>Loading users…</div>
                         ) : (
-                            <select value={selectedUser || ''} onChange={e => setSelectedUser(e.target.value)} style={{ width: '100%', padding: '8px 10px' }}>
+                            <select value={selectedUser || ''} onChange={(e: React.ChangeEvent<HTMLSelectElement>) => setSelectedUser(e.target.value)} style={{ width: '100%', padding: '8px 10px' }}>
                                 {(profiles || []).map(p => (
-                                    <option key={p.id} value={p.id}>{p.full_name} {p.role ? `({p.role})` : ''}</option>
+                                    <option key={p.id} value={String(p.id)}>{p.full_name} {p.role ? `(${p.role})` : ''}</option>
                                 ))}
                             </select>
                         )}
