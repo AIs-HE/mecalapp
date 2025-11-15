@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import supabase from '../lib/supabaseClient'
-import { MemoryInfo, UserInfo } from '../types/interfaces'
+import type { MemoryInfo, UserInfo } from '../types/interfaces'
 
 type Props = {
     open?: boolean

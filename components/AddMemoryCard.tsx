@@ -1,6 +1,4 @@
 import React from 'react'
-import { MemoryInfo } from '../types/interfaces'
-
 type Props = {
     onClick?: () => void
 }

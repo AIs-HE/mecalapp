@@ -1,6 +1,6 @@
 import React from 'react'
 import Link from 'next/link'
-import { UserInfo } from '../types/interfaces'
+import type { UserInfo } from '../types/interfaces'
 
 type Props = {
     user?: UserInfo | null

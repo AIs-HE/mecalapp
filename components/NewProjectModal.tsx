@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import COLORS from '../lib/theme'
 import cache from '../lib/cache'
-import { ProjectInfo } from '../types/interfaces'
+import type { ProjectInfo } from '../types/interfaces'
 
 type Props = {
     open?: boolean
@@ -73,11 +73,11 @@ export default function NewProjectModal({ open = false, project = null, onClose 
                     setDebugFetchedMemories(j.memories || null)
                     if (r.ok) {
                         // normalize types to lowercase to match memoryTypes
-                                const existing = (j.memories || []).reduce((acc: Record<string, boolean>, m: any) => {
-                                    const t = (m?.type || m?.memory_type || '')
-                                    if (t) acc[String(t).toLowerCase().trim()] = true
-                                    return acc
-                                }, {} as Record<string, boolean>)
+                        const existing = (j.memories || []).reduce((acc: Record<string, boolean>, m: any) => {
+                            const t = (m?.type || m?.memory_type || '')
+                            if (t) acc[String(t).toLowerCase().trim()] = true
+                            return acc
+                        }, {} as Record<string, boolean>)
                         setSelectedMemories(existing)
                         setDebugExistingMap(existing)
                     }

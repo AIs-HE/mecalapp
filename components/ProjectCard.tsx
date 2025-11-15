@@ -1,6 +1,6 @@
 // SPDX: typed
 import React, { useState, useRef, useEffect } from 'react'
-import { ProjectInfo } from '../types/interfaces'
+import type { ProjectInfo } from '../types/interfaces'
 
 function formatProjectId(id: string | number | undefined) {
     if (!id) return 'HE-0000'

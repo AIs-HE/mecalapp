@@ -2,7 +2,7 @@ import React, { useState, useRef, useEffect } from 'react'
 import { useRouter } from 'next/router'
 import AssignMemoryModal from './AssignMemoryModal'
 import memoryTypes from '../data/memory_types.json'
-import { MemoryInfo } from '../types/interfaces'
+import type { MemoryInfo } from '../types/interfaces'
 
 type Props = {
     memory: MemoryInfo
