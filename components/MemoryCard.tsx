@@ -16,24 +16,25 @@ export default function MemoryCard({ memory, isAdmin, onDelete = () => { } }: Pr
     const router = useRouter()
     // derive full memory name and help link from local JSON table
     const normalizedType = (displayType || '').toString().toUpperCase()
-    const typeMeta = memoryTypes[normalizedType] || null
+    const typeMeta = (memoryTypes as Record<string, any>)[normalizedType] || null
     const memoryFullName = typeMeta?.memory_name || name || 'Untitled memory'
     const memoryHelp = typeMeta?.memory_help || null
     const [open, setOpen] = useState(false)
-    const btnRef = useRef(null)
-    const menuRef = useRef(null)
+    const btnRef = useRef<HTMLButtonElement | null>(null)
+    const menuRef = useRef<HTMLDivElement | null>(null)
 
     const [deleting, setDeleting] = useState(false)
     const [showAssign, setShowAssign] = useState(false)
     const [assignedName, setAssignedName] = useState(null)
 
     useEffect(() => {
-        function onDocClick(e) {
-            if (menuRef.current && !menuRef.current.contains(e.target) && btnRef.current && !btnRef.current.contains(e.target)) {
+        function onDocClick(e: Event) {
+            const target = e.target as Node | null
+            if (menuRef.current && target && !menuRef.current.contains(target) && btnRef.current && !btnRef.current.contains(target as any)) {
                 setOpen(false)
             }
         }
-        function onEsc(e) { if (e.key === 'Escape') setOpen(false) }
+        function onEsc(e: KeyboardEvent) { if (e.key === 'Escape') setOpen(false) }
         document.addEventListener('mousedown', onDocClick)
         document.addEventListener('touchstart', onDocClick)
         document.addEventListener('keydown', onEsc)
@@ -63,7 +64,7 @@ export default function MemoryCard({ memory, isAdmin, onDelete = () => { } }: Pr
         return () => { mounted = false }
     }, [memory?.id])
 
-    async function handleDelete(e) {
+    async function handleDelete(e: React.MouseEvent) {
         e.stopPropagation()
         // Prevent duplicate invocations (sometimes UI events may fire twice)
         console.debug('MemoryCard.handleDelete START', { deleting, memory })

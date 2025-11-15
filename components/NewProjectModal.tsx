@@ -12,17 +12,17 @@ type Props = {
 }
 
 export default function NewProjectModal({ open = false, project = null, onClose = () => { }, onCreated = () => { }, onUpdated = () => { } }: Props) {
-    const [clients, setClients] = useState([])
-    const [loadingClients, setLoadingClients] = useState(false)
-    const [name, setName] = useState('')
-    const [costCenter, setCostCenter] = useState('')
-    const [clientId, setClientId] = useState('')
-    const [selectedMemories, setSelectedMemories] = useState({})
-    const [saving, setSaving] = useState(false)
-    const [debugFetchedMemories, setDebugFetchedMemories] = useState(null)
-    const [debugExistingMap, setDebugExistingMap] = useState(null)
-    const [syncStatus, setSyncStatus] = useState('idle') // idle | pending | syncing | error
-    const [syncError, setSyncError] = useState(null)
+    const [clients, setClients] = useState<any[]>([])
+    const [loadingClients, setLoadingClients] = useState<boolean>(false)
+    const [name, setName] = useState<string>('')
+    const [costCenter, setCostCenter] = useState<string>('')
+    const [clientId, setClientId] = useState<string | number>('')
+    const [selectedMemories, setSelectedMemories] = useState<Record<string, boolean>>({})
+    const [saving, setSaving] = useState<boolean>(false)
+    const [debugFetchedMemories, setDebugFetchedMemories] = useState<any>(null)
+    const [debugExistingMap, setDebugExistingMap] = useState<Record<string, boolean> | null>(null)
+    const [syncStatus, setSyncStatus] = useState<'idle' | 'pending' | 'syncing' | 'error'>('idle') // idle | pending | syncing | error
+    const [syncError, setSyncError] = useState<string | null>(null)
     const memoryTypes = ['circuit', 'protection', 'ducts', 'installation', 'testing']
 
     useEffect(() => {
@@ -73,11 +73,11 @@ export default function NewProjectModal({ open = false, project = null, onClose 
                     setDebugFetchedMemories(j.memories || null)
                     if (r.ok) {
                         // normalize types to lowercase to match memoryTypes
-                        const existing = (j.memories || []).reduce((acc, m) => {
-                            const t = (m?.type || m?.memory_type || '')
-                            if (t) acc[String(t).toLowerCase().trim()] = true
-                            return acc
-                        }, {})
+                                const existing = (j.memories || []).reduce((acc: Record<string, boolean>, m: any) => {
+                                    const t = (m?.type || m?.memory_type || '')
+                                    if (t) acc[String(t).toLowerCase().trim()] = true
+                                    return acc
+                                }, {} as Record<string, boolean>)
                         setSelectedMemories(existing)
                         setDebugExistingMap(existing)
                     }
@@ -91,7 +91,7 @@ export default function NewProjectModal({ open = false, project = null, onClose 
         }
     }, [open, project?.id])
 
-    function toggleMemory(type) {
+    function toggleMemory(type: string) {
         // update local UI
         setSelectedMemories(s => {
             const prev = s || {}
@@ -146,7 +146,7 @@ export default function NewProjectModal({ open = false, project = null, onClose 
         }
     }
 
-    async function handleCreate(e) {
+    async function handleCreate(e: React.FormEvent) {
         e.preventDefault()
         if (!name || !clientId) return alert('Please provide project name and client')
         setSaving(true)

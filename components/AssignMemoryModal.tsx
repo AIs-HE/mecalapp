@@ -11,9 +11,9 @@ type Props = {
 
 export default function AssignMemoryModal({ open = false, memory = null, onClose = () => { }, onAssigned = () => { } }: Props) {
     const [profiles, setProfiles] = useState<UserInfo[]>([])
-    const [loading, setLoading] = useState(false)
+    const [loading, setLoading] = useState<boolean>(false)
     const [selectedUser, setSelectedUser] = useState<string | number | null>(null)
-    const [saving, setSaving] = useState(false)
+    const [saving, setSaving] = useState<boolean>(false)
 
     useEffect(() => {
         if (!open) return
@@ -21,7 +21,7 @@ export default function AssignMemoryModal({ open = false, memory = null, onClose
             setLoading(true)
             try {
                 // include Authorization header when available so server can derive user if needed
-                let headers = { 'Content-Type': 'application/json' }
+                let headers: Record<string, string> = { 'Content-Type': 'application/json' }
                 try {
                     const sess = await supabase.auth.getSession()
                     const token = sess?.data?.session?.access_token
@@ -43,14 +43,14 @@ export default function AssignMemoryModal({ open = false, memory = null, onClose
         load()
     }, [open])
 
-    async function handleAssign(e) {
+    async function handleAssign(e: React.FormEvent) {
         e.preventDefault()
         if (!memory || !memory.id) return alert('Missing memory')
         if (!selectedUser) return alert('Choose a user')
         setSaving(true)
         try {
             // include Authorization bearer token so server can derive acting user
-            let headers = { 'Content-Type': 'application/json' }
+            let headers: Record<string, string> = { 'Content-Type': 'application/json' }
             try {
                 const sess = await supabase.auth.getSession()
                 const token = sess?.data?.session?.access_token
@@ -67,9 +67,10 @@ export default function AssignMemoryModal({ open = false, memory = null, onClose
             if (!res.ok) throw new Error(j.error || 'Failed to assign')
             onAssigned && onAssigned(j.assignment)
             onClose()
-        } catch (err) {
+        } catch (err: unknown) {
             console.error('Assign error', err)
-            alert(err.message || String(err))
+            const msg = err instanceof Error ? err.message : String(err)
+            alert(msg)
         }
         setSaving(false)
     }

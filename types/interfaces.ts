@@ -2,12 +2,23 @@ export interface UserInfo {
     id: string | number
     full_name?: string
     email?: string
+    role?: string
 }
 
 export interface ProjectInfo {
-    id: string | number
-    name: string
-    description?: string
+    id?: string | number
+    name?: string
+    cost_center?: string
+    costCenter?: string
+    projectName?: string
+    client_id?: string | number
+    client?: string
+    version?: number
+    companyLogo?: string
+    lastModified?: string
+    memories_count?: number
+    memoriesCount?: number
+    [k: string]: any
 }
 
 export interface MemoryInfo {
@@ -17,8 +28,12 @@ export interface MemoryInfo {
     type?: string
     memory_type?: string
     project_id?: string | number
+    projectId?: string | number
     created_at?: string
     updated_at?: string
+    status?: string
+    created_by?: string | number
+    [k: string]: any
 }
 
 export interface CalcInputs {

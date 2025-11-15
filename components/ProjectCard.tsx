@@ -4,7 +4,7 @@ import { ProjectInfo } from '../types/interfaces'
 
 function formatProjectId(id: string | number | undefined) {
     if (!id) return 'HE-0000'
-    const last = id.replace(/-/g, '').slice(-4).toUpperCase()
+    const last = String(id).replace(/-/g, '').slice(-4).toUpperCase()
     return `HE-${last}`
 }
 
@@ -79,18 +79,19 @@ export default function ProjectCard({ project, onClick, isAdmin, onEdit = () => 
     )
 }
 
-function ProjectMenu({ onEdit, onDelete }) {
+function ProjectMenu({ onEdit, onDelete }: { onEdit: () => void; onDelete: () => void }) {
     const [open, setOpen] = useState(false)
-    const btnRef = useRef(null)
-    const menuRef = useRef(null)
+    const btnRef = useRef<HTMLButtonElement | null>(null)
+    const menuRef = useRef<HTMLDivElement | null>(null)
 
     useEffect(() => {
-        function onDocClick(e) {
-            if (menuRef.current && !menuRef.current.contains(e.target) && btnRef.current && !btnRef.current.contains(e.target)) {
+        function onDocClick(e: Event) {
+            const target = e.target as Node | null
+            if (menuRef.current && target && !menuRef.current.contains(target) && btnRef.current && !btnRef.current.contains(target as any)) {
                 setOpen(false)
             }
         }
-        function onEsc(e) {
+        function onEsc(e: KeyboardEvent) {
             if (e.key === 'Escape') setOpen(false)
         }
         document.addEventListener('mousedown', onDocClick)
