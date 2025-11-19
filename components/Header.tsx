@@ -41,7 +41,7 @@ export default function Header({ user = null }: Props) {
         return (
             <Link
                 href={href}
-                className={`text-sm ${active ? 'text-green-600 font-medium' : 'text-gray-500'} hover:text-green-600 transition-colors`}>
+                className={`text-xs ${active ? 'text-green-600 font-semibold' : 'text-gray-400'} hover:text-green-600 transition-colors`}>
                 {label}
             </Link>
         )
@@ -65,7 +65,7 @@ export default function Header({ user = null }: Props) {
                                 </div>
                                 <button
                                     onClick={handleSignOut}
-                                    className="px-4 py-2 rounded-md bg-green-600 text-white hover:bg-green-700 active:bg-gray-300 transition-colors"
+                                    className="bg-green-600 text-white px-4 py-2 rounded-md font-semibold hover:bg-green-700 active:bg-gray-400 transition-colors"
                                     type="button"
                                 >
                                     Sign out
