@@ -743,6 +743,32 @@ main h2 {
     animation: rectDown 500ms cubic-bezier(.22, .9, .55, 1) forwards;
 }
 
+/* Temporary override to guarantee header/nav colors until Tailwind output is verified */
+/* Remove this override once Tailwind outputs the expected utilities. */
+header a,
+.app-header a {
+    color: #9CA3AF !important;
+    text-decoration: none;
+}
+
+header a:hover,
+.app-header a:hover {
+    color: #6B7280 !important;
+}
+
+/* Ensure sign-out / green action buttons keep their intended color */
+header button.bg-green-600,
+.app-header button.bg-green-600 {
+    background-color: #16A34A !important;
+    color: #fff !important;
+}
+
+header button.bg-green-600:hover,
+.app-header button.bg-green-600:hover {
+    background-color: #15803d !important;
+}
+
+
 .decor-rect-5 {
     width: 140px;
     height: 64px;
