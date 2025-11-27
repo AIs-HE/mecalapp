@@ -183,6 +183,18 @@ Summary of repository-level choices made during POC iteration that are useful fo
 - Circuit Dimension & calculation module:
 	- A POC calculation entry point exists at `/calc/circuit-dimension-main` (configuration-first modal with localStorage persistence). When productionizing, plan for a dedicated storage strategy (JSONB column or a related table) and an API contract for calculation runs.
 
+POC Incremental Update (2025-11-27)
+----------------------------------
+- Local UI delta: the Circuit Dimension page (`/calc/circuit-dimension-main`) was reimplemented container-by-container in TypeScript. Key UI notes for architects:
+	- Header: dark-blue header uses the theme token `--color-main` and is content-driven (no fixed height).
+	- Background: the page preserves the `bg-clump` decorative wrapper but now uses the project-style rectangles `rect-a`..`rect-h` so the look matches the projects page.
+	- Footer reservation: page toggles `body.no-footer-reserve` on mount to set `--footer-height: 0` for this page only; this is a per-page CSS override and does not change DB policies.
+	- DraftControls: a fixed white bottom DraftControls bar was added to the scaffold (placeholder action handlers). The `main` area is transparent and uses bottom padding so content is not occluded by the fixed bar.
+
+Notes & next steps for architecture:
+- These are UI-only changes; if persistence is added (save/load from DB) define the JSONB contract and update `backend_ref.md` migrations before applying DB changes.
+- The page was validated locally with `npx tsc --noEmit`; no TypeScript errors reported. No commits/pushes were performed — changes remain local until instructed to commit.
+
 Memory types (POC)
 ------------------
 - Canonical column: `memory_type` (the DB column used in `project_memories`). The POC intentionally keeps the DB column named `memory_type` and the server responses reflect that field.

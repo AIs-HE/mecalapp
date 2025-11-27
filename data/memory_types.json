@@ -1,9 +1,4 @@
 {
-    "circuit": "CIRCUIT DIMENSION",
-    "ducts": "DUCTS",
-    "protection": "PROTECTION"
-}
-{
     "CIRCUIT": {
         "memory_type": "CIRCUIT",
         "memory_name": "CIRCUIT DIMENSION",

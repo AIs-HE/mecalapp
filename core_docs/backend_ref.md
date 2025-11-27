@@ -998,3 +998,14 @@ As part of documentation verification we ran a duplicate-check against `memory_a
 Notes:
   - Creating the unique index will fail if duplicates exist; run the duplicate-check query first and remove duplicates if necessary (see earlier dedupe guidance in this file).
   - Use `CONCURRENTLY` to reduce lock contention; some migration systems wrap statements in transactions and will not permit `CONCURRENTLY` — run the index creation step separately if required by your migration tooling.
+
+POC Incremental Update (2025-11-27)
+----------------------------------
+- Local developer update: the in-repo Circuit Dimension POC page at `/calc/circuit-dimension-main` was rewritten container-by-container in TypeScript (`.tsx`). The page implements the dark-blue header (uses `--color-main`), preserves the decorative `bg-clump` but now renders the project-style rectangles (`rect-a`..`rect-h`), and makes the `main` content transparent so rectangles show through.
+- Per-page layout adjustment: the page adds/removes a `body.no-footer-reserve` class via a small `useEffect` so the global reserved footer space (`--footer-height`) becomes `0` for this page only. This is a UI-only, per-page CSS override and does not change DB or API behaviour.
+- DraftControls: a fixed white DraftControls bar (bottom) was added to the page scaffold with placeholder action handlers (save/load/export). The `main` element includes bottom padding to avoid overlap with the fixed bar.
+- Verification: after these local edits the TypeScript compiler (`npx tsc --noEmit`) was run and returned no diagnostics locally. No commits or pushes were performed — these edits remain local per the current working policy.
+
+Next steps (backend-facing):
+- No DB changes required for these UI deltas. When wiring persistence for DraftControls consider adding an API endpoint or a JSONB column for calculation memory state rather than relying on localStorage alone.
+- If the Circuit Dimension UI persist actions will create/modify `project_memories` or related JSONB payloads, update the relevant migrations and document expected JSON schema in this file before applying DB migrations.

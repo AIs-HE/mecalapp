@@ -44,25 +44,53 @@ The Secondary page uses a 4-container layout system with distinct color coding a
 ## 1. DARK BLUE HEADER CONTAINER
 
 **Component:** Header navigation bar
-**Purpose:** System navigation and user context
-**Background Color:** Dark blue/navy (`bg-slate-800`)
+**Purpose:** System navigation and user/context actions for the Circuit Dimension POC
+**Background Color (implementation):** Uses the CSS variable `--color-main` with a green fallback. In code the header is rendered with an inline style:
 
-### Content Displayed:
-- **System Logo/Brand:** "MeCalApp" application name
-- **User Information:** 
-  - Current user name
-  - User role (Admin/Director/Employee)
-- **Navigation Elements:**
-  - Back to Circuit Dimmension memory - Main page button
-  - Back to projects button
-  - Close session button
+`style={{ background: 'var(--color-main, #85B726)' }}`
 
-- **Page Title:** "CDM - Circuit Dimmension memory"
+### Content & Layout (exact structure from current code)
+- Top-level container: a full-width header row with small vertical padding and horizontal padding: `className="text-white bg-slate-800 py-1 px-4"` and the inline `background` style above.
+- Inner layout: `div` with `className="flex justify-between items-center"` splitting the header into left and right groups.
 
-### Functionality:
-- User logout capability
-- Navigation to Projects page and Circuit Dimmension memory - Main page 
-- Display current authentication state
+Left group (`flex items-center space-x-4`):
+- App title: `h1` with `className="text-lg font-bold leading-none"` — renders "MeCalApp".
+- Subtitle: `span` with `className="text-xs leading-none"` — renders the page short title `CDM - Circuit Dimension memory`.
+
+Right group (`flex items-center space-x-4 text-sm`):
+- User display block (right-aligned): a small two-line block showing `displayName` and `role` with classes to keep compact vertical spacing:
+   - Name: `className="font-medium leading-none text-sm"`
+   - Role: `className="text-xs text-white/70 leading-none"`
+- Primary action near user: `Back to Config` button (opens the modal). Implemented as a small button with the same theme color inline `style={{ background: 'var(--color-main, #85B726)' }}` and `className="px-3 py-1 rounded"` so it visually sits next to the user info.
+- Secondary action: `Back to Projects` button using a translucent dark background `style={{ background: 'rgba(0,0,0,0.12)', color: 'white' }}`.
+
+### Notes on sizing and behavior
+- Header height is content-driven (no fixed `h-` class). Padding uses `py-1 px-4` to keep the header compact and let its height match the child content naturally.
+- User name and role are placed immediately to the left of the `Back to Config` control so user context is visually adjacent to the primary page action.
+- The header uses the theme variable `--color-main` so it adapts to global theme values while the inline fallback ensures predictable appearance if the CSS variable is missing.
+
+### Reference JSX (simplified)
+```
+<div className="text-white py-1 px-4" style={{ background: 'var(--color-main, #85B726)' }}>
+   <div className="flex justify-between items-center">
+      <div className="flex items-center space-x-4">
+         <h1 className="text-lg font-bold leading-none">MeCalApp</h1>
+         <span className="text-xs leading-none">CDM - Circuit Dimension memory</span>
+      </div>
+
+      <div className="flex items-center space-x-4 text-sm">
+         <div className="mr-2 text-sm text-white/90 text-right leading-none">
+            <div className="font-medium leading-none text-sm">{displayName}</div>
+            <div className="text-xs text-white/70 leading-none">{role}</div>
+         </div>
+         <button className="px-3 py-1 rounded" style={{ background: 'var(--color-main, #85B726)', color: 'white' }}>Back to Config</button>
+         <button className="px-3 py-1 rounded" style={{ background: 'rgba(0,0,0,0.12)', color: 'white' }}>Back to Projects</button>
+      </div>
+   </div>
+</div>
+```
+
+This description should be kept in sync with `pages/calc/circuit-dimension-main.tsx` as the header evolves.
 
 ---
 
@@ -703,8 +731,8 @@ interface Equipment {
 
 ## 7. STYLING AND VISUAL DESIGN
 
-### 7.1 Color Palette
-- **Dark Blue Header:** `bg-slate-800` - Navigation/branding
+-### 7.1 Color Palette
+- **Header:** `#85B726` / `var(--color-main)` - Navigation/branding
 - **Emerald Green:** `bg-emerald-600` - Project information
 - **Purple:** `bg-purple-500` - Tab container
 - **Red:** `bg-red-500` - Common inputs area
@@ -780,7 +808,7 @@ The following items document the current implementation present in the repositor
 - **Modal Configuration UI:** A 7-question modal (4 boolean toggles + 3 numeric inputs) was added. Defaults: `NonEseBool=false`, `DCBool=false`, `TranBool=false`, `GenBool=false`, `niFactor=1.25`, `deltaV=5`, `percLoss=3.88`.
 - **Navigation:** `components/MemoryCard.jsx` was updated to handle `memory_type: 'circuit'` and route users to the Circuit Dimension main page. This fixed an earlier redirect issue where `memory_type` values did not match the frontend expectation.
 - **Configuration Persistence:** Modal values are saved to `localStorage` so the Secondary page layout can read and apply them immediately without a DB round-trip. This supports optimistic UX and draft workflows.
-- **Secondary Layout (scaffold):** A 4-container secondary layout is present to accept configuration and display the calculation UI (Dark Blue header, Emerald Green project info, Purple tabs & gallery, White draft controls). Calculation engines and per-row functions are documented in this spec and are ready to be wired into the secondary layout.
+   - **Secondary Layout (scaffold):** A 4-container secondary layout is present to accept configuration and display the calculation UI (Emerald header, Emerald Green project info, Purple tabs & gallery, White draft controls). Calculation engines and per-row functions are documented in this spec and are ready to be wired into the secondary layout.
 
 Where to look (code pointers):
 

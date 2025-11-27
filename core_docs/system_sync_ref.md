@@ -199,6 +199,15 @@ Concise integration notes to help engineers mapping the canonical contracts in t
   - The POC uses `lib/cache.js` for a localStorage-backed ops queue (`syncQueue()`) to provide optimistic/offline-like behaviour for toggles in `components/NewProjectModal.jsx`.
   - Circuit Dimension configuration is persisted in `localStorage` in the POC; when porting to production define a stable API or JSONB storage for configuration state.
 
+  POC Incremental Update (2025-11-27)
+  ----------------------------------
+  - UI integration notes: the `circuit-dimension-main` page was rewritten in TypeScript and includes several UI-only choices worth noting for integrators:
+    - The page uses the theme token `--color-main` for the header and preserves the `bg-clump` decorative wrapper but renders `rect-a..rect-h` for the project-style background.
+    - To remove the global footer reservation on this page only, the page toggles `body.no-footer-reserve` on mount. This is a per-page CSS override and does not modify global layout tokens or backend contracts.
+    - A fixed white DraftControls bar exists in the scaffold; DraftControls currently use placeholder handlers. If integration requires server persistence for DraftControls (save/load/export), define the API endpoints and expected JSONB schema and document them here before implementing migrations.
+
+  Developer note: these deltas are UI-only and were validated locally with `npx tsc --noEmit` (no TypeScript diagnostics). No commits were performed — changes are local until instructed to commit and push.
+
 - Error handling & build guidance:
   - Tailwind recommendation: prefer static class strings to ensure utilities are present in the compiled CSS and not removed by the build pipeline.
   - Server-only env changes (for example `SUPABASE_SERVICE_ROLE_KEY`) require restarting the Next dev server to pick up updated values.

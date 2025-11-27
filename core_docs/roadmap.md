@@ -39,6 +39,12 @@ Changelog (selected)
 
 - 2025-11-26 - POC increments: finalized `/projects` as canonical in-repo gallery, converted `/dashboard` to a placeholder, updated sign-in redirect to `/projects`, added Tailwind/PostCSS guidance (prefer static classes), documented dynamic client-only imports for browser-dependent components, and noted that the POC uses an internal `.projects-scroll` max-height (~`60vh`) rather than explicit `--header-height`/`--footer-height` CSS variables.
 
+- 2025-11-27 - Circuit Dimension UI rebuild (local): Rewrote `pages/calc/circuit-dimension-main.tsx` container-by-container (dark-blue header implemented, background rectangles replaced with `rect-a..rect-h`, `main` made transparent, per-page `body.no-footer-reserve` override added, and a fixed white DraftControls bar scaffolded). TypeScript checks were run locally with no diagnostics. These edits are local and pending commit/push.
+
+Pending next steps (short):
+- Wire DraftControls persistence handlers (`onPushToDatabase`, `onLoadFromDatabase`, `onExport`) and define API / JSONB contract if persistence moves to the backend.
+- Implement Emerald Green `ProjectInfoPanel` and the purple/red/gray containers as per the architecture spec.
+
 Developer notes
 ---------------
 - Always use migrations for schema changes; do not edit production DB manually.

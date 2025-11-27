@@ -132,6 +132,17 @@ Circuit Dimension Memory Implementation (2025-11-05)
 - Storage: Configuration persisted in localStorage with project/memory context
 - Secondary layout: Placeholder for additional calculation components after configuration
 
+POC Incremental Update (2025-11-27)
+----------------------------------
+- UI implementation notes (developer-facing):
+  - The `/calc/circuit-dimension-main` page was rebuilt container-by-container in TypeScript. The dark-blue header follows the architecture spec and uses `--color-main` for theming.
+  - The page preserves the decorative `bg-clump` but renders the larger project background rectangles (`rect-a`..`rect-h`) so the page background matches the projects gallery visuals.
+  - To remove the global footer reserve on this page only, the page adds `body.no-footer-reserve` on mount (via `useEffect`) and removes it on unmount. This sets `--footer-height: 0` locally without changing global layout rules.
+  - A fixed white DraftControls bar was added at the bottom of the page; the `main` content is transparent and has bottom padding (≈120px) to avoid overlap with the bar. Draft action buttons are placeholders until persistence is wired.
+
+Developer notes:
+- These changes are UI-only and were verified locally with `npx tsc --noEmit` (no TypeScript diagnostics). No commits were made. If you plan to persist DraftControls actions, define the API contract and update `system_sync_ref.md` and `backend_ref.md` accordingly before introducing DB migrations.
+
 Validation guidance (suggested)
 ------------------------------
 - Project.name: required, 3–100 characters

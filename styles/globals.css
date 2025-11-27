@@ -954,6 +954,14 @@ body,
     overflow: hidden !important;
 }
 
+/* Per-page override: when a page needs no reserved footer space, add
+   the `no-footer-reserve` class to the body. This keeps the global
+   footer reservation intact for other pages. */
+body.no-footer-reserve {
+    --footer-height: 0px !important;
+    padding-bottom: 0px !important;
+}
+
 /* Ensure the fixed main scrolls only vertically and never horizontally. */
 .app-main-fixed {
     overflow-x: hidden !important;
