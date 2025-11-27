@@ -1,3 +1,22 @@
+export type MemoryType = 'circuit' | 'ducts' | 'protection';
+
+export interface ProjectMemory {
+    id: string;
+    project_id: string;
+    memory_type: MemoryType;
+    version: string;
+    status: string;
+    created_by?: string | null;
+    created_at: string; // ISO timestamp
+}
+
+export interface MemoryAssignment {
+    id: string;
+    memory_id: string;
+    user_id: string;
+    assigned_at: string; // ISO timestamp
+    assigned_by?: string | null;
+}
 export interface UserInfo {
     id: string | number
     full_name?: string

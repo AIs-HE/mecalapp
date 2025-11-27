@@ -219,17 +219,21 @@ CREATE TABLE IF NOT EXISTS public.memory_assignments (
 -- audit_logs: event tracking
 CREATE TABLE IF NOT EXISTS public.audit_logs (
   id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
-  actor uuid REFERENCES public.profiles(id),
-  action text,
-  details JSONB,
-  created_at timestamptz DEFAULT now()
+  table_name text NOT NULL,
+  record_id uuid NOT NULL,
+  action text NOT NULL,
+  user_id uuid REFERENCES public.profiles(id),
+  timestamp timestamptz NOT NULL DEFAULT now(),
+  changes JSONB,
+  source text,
+  request_id text
 );
 
 Indexes
 -------
 CREATE INDEX IF NOT EXISTS idx_projects_client_id ON public.projects(client_id);
 CREATE INDEX IF NOT EXISTS idx_memories_project_id ON public.project_memories(project_id);
--- prior naming varied between `profile_id` and `user_id` in different places;
+-- prior naming varied between `profile_id` and `user_id` in different places; the canonical column is `user_id` and current code/APIs rely on `user_id`.
 -- canonical index uses `user_id` to match current code and APIs
 CREATE INDEX IF NOT EXISTS idx_assignments_user_id ON public.memory_assignments(user_id);
 
@@ -256,7 +260,7 @@ CREATE POLICY IF NOT EXISTS projects_employee_read ON public.projects
     exists (
       select 1 from public.memory_assignments ma
       join public.project_memories pm on pm.id = ma.memory_id
-      where ma.profile_id = auth.uid() and pm.project_id = public.projects.id
+      where ma.user_id = auth.uid() and pm.project_id = public.projects.id
     )
   );
 
@@ -270,7 +274,7 @@ CREATE POLICY IF NOT EXISTS memories_admin_full ON public.project_memories
 CREATE POLICY IF NOT EXISTS memories_assigned ON public.project_memories
   FOR SELECT, UPDATE USING (
     exists (
-      select 1 from public.memory_assignments ma where ma.profile_id = auth.uid() and ma.memory_id = public.project_memories.id
+      select 1 from public.memory_assignments ma where ma.user_id = auth.uid() and ma.memory_id = public.project_memories.id
     )
   );
 
@@ -308,12 +312,12 @@ INSERT INTO public.project_memories (id, project_id, title, memory_type, created
   ('33333333-3333-3333-3333-333333333333', '22222222-2222-2222-2222-222222222222', 'Initial Load Study', 'circuit', '00000000-0000-0000-0000-000000000001')
 ON CONFLICT (id) DO NOTHING;
 
-INSERT INTO public.memory_assignments (id, memory_id, profile_id) VALUES
+INSERT INTO public.memory_assignments (id, memory_id, user_id) VALUES
   ('44444444-4444-4444-4444-444444444444', '33333333-3333-3333-3333-333333333333', '00000000-0000-0000-0000-000000000002')
 ON CONFLICT (id) DO NOTHING;
 
-INSERT INTO public.audit_logs (id, actor, action, details) VALUES
-  ('55555555-5555-5555-5555-555555555555', '00000000-0000-0000-0000-000000000001', 'seed:initial', '{"note":"seeded initial data"}')
+INSERT INTO public.audit_logs (id, table_name, record_id, action, user_id, changes) VALUES
+  ('55555555-5555-5555-5555-555555555555', 'seed', '00000000-0000-0000-0000-000000000000', 'seed:initial', '00000000-0000-0000-0000-000000000001', '{"note":"seeded initial data"}')
 ON CONFLICT (id) DO NOTHING;
 
 Migration & operational notes
@@ -423,6 +427,17 @@ CREATE INDEX idx_audit_logs_timestamp ON audit_logs(timestamp DESC);
 - Read operations
 
 ---
+
+## Project memories — canonical fields & types (POC)
+
+**Canonical column:** `memory_type` (TEXT NOT NULL) is used in `project_memories` to indicate the kind of memory.
+
+**Observed values (POC):** `circuit`, `ducts`, `protection`.
+
+Notes:
+- The server and DB use `memory_type` as the canonical field. The frontend POC normalizes this field into a `type` property for UI convenience; audits and API contracts should continue to use `memory_type` to avoid ambiguity.
+- If you enforce a strict enum at the DB level, add a CHECK constraint or a lookup table. For incremental enforcement, validate on the server and add a migration to constrain values once clients are updated.
+
 
 ## 🔐 Row Level Security (RLS) Policies
 
@@ -934,3 +949,52 @@ VALUES
 ---
 
 **End of Backend Reference**
+
+---
+
+POC Implementation Update (2025-11-26)
+------------------------------------
+Short, actionable backend-focused notes reflecting the in-repo Next.js POC changes and server example routes. These are implementation pointers for backend authors who may need to align migrations or policies with the POC integration patterns.
+
+- Example route locations:
+  - `pages/api/projects.js` — example admin GET/POST using `lib/supabaseAdmin.js` (admin/testing helper only).
+  - `pages/api/project_memories.js` — example for listing/creating project memories; normalizes `memory_type` to a stable `type` key in responses for frontend convenience.
+  - `pages/api/memory_assignments.js` — example POST updated to perform update-or-insert semantics keyed by `memory_id` and to dedupe older duplicates; server sets `assigned_by` from the authenticated actor.
+
+- Important server-side behaviours:
+  - Example `pages/api/*` routes use the admin client and bypass RLS — treat them as development/admin helpers only and do not expose `SUPABASE_SERVICE_ROLE_KEY` in client code.
+  - Server APIs now derive the acting user's id server-side from the Authorization Bearer token or `sb-access-token` cookie (do not trust `user_id` query params for user-scoped responses).
+  - After editing server-only env vars (for example `SUPABASE_SERVICE_ROLE_KEY`), restart the Next.js dev server so server routes pick up updated values.
+
+- Assignment & audit notes:
+  - The example assignment route enforces one-active-assignment semantics by update-or-insert keyed by `memory_id`. Recommended production action: run a dedupe migration and add a UNIQUE index/constraint on `memory_id` to enforce at DB level while preserving history in `audit_logs`.
+  - Assignment audit rows are produced by a DB trigger in the POC to avoid duplicate API-level and trigger-level writes; if you need `request_id` in trigger logs, propagate it into the Postgres session via `set_config('request.request_id', '<uuid>', true)` before DML.
+
+- Circuit Dimension memory:
+  - `project_memories.memory_type = 'circuit'` is respected by API contracts; frontend POC routes `circuit` memories to `/calc/circuit-dimension-main` for configuration and calculation.
+  - Consider storing calculation configuration as JSONB in a dedicated column or related table when moving beyond localStorage persistence.
+
+These notes are intended to help backend engineers reconcile the POC example routes with canonical DB schemas and RLS policies. The canonical schema and RLS policy definitions in this file remain authoritative; the example routes in `pages/api/*` are development-only.
+
+Verification (2025-11-27)
+------------------------
+As part of documentation verification we ran a duplicate-check against `memory_assignments` to determine whether duplicate assignment rows exist for the same `memory_id`.
+
+- Result: no duplicate `memory_id` rows were found (query: `SELECT memory_id, COUNT(*) AS cnt FROM memory_assignments GROUP BY memory_id HAVING COUNT(*) > 1;` returned zero rows).
+
+- Recommendation: since there are currently no duplicates, it is safe to add a DB-level uniqueness constraint to prevent future duplicates. Suggested steps (run in a safe maintenance window or on staging first):
+
+  1) Optional: take a backup or export of `memory_assignments` for recovery.
+
+  2) Add a unique index concurrently to avoid long locks on large tables (run outside of an explicit transaction):
+
+     ```sql
+     CREATE UNIQUE INDEX CONCURRENTLY IF NOT EXISTS uniq_memory_assignments_memory_id
+       ON memory_assignments (memory_id);
+     ```
+
+  3) If you prefer a migration file, create an idempotent migration that runs the `CREATE UNIQUE INDEX CONCURRENTLY` statement as a separate non-transactional step (some migration runners require special handling for concurrent index creation).
+
+Notes:
+  - Creating the unique index will fail if duplicates exist; run the duplicate-check query first and remove duplicates if necessary (see earlier dedupe guidance in this file).
+  - Use `CONCURRENTLY` to reduce lock contention; some migration systems wrap statements in transactions and will not permit `CONCURRENTLY` — run the index creation step separately if required by your migration tooling.

@@ -160,3 +160,35 @@ Where to find implementation details
 - Production deployment guide: `deployment_guide.md`
 
 End of Complete Reference
+ 
+---
+
+POC Implementation Update (2025-11-26)
+------------------------------------
+Summary of repository-level choices made during POC iteration that are useful for architects and integrators.
+
+- Repo layout & canonical choices:
+	- The in-repo Next.js POC lives at the repository root and is intentionally minimal; use it as a visual/integration reference only. Consider moving a production frontend into a separate `frontend/` workspace when ready.
+	- `lib/supabaseClient.js` (browser) and `lib/supabaseAdmin.js` (server-only) are the canonical helpers in the repo; do not expose the service role key in client code.
+
+- UX & frontend implementation notes that affect architecture:
+	- Navigation: `/projects` is the canonical projects gallery route; `/dashboard` was converted to a placeholder during POC and `/projects` hosts the projects UI.
+	- The dev POC uses dynamic client-only imports for heavy components (avoid SSR load issues); this approach was used in `pages/projects.js` to keep the SSR surface minimal.
+	- Tailwind/PostCSS build: prefer static class strings to ensure utilities are emitted in compiled CSS; ensure `autoprefixer` and the Tailwind PostCSS adapter are configured in `postcss.config.js`.
+
+- Tokens & layout constants (for system-level style alignment):
+	- Colors: primary `#85B726`, muted `#858688` exported in `lib/theme.js` and referenced in `styles/globals.css`.
+	- Layout tokens: The POC does not define `--header-height`/`--footer-height` CSS variables in `styles/globals.css`. The projects scroll area uses a `max-height` of ~`60vh` in the POC; consider adding explicit header/footer tokens in production frontends to reserve space when using fixed header/footer bars.
+
+- Circuit Dimension & calculation module:
+	- A POC calculation entry point exists at `/calc/circuit-dimension-main` (configuration-first modal with localStorage persistence). When productionizing, plan for a dedicated storage strategy (JSONB column or a related table) and an API contract for calculation runs.
+
+Memory types (POC)
+------------------
+- Canonical column: `memory_type` (the DB column used in `project_memories`). The POC intentionally keeps the DB column named `memory_type` and the server responses reflect that field.
+- Known values observed in the POC / seeded data: `circuit`, `ducts`, `protection`.
+- Frontend normalization: the POC client normalizes rows to expose a `type` property for UI convenience (i.e., `memory_type` -> `type`). The canonical source-of-truth remains the `memory_type` DB column.
+- Mapping file: A small lookup is included in the repo at `data/memory_types.json` that maps the canonical values to display names (e.g., `"circuit": "CIRCUIT DIMENSION"`). Components such as `components/MemoryCard.jsx` use this mapping to render friendly names.
+
+
+Use these notes to align system-level decisions (deployment, environment, infra) with the POC's in-repo choices. For production work, prefer separate, testable frontend workspaces and CI jobs that run migrations and type generation as part of the deploy pipeline.
