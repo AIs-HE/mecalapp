@@ -856,6 +856,22 @@ main h2 {
     background-clip: padding-box;
 }
 
+/* Modal scroll: hide scrollbar for modal dialog content by default */
+.modal-scroll {
+    overflow-y: auto;
+    /* Firefox */
+    scrollbar-width: none;
+    /* IE 10+ */
+    -ms-overflow-style: none;
+    max-height: 90vh;
+}
+
+.modal-scroll::-webkit-scrollbar {
+    width: 0;
+    height: 0;
+    display: none;
+}
+
 .animate-up-enter {
     animation: rectUp 700ms cubic-bezier(.22, .9, .55, 1) forwards;
 }

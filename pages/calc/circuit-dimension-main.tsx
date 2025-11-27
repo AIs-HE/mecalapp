@@ -97,14 +97,15 @@ export default function CircuitDimensionMainPage() {
             {/* Modal for Configuration Questions */}
             {showModal && (
                 <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-                    <div className="bg-white rounded-lg shadow-xl max-w-2xl w-full mx-4 max-h-[90vh] overflow-y-auto">
+                    <div className="bg-white rounded-lg shadow-xl max-w-2xl w-full mx-4 max-h-[90vh] overflow-y-auto modal-scroll">
                         {/* Modal Header */}
-                        <div className="bg-slate-800 text-white p-6 rounded-t-lg">
+                        <div className="text-white p-6 rounded-t-lg" style={{ background: '#85b726' }}>
                             <div className="flex justify-between items-center">
                                 <h2 className="text-xl font-bold">Circuit Dimension Memory Configuration</h2>
                                 <button
                                     onClick={() => router.back()}
                                     className="text-white hover:text-gray-300"
+                                    aria-label="close"
                                 >
                                     ✕
                                 </button>
@@ -138,9 +139,10 @@ export default function CircuitDimensionMainPage() {
                                                     <button
                                                         onClick={() => handleToggle(question.key)}
                                                         className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${formData[question.key]
-                                                            ? 'bg-blue-600'
+                                                            ? ''
                                                             : 'bg-gray-300'
                                                             }`}
+                                                        style={formData[question.key] ? { background: 'var(--color-main)' } : undefined}
                                                     >
                                                         <span
                                                             className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${formData[question.key]
@@ -169,7 +171,8 @@ export default function CircuitDimensionMainPage() {
                                                 step="0.01"
                                                 value={formData.niFactor}
                                                 onChange={(e) => handleNumberChange('niFactor', e.target.value)}
-                                                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none"
+                                                style={{ boxShadow: '0 0 0 3px rgba(133,183,38,0.12)' }}
                                                 placeholder="1.25"
                                             />
                                         </div>
@@ -183,7 +186,8 @@ export default function CircuitDimensionMainPage() {
                                                 step="0.1"
                                                 value={formData.deltaV}
                                                 onChange={(e) => handleNumberChange('deltaV', e.target.value)}
-                                                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none"
+                                                style={{ boxShadow: '0 0 0 3px rgba(133,183,38,0.12)' }}
                                                 placeholder="5"
                                             />
                                         </div>
@@ -197,7 +201,8 @@ export default function CircuitDimensionMainPage() {
                                                 step="0.01"
                                                 value={formData.percLoss}
                                                 onChange={(e) => handleNumberChange('percLoss', e.target.value)}
-                                                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none"
+                                                style={{ boxShadow: '0 0 0 3px rgba(133,183,38,0.12)' }}
                                                 placeholder="3.88"
                                             />
                                         </div>
@@ -215,7 +220,8 @@ export default function CircuitDimensionMainPage() {
                                 </button>
                                 <button
                                     onClick={handleLoadCalculationMemory}
-                                    className="px-6 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors"
+                                    className="px-6 py-2 text-white rounded-md transition-colors"
+                                    style={{ background: 'var(--color-main)' }}
                                 >
                                     Load Calculation Memory
                                 </button>
@@ -229,7 +235,7 @@ export default function CircuitDimensionMainPage() {
             {!showModal && (
                 <div className="min-h-screen grid grid-rows-[auto_1fr_auto]">
                     {/* Dark Blue Header Container */}
-                    <div className="bg-slate-800 text-white p-4">
+                    <div className="text-white p-4" style={{ background: 'var(--color-muted)' }}>
                         <div className="flex justify-between items-center">
                             <div className="flex items-center space-x-4">
                                 <h1 className="text-xl font-bold">MeCalApp</h1>
@@ -238,13 +244,15 @@ export default function CircuitDimensionMainPage() {
                             <div className="flex items-center space-x-4 text-sm">
                                 <button
                                     onClick={() => setShowModal(true)}
-                                    className="bg-blue-600 px-3 py-1 rounded hover:bg-blue-700"
+                                    className="px-3 py-1 rounded"
+                                    style={{ background: 'var(--color-main)', color: 'white' }}
                                 >
                                     Back to Config
                                 </button>
                                 <button
                                     onClick={() => router.push('/dashboard')}
-                                    className="bg-gray-600 px-3 py-1 rounded hover:bg-gray-700"
+                                    className="px-3 py-1 rounded"
+                                    style={{ background: 'rgba(0,0,0,0.12)', color: 'white' }}
                                 >
                                     Back to Projects
                                 </button>
@@ -256,7 +264,7 @@ export default function CircuitDimensionMainPage() {
                     {/* Main Content Area */}
                     <div className="flex">
                         {/* Left Content - Purple Container Placeholder */}
-                        <div className="flex-1 bg-purple-500 p-6">
+                        <div className="flex-1 p-6" style={{ background: 'var(--color-muted)' }}>
                             <div className="text-white">
                                 <h2 className="text-lg font-bold mb-4">📊 Tabs & Common Inputs (Purple Container)</h2>
                                 <div className="bg-purple-400 p-4 rounded mb-4">
@@ -277,7 +285,7 @@ export default function CircuitDimensionMainPage() {
                         </div>
 
                         {/* Right Sidebar - Emerald Green Container */}
-                        <div className="w-80 bg-emerald-600 p-6 text-white">
+                        <div className="w-80 p-6 text-white" style={{ background: 'var(--color-main)' }}>
                             <h2 className="text-lg font-bold mb-4">🏢 Project Info Panel</h2>
                             {projectData ? (
                                 <div className="space-y-3">
@@ -295,7 +303,7 @@ export default function CircuitDimensionMainPage() {
                                 <p>Project information will be displayed here</p>
                             )}
 
-                            <div className="mt-6 border-2 border-dashed border-emerald-400 p-4 rounded">
+                            <div className="mt-6 border-2 border-dashed p-4 rounded" style={{ borderColor: 'rgba(133,183,38,0.45)' }}>
                                 <p className="text-sm">AI Integration Placeholder</p>
                             </div>
                         </div>
