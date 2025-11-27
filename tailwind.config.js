@@ -19,10 +19,12 @@ module.exports = {
     // Safelist: use pattern-based rules to cover dynamic variants without
     // listing every single utility. This reduces maintenance and still
     // prevents critical UI utilities from being purged during builds.
+    // Narrow safelist to a minimal set of utility classes that are
+    // intentionally applied via JS or are critical for initial layout.
+    // We aim to remove this safelist after converting dynamic classes
+    // to static lookups across components.
     safelist: [
-        { pattern: /^(?:hover:|active:)?(?:bg|text)-(?:gray|green)-\d{2,3}$/ },
-        { pattern: /^text-(?:xs|sm|base|lg|xl)$/ },
-        'px-4', 'py-2', 'rounded-md', 'font-semibold', 'font-extrabold'
+        'px-4', 'py-2', 'rounded-md', 'font-semibold'
     ],
     plugins: [],
 }

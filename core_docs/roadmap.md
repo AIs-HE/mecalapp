@@ -37,6 +37,8 @@ Changelog (selected)
 - 2025-11-11 - Deployment platform selection: Vercel chosen; removed QNAP/ARM workarounds
 - 2025-11-14 - Circuit Dimension: Added `/calc/circuit-dimension-main` page, 7-question modal configuration, `MemoryCard` navigation fix for `memory_type='circuit'`, `localStorage` persistence for modal config, and a scaffolded secondary 4-container layout (Dark Blue header, Emerald Green project info, Purple tabs & gallery, White draft controls)
 
+- 2025-11-26 - POC increments: finalized `/projects` as canonical in-repo gallery, converted `/dashboard` to a placeholder, updated sign-in redirect to `/projects`, added Tailwind/PostCSS guidance (prefer static classes), documented dynamic client-only imports for browser-dependent components, and noted that the POC uses an internal `.projects-scroll` max-height (~`60vh`) rather than explicit `--header-height`/`--footer-height` CSS variables.
+
 Developer notes
 ---------------
 - Always use migrations for schema changes; do not edit production DB manually.

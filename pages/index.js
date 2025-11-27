@@ -17,9 +17,9 @@ export default function Home() {
         let mounted = true
         supabase.auth.getSession().then(({ data }) => {
             if (!mounted) return
-            // If a session exists, immediately redirect to dashboard and replace history
+            // If a session exists, immediately redirect to projects and replace history
             if (data?.session?.user) {
-                try { router.replace('/dashboard') } catch (e) { }
+                try { router.replace('/projects') } catch (e) { }
                 return
             }
         })
@@ -45,8 +45,8 @@ export default function Home() {
         }
         setUser(data.user)
         setMessage('Signed in')
-        // navigate to dashboard after successful sign-in (replace current history entry to avoid back navigation to sign-in)
-        try { router.replace('/dashboard') } catch (e) { }
+        // navigate to projects after successful sign-in (replace current history entry to avoid back navigation to sign-in)
+        try { router.replace('/projects') } catch (e) { }
     }
 
     async function handleSignOut() {

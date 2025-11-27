@@ -379,3 +379,40 @@ showNotification('success', 'Project created successfully!');
 ---
 
 **End of Frontend Reference**
+
+---
+
+POC Implementation Update (2025-11-26)
+------------------------------------
+The small in-repo Next.js POC was iterated further. The notes below summarize implementation decisions and file locations so frontend rebuilds can reconcile visual/UX choices with the canonical guidance above.
+
+- Routes & navigation:
+  - `pages/projects.js` now hosts the original dashboard UI (projects grid, memory gallery, add-card and client-side-only heavy components via dynamic imports).
+  - `pages/dashboard.js` was converted to a placeholder (`work in progress`) and `pages/index.js` now redirects authenticated sessions to `/projects` (not `/dashboard`).
+  - New calculation entry: `/calc/circuit-dimension-main` (7-question modal configuration, localStorage persistence for configuration tied to project/memory context).
+
+- Visual tokens & layout constants:
+- Visual tokens & layout constants:
+  - CSS variables set in `styles/globals.css`: `--color-main: #85B726` and `--color-muted: #858688` (see `lib/theme.js`).
+  - Note: the POC's `styles/globals.css` does not define dedicated `--header-height` / `--footer-height` tokens. The projects scroll area uses a `max-height` of roughly `60vh` in the POC (`.projects-scroll.max-h-[60vh]`). Consider introducing explicit header/footer CSS variables in production frontends to reserve space when using fixed bars.
+
+- Projects grid and scroll behaviour:
+  - Projects panel width: `min(1400px, 96vw)`; inner grid uses fixed column width for visual parity: `grid-template-columns: repeat(4, 260px)` on wide viewports with responsive breakpoints for 3/2/1 columns.
+  - `.projects-scroll` is an internal scroll container with a `max-height` calc that considers `--footer-height` so content does not get occluded by the fixed footer.
+
+- Tailwind & build guidance:
+  - Prefer static Tailwind class strings (avoid dynamic class composition) so utilities are present in the compiled CSS and not purged by the build pipeline.
+  - PostCSS fixes were applied (ensure `autoprefixer` + Tailwind PostCSS adapter are present and `postcss.config.js` is configured for Next.js builds).
+
+- Client-only components & SSR notes:
+  - Several heavy components that depend on browser APIs are dynamically imported client-side (`ssr: false`) from `pages/projects.js` to avoid SSR default-export/runtime errors.
+
+- Auth & UX behaviour:
+  - Sign-in flow redirects to `/projects` after session established.
+  - Clicking the Projects nav item clears any in-memory `selectedProject` state (returns to project gallery view) and navigates to `/projects`.
+
+- Circuit Dimension specifics (short):
+  - MemoryCard navigation for `memory_type='circuit'` routes to `/calc/circuit-dimension-main`.
+  - Configuration schema persisted to `localStorage` keys scoped by project/memory context (see `pages/calc/circuit-dimension-main` for data shape).
+
+Use the notes above as a delta overlay on the conceptual guidance earlier in this document. Treat these POC choices as implementation examples — prefer production-grade patterns (centralized CSS/Tailwind tokens, accessibility checks, and strong tests) when migrating into a production frontend.

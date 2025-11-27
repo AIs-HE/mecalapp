@@ -167,6 +167,17 @@ body {
         font-weight: 600;
     }
 
+    /* Small variant used in headers to match compact sign-in button */
+    .btn-sm,
+    button.btn.btn-sm {
+        padding: 6px 10px;
+        margin-top: 0;
+        /* header buttons shouldn't add top margin */
+        font-size: 0.875rem;
+        /* smaller label */
+        border-radius: 6px;
+    }
+
     .meta {
         font-size: 13px;
         color: #6b7280;
@@ -186,15 +197,20 @@ body {
         margin-top: 12px;
     }
 
-    /* Projects panel: centered light-gray panel ~60% width of viewport */
+    /* Projects panel: centered light-gray panel sized to fit available viewport width
+       Allow it to grow up to 4 project cards wide (approx 260px each), but remain
+       responsive on smaller screens. Remove the strict min-width to avoid horizontal
+       overflow on narrow viewports. */
     .projects-panel {
-        width: 60vw;
-        /* ~60% of viewport */
-        max-width: 1200px;
-        min-width: 340px;
+        /* Make the projects panel wider than the default centered main column
+           so fixed-width cards (260px) can fit four across without shrinking.
+           Use viewport-based width so the panel can overflow the main container
+           when needed and remain centered. */
+        width: min(1400px, 96vw);
+        max-width: 1400px;
+        min-width: 0;
         margin: 20px auto;
         background: rgba(243, 244, 246, 0.6);
-        /* Tailwind gray-100 at 60% */
         border-radius: 12px;
         padding: 16px;
         box-sizing: border-box;
@@ -206,6 +222,35 @@ body {
         background: transparent;
         padding: 0;
         border-radius: 8px;
+    }
+
+    /* Use fixed-width project cards on large viewports so content doesn't
+       distort. The panel above is widened to accommodate four 260px cards.
+       On smaller screens the layout falls back to 3/2/1 columns. */
+    .projects-inner .grid {
+        display: grid;
+        gap: 12px;
+        grid-auto-rows: auto;
+        justify-content: center;
+        grid-template-columns: repeat(4, 260px);
+    }
+
+    @media (max-width: 1160px) {
+        .projects-inner .grid {
+            grid-template-columns: repeat(3, 260px);
+        }
+    }
+
+    @media (max-width: 880px) {
+        .projects-inner .grid {
+            grid-template-columns: repeat(2, 260px);
+        }
+    }
+
+    @media (max-width: 520px) {
+        .projects-inner .grid {
+            grid-template-columns: 1fr;
+        }
     }
 
     @media (max-width: 900px) {
@@ -743,30 +788,6 @@ main h2 {
     animation: rectDown 500ms cubic-bezier(.22, .9, .55, 1) forwards;
 }
 
-/* Temporary override to guarantee header/nav colors until Tailwind output is verified */
-/* Remove this override once Tailwind outputs the expected utilities. */
-header a,
-.app-header a {
-    color: #9CA3AF !important;
-    text-decoration: none;
-}
-
-header a:hover,
-.app-header a:hover {
-    color: #6B7280 !important;
-}
-
-/* Ensure sign-out / green action buttons keep their intended color */
-header button.bg-green-600,
-.app-header button.bg-green-600 {
-    background-color: #16A34A !important;
-    color: #fff !important;
-}
-
-header button.bg-green-600:hover,
-.app-header button.bg-green-600:hover {
-    background-color: #15803d !important;
-}
 
 
 .decor-rect-5 {
@@ -791,8 +812,17 @@ header button.bg-green-600:hover,
     animation: rectDown 500ms cubic-bezier(.22, .9, .55, 1) forwards;
 }
 
-/* projects scroll: hide scrollbar by default, show while scrolling */
+/* projects scroll: hide scrollbar by default, show while scrolling
+   Also compute a max-height so the scroll area fits between header and footer
+   and does not overflow behind the fixed footer. The extra 96px accounts for
+   the panel heading, internal padding and margins; adjust if your layout
+   changes. */
 .projects-scroll {
+    /* Compute available height between header and footer. Reduce the extra
+       offset so the content can use more vertical space; main already adds
+       padding and headings — adjust if necessary. */
+    max-height: calc(100vh - var(--header-height, 64px) - var(--footer-height, 120px) - 56px);
+    overflow-y: auto;
     /* Firefox */
     scrollbar-width: none;
     /* IE 10+ */
@@ -832,4 +862,114 @@ header button.bg-green-600:hover,
 
 .animate-up-exit {
     animation: rectDown 500ms cubic-bezier(.22, .9, .55, 1) forwards;
+}
+
+/* Reserve space for the fixed header/footer so page content doesn't scroll under them. */
+:root {
+    --header-height: 64px;
+    /* rough header height (adjust if header padding/size changes) */
+    --footer-height: 120px;
+    /* footer reserved height (increased to accommodate larger logo/footer content) */
+}
+
+body {
+    padding-bottom: var(--footer-height);
+}
+
+/* Ensure the main scroll area reserves space for the fixed footer so it
+   cannot scroll content beneath the footer. This targets page main
+   containers used across the app. */
+main {
+    padding-bottom: var(--footer-height);
+}
+
+/* Constrain main to the visible viewport minus header/footer so internal
+   scroll containers can size using percentages. main already uses flex in the
+   layout; this ensures it cannot grow behind the fixed footer. */
+main {
+    min-height: calc(100vh - var(--header-height) - var(--footer-height));
+    box-sizing: border-box;
+    overflow-y: auto;
+}
+
+/* Reserve top padding so fixed header doesn't overlay main content */
+main {
+    padding-top: var(--header-height);
+}
+
+/* Make the projects panel and inner area use flex so the scroll container can
+   take remaining vertical space reliably. This avoids relying only on VH
+   calculations which can be brittle across toolbars/OS chrome. */
+.projects-panel {
+    display: flex;
+    flex-direction: column;
+}
+
+.projects-inner {
+    display: flex;
+    flex-direction: column;
+    flex: 1 1 auto;
+}
+
+.projects-scroll {
+    /* prefer filling the available space from the panel rather than an absolute
+       vh calc; keep a sensible fallback for very short viewports */
+    max-height: 100%;
+    flex: 1 1 auto;
+}
+
+/* Fixed main viewport area between header and footer. This container is the
+   scrolling region for page content; header and footer are fixed above it. */
+.app-main-fixed {
+    position: fixed !important;
+    top: var(--header-height, 64px) !important;
+    bottom: var(--footer-height, 120px) !important;
+    left: 0 !important;
+    right: 0 !important;
+    overflow-y: auto !important;
+    z-index: 0 !important;
+}
+
+/* Prevent the document from scrolling — the fixed main area will handle scrolling. */
+html,
+body,
+#__next {
+    height: 100% !important;
+    overflow: hidden !important;
+}
+
+/* Ensure the fixed main scrolls only vertically and never horizontally. */
+.app-main-fixed {
+    overflow-x: hidden !important;
+    -webkit-overflow-scrolling: touch;
+}
+
+/* Prevent inner centered content from producing horizontal overflow. */
+.app-main-fixed>div {
+    overflow-x: hidden;
+    max-width: 100%;
+    box-sizing: border-box;
+}
+
+/* Navigation link styles (custom colors & size) */
+.nav-link {
+    font-size: 1rem;
+    /* larger than text-xs */
+    color: #858786;
+    /* custom gray */
+    text-decoration: none;
+    transition: color 160ms ease-in-out;
+    font-weight: 400 !important;
+    /* enforce non-bold for nav links */
+}
+
+.nav-link:hover {
+    color: #85B726;
+    /* hover to custom green */
+}
+
+.nav-link-active {
+    color: #85B726;
+    /* active green */
+    font-weight: 400 !important;
 }

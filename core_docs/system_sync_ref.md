@@ -183,6 +183,31 @@ Where implementation details live
 - For high-level architecture and role rationale consult `complete_ref.md`.
 
 End of System Sync Reference
+ 
+---
+
+POC Implementation Update (2025-11-26)
+------------------------------------
+Concise integration notes to help engineers mapping the canonical contracts in this file to the in-repo Next.js POC implementation.
+
+- Route & contract deltas to note:
+  - `pages/index.js` now redirects authenticated sessions to `/projects` (the projects gallery) instead of `/dashboard`.
+  - `pages/projects.js` hosts the projects UI in the POC and uses client-only dynamic imports for components that require browser APIs.
+  - `pages/api/project_memories.js` is an example server route that selects `memory_type` (canonical DB column) and normalizes a `type` key in JSON responses for frontend convenience.
+
+- Data handling and local staging:
+  - The POC uses `lib/cache.js` for a localStorage-backed ops queue (`syncQueue()`) to provide optimistic/offline-like behaviour for toggles in `components/NewProjectModal.jsx`.
+  - Circuit Dimension configuration is persisted in `localStorage` in the POC; when porting to production define a stable API or JSONB storage for configuration state.
+
+- Error handling & build guidance:
+  - Tailwind recommendation: prefer static class strings to ensure utilities are present in the compiled CSS and not removed by the build pipeline.
+  - Server-only env changes (for example `SUPABASE_SERVICE_ROLE_KEY`) require restarting the Next dev server to pick up updated values.
+
+- Auth flow guidance (POC-specific):
+  - Example API routes derive the actor from the Authorization Bearer token or `sb-access-token` cookie; client requests must attach the user access token for user-scoped calls.
+  - Clients must not send `assigned_by` in assignment requests — server sets it from the token.
+
+These notes are supplemental to the canonical data contracts in this file. Use them when testing the POC or when adapting the canonical contracts to the in-repo example routes.
 ```typescript
 async function fetchProjectsForEmployee(userId: string) {
   // RLS will filter automatically, but we help with explicit query

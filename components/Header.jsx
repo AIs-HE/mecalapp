@@ -2,6 +2,7 @@ import React from 'react'
 
 export default function Header({ title = 'MeCalApp', user, role, onSignOut, onShowProjects, isProjectView = true }) {
     const isAdmin = role === 'admin' || role === 'director'
+    const displayRole = role ? String(role).toLowerCase() : ''
 
     return (
         <header className="flex items-center px-7 py-4 bg-white/90 border-b border-black/5 backdrop-blur-sm backdrop-saturate-125">
@@ -21,10 +22,10 @@ export default function Header({ title = 'MeCalApp', user, role, onSignOut, onSh
                     <>
                         <div className="text-right user-info">
                             <div className="text-sm font-semibold user-email">{user.email}</div>
-                            <div className="text-xs text-gray-500 user-role">{role || 'user'}</div>
+                            <div className="text-xs text-gray-500 user-role">{displayRole || 'user'}</div>
                         </div>
                         <div>
-                            <button onClick={onSignOut} className="bg-primary text-white px-4 py-2 rounded-lg font-bold shadow-sm">Sign out</button>
+                            <button onClick={onSignOut} className="btn btn-sm bg-primary text-white font-semibold">Sign out</button>
                         </div>
                     </>
                 ) : (
