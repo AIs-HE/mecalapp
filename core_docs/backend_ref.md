@@ -1,6 +1,7 @@
 # Backend Reference - MecalApp
 
 **Last Updated:** 2025-11-15
+**Last Updated (local edits):** 2025-12-01
 **Note:** Updated to reflect recent POC deltas (assignment API behaviour, local memory types mapping, and example admin API updates).
 **Project Phase:** Phase 1 - Core Infrastructure
 
@@ -975,6 +976,14 @@ Short, actionable backend-focused notes reflecting the in-repo Next.js POC chang
   - Consider storing calculation configuration as JSONB in a dedicated column or related table when moving beyond localStorage persistence.
 
 These notes are intended to help backend engineers reconcile the POC example routes with canonical DB schemas and RLS policies. The canonical schema and RLS policy definitions in this file remain authoritative; the example routes in `pages/api/*` are development-only.
+
+POC Update (2025-12-01)
+-----------------------
+- Added notes documenting recent POC changes made locally on 2025-12-01 (UI + example routes). These changes are development-only and do not change canonical DB schemas or RLS policies.
+- Per-memory example endpoints: local workspace now contains `pages/api/project_memories/[id]/metadata.js` and `pages/api/project_memories/[id]/data.js` to support lightweight client probes for metadata and full data payloads. These are example admin routes and must not expose service role keys in production.
+- Circuit Dimension POC: `project_memories.memory_type = 'circuit'` routes to `/calc/circuit-dimension-main`. The page was updated with a 7-question configuration modal and local persistence semantics. Back-end authors: if configuration should be persisted server-side, define a JSONB schema and migration prior to adding DB columns.
+- Auth persistence for UI: the projects POC persists authenticated display values into browser `localStorage` keys `mecalapp_user_name` and `mecalapp_user_role` to permit other pages (for example the circuit-dimension page) to read and display the same user info. This is a UI convenience; server-auth remains authoritative.
+- Dev note: these are local edits and example APIs; any production DB changes should be introduced via migrations and documented in this file before applying.
 
 Verification (2025-11-27)
 ------------------------

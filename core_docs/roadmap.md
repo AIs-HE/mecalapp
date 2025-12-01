@@ -1,6 +1,7 @@
 # Roadmap & Changelog (Backend-focused)
 
 **Last Updated:** 2025-11-15
+**Last Updated (local edits):** 2025-12-01
 
 Purpose
 -------
@@ -40,6 +41,8 @@ Changelog (selected)
 - 2025-11-26 - POC increments: finalized `/projects` as canonical in-repo gallery, converted `/dashboard` to a placeholder, updated sign-in redirect to `/projects`, added Tailwind/PostCSS guidance (prefer static classes), documented dynamic client-only imports for browser-dependent components, and noted that the POC uses an internal `.projects-scroll` max-height (~`60vh`) rather than explicit `--header-height`/`--footer-height` CSS variables.
 
 - 2025-11-27 - Circuit Dimension UI rebuild (local): Rewrote `pages/calc/circuit-dimension-main.tsx` container-by-container (dark-blue header implemented, background rectangles replaced with `rect-a..rect-h`, `main` made transparent, per-page `body.no-footer-reserve` override added, and a fixed white DraftControls bar scaffolded). TypeScript checks were run locally with no diagnostics. These edits are local and pending commit/push.
+
+- 2025-12-01 - Local UX & integration deltas: Updated circuit-dimension modal to include labels, helper text, accessible inputs and aria attributes; modal resized to `50vw` by `80vh`. Scoped CSS override applied in `styles/globals.css` to prevent a global `.grid>div { min-height: 160px }` rule from stretching dialog rows; modal-scoped rule sets `padding:6px !important` for inner grid children. Projects page now persists authenticated display values to `localStorage` keys (`mecalapp_user_name`, `mecalapp_user_role`) and the circuit-dimension page reads these to show consistent user info. Per-memory dev endpoints were added locally to support client probes (`pages/api/project_memories/[id]/metadata.js` and `.../data.js`).
 
 Pending next steps (short):
 - Wire DraftControls persistence handlers (`onPushToDatabase`, `onLoadFromDatabase`, `onExport`) and define API / JSONB contract if persistence moves to the backend.

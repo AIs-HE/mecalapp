@@ -696,6 +696,14 @@ main h2 {
     cursor: pointer;
 }
 
+/* Modal-specific override: don't force min-height on grid children used inside dialogs
+   Provide a small inner padding so modal rows retain breathing room (6px). */
+.circuit-modal .grid>div {
+    min-height: 0 !important;
+    padding: 6px !important;
+    box-shadow: none !important;
+}
+
 .grid>div .text-lg {
     font-size: 1.125rem;
     font-weight: 800;

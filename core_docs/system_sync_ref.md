@@ -1,6 +1,7 @@
 # System Sync Reference - MecalApp (Backend-focused)
 
 **Last Updated:** 2025-11-15
+**Last Updated (local edits):** 2025-12-01
 
 Purpose
 -------
@@ -205,6 +206,13 @@ Concise integration notes to help engineers mapping the canonical contracts in t
     - The page uses the theme token `--color-main` for the header and preserves the `bg-clump` decorative wrapper but renders `rect-a..rect-h` for the project-style background.
     - To remove the global footer reservation on this page only, the page toggles `body.no-footer-reserve` on mount. This is a per-page CSS override and does not modify global layout tokens or backend contracts.
     - A fixed white DraftControls bar exists in the scaffold; DraftControls currently use placeholder handlers. If integration requires server persistence for DraftControls (save/load/export), define the API endpoints and expected JSONB schema and document them here before implementing migrations.
+
+  POC Update (2025-12-01)
+  -----------------------
+  - Per-memory endpoints: to support client probes the local workspace added `pages/api/project_memories/[id]/metadata.js` (returns `{ updated_at }`) and `pages/api/project_memories/[id]/data.js` (returns `{ db_array, updated_at }`). These example routes are for the POC and should not be considered production API contracts; production endpoints should be documented and secured via server-side auth and migrations.
+  - Client checks: The circuit-dimension page performs a lightweight metadata probe first (metadata endpoint) and then fetches full data only when necessary; the POC uses `updated_at` timestamps to choose between DB and local draft state.
+  - Auth persistence: the Projects page persists `mecalapp_user_name` and `mecalapp_user_role` to `localStorage` after sign-in/profile load so the same display values are available across calculation pages. This is a UI convenience; server session remains the authoritative source for user identity and permissions.
+  - CSS scoping: a modal-scoped override was added to `styles/globals.css` to prevent the global `.grid > div { min-height: 160px }` rule from affecting dialog rows. The override sets `.circuit-modal .grid>div { min-height:0; padding:6px !important; box-shadow:none !important; }` and modal content uses inner padding wrappers to preserve spacing.
 
   Developer note: these deltas are UI-only and were validated locally with `npx tsc --noEmit` (no TypeScript diagnostics). No commits were performed — changes are local until instructed to commit and push.
 

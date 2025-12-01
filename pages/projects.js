@@ -52,6 +52,16 @@ export default function Projects() {
         supabase.auth.getSession().then(({ data }) => {
             if (!mounted) return
             setUser(data?.session?.user ?? null)
+            // if an initial session exists, try to load profile role and persist to localStorage
+            if (data?.session?.user) {
+                supabase.from('profiles').select('role').eq('id', data.session.user.id).single().then(({ data: p }) => {
+                    if (p && mounted) {
+                        setRole(p.role)
+                        try { localStorage.setItem('mecalapp_user_name', data.session.user.email || data.session.user.user_metadata?.email || ''); } catch (e) { }
+                        try { localStorage.setItem('mecalapp_user_role', p.role || ''); } catch (e) { }
+                    }
+                }).catch(() => { })
+            }
         })
 
         const { data: sub } = supabase.auth.onAuthStateChange((_event, session) => {
@@ -59,8 +69,17 @@ export default function Projects() {
             if (session?.user) {
                 // best-effort profile role load
                 supabase.from('profiles').select('role').eq('id', session.user.id).single().then(({ data: p }) => {
-                    if (p && mounted) setRole(p.role)
+                    if (p && mounted) {
+                        setRole(p.role)
+                        try { localStorage.setItem('mecalapp_user_name', session.user.email || session.user.user_metadata?.email || ''); } catch (e) { }
+                        try { localStorage.setItem('mecalapp_user_role', p.role || ''); } catch (e) { }
+                    }
                 }).catch(() => { })
+            } else {
+                // cleared session — remove persisted values
+                try { localStorage.removeItem('mecalapp_user_name') } catch (e) { }
+                try { localStorage.removeItem('mecalapp_user_role') } catch (e) { }
+                setRole(null)
             }
         })
 
@@ -92,6 +111,8 @@ export default function Projects() {
 
     async function handleSignOut() {
         await supabase.auth.signOut()
+        try { localStorage.removeItem('mecalapp_user_name') } catch (e) { }
+        try { localStorage.removeItem('mecalapp_user_role') } catch (e) { }
         router.replace('/')
     }
 

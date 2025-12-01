@@ -1,6 +1,7 @@
 # Complete Reference - MecalApp Project (Backend/Architecture Focus)
 
 **Last Updated:** 2025-11-15
+**Last Updated (local edits):** 2025-12-01
 **Last Updated (updated):** 2025-11-15
 **Project Phase:** Phase 1 - Core Infrastructure
 
@@ -182,6 +183,13 @@ Summary of repository-level choices made during POC iteration that are useful fo
 
 - Circuit Dimension & calculation module:
 	- A POC calculation entry point exists at `/calc/circuit-dimension-main` (configuration-first modal with localStorage persistence). When productionizing, plan for a dedicated storage strategy (JSONB column or a related table) and an API contract for calculation runs.
+
+POC Update (2025-12-01)
+-----------------------
+- UI: `/calc/circuit-dimension-main` was updated locally with a labeled, accessible 7-question modal (four toggles + three numeric inputs), persisted to `localStorage` under `circuit_config:<memoryId>`. The modal was restyled (compact grid, labeled inputs) and resized to `50vw` x `80vh` for a centered dialog experience.
+- Styling: a global CSS rule was scoped for dialogs to avoid a `.grid>div { min-height: 160px }` global effect. The modal uses `.circuit-modal` as a container and `styles/globals.css` includes a modal-scoped override setting `min-height:0` and `padding:6px !important` for `.circuit-modal .grid>div`. This is a local UI fix and does not alter canonical styles elsewhere.
+- Auth display sync: the Projects page now persists authenticated display name and role into `localStorage` keys `mecalapp_user_name` and `mecalapp_user_role`; pages such as the circuit-dimension POC read these keys and show the same user display information.
+- API routes: per-memory example endpoints were added locally to support client probes: `pages/api/project_memories/[id]/metadata.js` and `pages/api/project_memories/[id]/data.js`. These are dev-only admin routes.
 
 POC Incremental Update (2025-11-27)
 ----------------------------------

@@ -2,6 +2,7 @@
 *** Frontend Concepts Guide (ARCHIVAL) ***
 
 **Last Updated:** 2025-11-15
+**Last Updated (local edits):** 2025-12-01
 
 Purpose
 -------
@@ -131,6 +132,13 @@ Circuit Dimension Memory Implementation (2025-11-05)
 - Navigation: MemoryCard with memory_type="circuit" routes to circuit-dimension-main page
 - Storage: Configuration persisted in localStorage with project/memory context
 - Secondary layout: Placeholder for additional calculation components after configuration
+
+POC Update (2025-12-01)
+-----------------------
+- Modal UX polish: The modal now includes clear labels and helper text for all fields, `name`/`id` attributes on inputs for form accessibility, and `aria-labelledby` on toggle controls. Numeric inputs include `aria-label` attributes. The modal rows have small inner padding wrappers (`px-3 py-2`) so they remain visually spaced despite a targeted CSS override for modal grid children.
+- LocalStorage keys: circuit modal configuration now uses key pattern `circuit_config:<memoryId>` to scope settings per memory; the projects page persists authenticated display values under `mecalapp_user_name` and `mecalapp_user_role` for display consistency across pages.
+- Layout sizing: the modal was resized to `w-[50vw]` and `h-[80vh]` to match recent visual guidance.
+- Header & auth UI: the fixed header was restyled locally to match the projects visual header (translucent background, centered layout), title updated to "MeCalApp - Circuit Dimmension memory" (local), and header now reads authenticated name/role from `localStorage`.
 
 POC Incremental Update (2025-11-27)
 ----------------------------------
