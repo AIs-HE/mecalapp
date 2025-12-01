@@ -214,6 +214,11 @@ Concise integration notes to help engineers mapping the canonical contracts in t
   - Auth persistence: the Projects page persists `mecalapp_user_name` and `mecalapp_user_role` to `localStorage` after sign-in/profile load so the same display values are available across calculation pages. This is a UI convenience; server session remains the authoritative source for user identity and permissions.
   - CSS scoping: a modal-scoped override was added to `styles/globals.css` to prevent the global `.grid > div { min-height: 160px }` rule from affecting dialog rows. The override sets `.circuit-modal .grid>div { min-height:0; padding:6px !important; box-shadow:none !important; }` and modal content uses inner padding wrappers to preserve spacing.
 
+  Additional UI & data delta (POC — 2025-12-01):
+
+  - Added `components/CommonInputs.tsx` (3x3 grid) and `components/ProjectInfoPanel.tsx` (right-hand scaffold) as part of the Circuit Dimension POC. `CommonInputs` now imports `data/conductor_types.json` and renders a conductor-type `<select>` whose options update when `conductorMaterial` or `conductorTemperature` change; the component persists configuration to localStorage under `circuit_config:<memoryId>`.
+  - Added `data/conductor_types.json` (Cu/Al × 60/75/90°C) as a small local JSON cache used by the POC to populate conductor-type options.
+
   Developer note: these deltas are UI-only and were validated locally with `npx tsc --noEmit` (no TypeScript diagnostics). No commits were performed — changes are local until instructed to commit and push.
 
 - Error handling & build guidance:

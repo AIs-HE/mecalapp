@@ -1,6 +1,8 @@
 import React, { useEffect, useState, useCallback } from 'react'
 import { useRouter } from 'next/router'
 import { getDraft, setDraft, updateLastSavedToDb } from '../../lib/cache'
+import ProjectInfoPanel from '../../components/ProjectInfoPanel'
+import CommonInputs from '../../components/CommonInputs'
 
 export default function CircuitDimensionMainPage() {
     const router = useRouter()
@@ -404,25 +406,39 @@ export default function CircuitDimensionMainPage() {
             )}
 
             {/* Placeholder for subsequent containers (will be implemented container-by-container) */}
-            <main className="max-w-screen-xl mx-auto p-6 bg-transparent" style={{ paddingBottom: '120px', background: 'transparent' }}>
-                <section className="text-gray-700">
-                    <p className="mb-4">Secondary containers will be added here, one container at a time.</p>
-                    <p className="text-sm text-gray-500">Current step: dark-blue header container implemented.</p>
+            <main className="w-full p-6 bg-transparent" style={{ paddingTop: '64px', paddingBottom: '80px', height: 'calc(100vh - 64px - 80px)', boxSizing: 'border-box', background: 'transparent' }}>
+                {/* Secondary layout: left (main) and right (project info). Both columns fill available vertical space and scroll when content overflows. */}
+                <section className="text-gray-700 h-full">
+                    <div className="grid grid-cols-12 gap-4 w-full h-full">
+                        {/* Main content column (tabs, common inputs, equipment gallery) */}
+                        <div className="col-span-9 h-full flex flex-col">
+                            <div className="flex-1 overflow-auto pr-2">
+                                <div className="mb-4">
+                                    <CommonInputs memoryId={memoryId || undefined} onChange={(s) => {
+                                        // placeholder hook: future wiring will push these values into context/drafts
+                                    }} />
+                                </div>
+
+                                <div className="mb-4 bg-gray-700 text-white rounded-lg p-3">
+                                    <div className="flex items-center justify-between mb-2">
+                                        <div className="font-medium">⚡ Circuits (0)</div>
+                                        <button className="bg-[var(--color-main,#85B726)] text-white text-sm px-2 py-1 rounded">➕ Agregar Equipo</button>
+                                    </div>
+                                    <div className="text-sm text-gray-200">Equipment table gallery placeholder. Wiring and calculation engine will be added next.</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* Right project info column (emerald) */}
+                        <div className="col-span-3 h-full">
+                            <div className="h-full overflow-auto pl-2">
+                                <ProjectInfoPanel projectInfo={{ costCenter: projectId || undefined, projectName: 'Project', client: 'Client' }} />
+                            </div>
+                        </div>
+                    </div>
                 </section>
 
-                {/* Debug / status panel to help diagnose modal not opening */}
-                <section className="mt-6 p-4 bg-gray-50 border rounded text-sm">
-                    <div className="font-medium mb-2">Debug — Memory Load State</div>
-                    <div><strong>memoryId:</strong> {String(memoryId)}</div>
-                    <div><strong>projectId:</strong> {String(projectId)}</div>
-                    <div><strong>isReady:</strong> {String(isReady)}</div>
-                    <div><strong>dataSource:</strong> {String(dataSource)}</div>
-                    <div><strong>showConfigModal:</strong> {String(showConfigModal)}</div>
-                    <div><strong>draftArray length:</strong> {Array.isArray(draftArray) ? draftArray.length : String(draftArray)}</div>
-                    <div><strong>draftLastModified:</strong> {String(draftLastModified)}</div>
-                    <div><strong>lastSavedToDbAt:</strong> {String(lastSavedToDbAt)}</div>
-                    <div className="mt-2 text-xs text-gray-500">If `showConfigModal` is false but DB row has `db_array:null`, try clicking "Back to Config" to open modal manually. If modal still doesn't open, please paste these values.</div>
-                </section>
+                {/* Debug panel removed — no longer needed in production view */}
             </main>
 
             {/* Draft Controls - fixed white bottom bar */}

@@ -162,6 +162,12 @@ Where to find implementation details
 
 End of Complete Reference
  
+Additional UI & data delta (POC — 2025-12-01):
+
+- Added `components/CommonInputs.tsx` (3x3 grid of labeled inputs) and `components/ProjectInfoPanel.tsx` (right-side scaffold) as part of the Circuit Dimension POC UI. `CommonInputs` now consumes `data/conductor_types.json` and provides a conductor-type `<select>` that updates when `conductorMaterial` or `conductorTemperature` change.
+- Added `data/conductor_types.json` to cache conductor-type options (Cu/Al × 60/75/90°C) for the UI; this JSON is used client-side by the POC only.
+- Added per-memory dev example endpoints under `pages/api/project_memories/[id]/metadata.js` and `pages/api/project_memories/[id]/data.js` to support lightweight client probes. These are development-only example routes and must be secured for production.
+- Minor CSS scoping: `styles/globals.css` includes modal-scoped overrides to avoid broad `.grid>div` layout regressions affecting dialog content.
 ---
 
 POC Implementation Update (2025-11-26)

@@ -44,6 +44,11 @@ Changelog (selected)
 
 - 2025-12-01 - Local UX & integration deltas: Updated circuit-dimension modal to include labels, helper text, accessible inputs and aria attributes; modal resized to `50vw` by `80vh`. Scoped CSS override applied in `styles/globals.css` to prevent a global `.grid>div { min-height: 160px }` rule from stretching dialog rows; modal-scoped rule sets `padding:6px !important` for inner grid children. Projects page now persists authenticated display values to `localStorage` keys (`mecalapp_user_name`, `mecalapp_user_role`) and the circuit-dimension page reads these to show consistent user info. Per-memory dev endpoints were added locally to support client probes (`pages/api/project_memories/[id]/metadata.js` and `.../data.js`).
 
+Additional UI & data delta (POC — 2025-12-01):
+
+- Added `components/CommonInputs.tsx` (3x3 labeled input grid) and `components/ProjectInfoPanel.tsx` (right-side scaffold) to the Circuit Dimension POC. `CommonInputs` now sources conductor-type options from `data/conductor_types.json` and auto-updates the conductor-type select when material or temperature change.
+- Added `data/conductor_types.json` (Cu/Al × 60/75/90°C) as a local cache for conductor-type options used by the POC UI.
+
 Pending next steps (short):
 - Wire DraftControls persistence handlers (`onPushToDatabase`, `onLoadFromDatabase`, `onExport`) and define API / JSONB contract if persistence moves to the backend.
 - Implement Emerald Green `ProjectInfoPanel` and the purple/red/gray containers as per the architecture spec.

@@ -140,6 +140,11 @@ POC Update (2025-12-01)
 - Layout sizing: the modal was resized to `w-[50vw]` and `h-[80vh]` to match recent visual guidance.
 - Header & auth UI: the fixed header was restyled locally to match the projects visual header (translucent background, centered layout), title updated to "MeCalApp - Circuit Dimmension memory" (local), and header now reads authenticated name/role from `localStorage`.
 
+Additional UI & data delta (POC — 2025-12-01):
+
+- Added `components/CommonInputs.tsx` (3x3 labeled inputs) and `components/ProjectInfoPanel.tsx` (emerald-right scaffold). `CommonInputs` now sources conductor-type options from `data/conductor_types.json` and replaces the former free-text conductorType input with a select that auto-updates when `conductorMaterial` or `conductorTemperature` change.
+- Added `data/conductor_types.json` as a small local JSON cache mapping `Cu`/`Al` to conductor-type arrays for 60/75/90°C. This JSON is used only by the POC frontend to populate the conductor-type dropdown.
+
 POC Incremental Update (2025-11-27)
 ----------------------------------
 - UI implementation notes (developer-facing):

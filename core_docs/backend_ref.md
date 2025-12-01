@@ -1,7 +1,14 @@
 # Backend Reference - MecalApp
 
 **Last Updated:** 2025-11-15
-**Last Updated (local edits):** 2025-12-01
+ **Last Updated (local edits):** 2025-12-01
+
+Additional UI & data delta (POC — 2025-12-01):
+
+- Added `components/CommonInputs.tsx` (3x3 grid of labeled inputs) and `components/ProjectInfoPanel.tsx` (right-side scaffold) as part of the Circuit Dimension POC UI. `CommonInputs` replaces a free-text conductor-type input with a select populated from a new local JSON cache `data/conductor_types.json` and auto-selects a valid conductor type when `conductorMaterial` or `conductorTemperature` change.
+- Added `data/conductor_types.json` to the repo to cache conductor-type options (Cu/Al × 60/75/90°C) for the UI. This is a local UI data cache used by the POC only.
+- Added per-memory dev example endpoints under `pages/api/project_memories/[id]/metadata.js` and `pages/api/project_memories/[id]/data.js` to support lightweight client probes. These are dev-only example routes and bypass RLS when using the admin client — do not expose service keys in production.
+- Minor CSS scoping: `styles/globals.css` contains a modal-scoped override (`.circuit-modal .grid>div`) to avoid a global `.grid>div { min-height: 160px }` rule from stretching dialog rows. These are local UI fixes and do not alter canonical backend schemas or RLS policies.
 **Note:** Updated to reflect recent POC deltas (assignment API behaviour, local memory types mapping, and example admin API updates).
 **Project Phase:** Phase 1 - Core Infrastructure
 

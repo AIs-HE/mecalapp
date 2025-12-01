@@ -704,6 +704,23 @@ main h2 {
     box-shadow: none !important;
 }
 
+/* Override for CommonInputs grid: prevent global .grid>div min-height from forcing large row height
+   The grid in the CommonInputs component uses its own spacing; reset min-height for its children. */
+.common-inputs-grid>* {
+    min-height: 0 !important;
+}
+
+/* Remove up/down spinner controls for number inputs inside the CommonInputs grid */
+.common-inputs-grid input[type="number"]::-webkit-outer-spin-button,
+.common-inputs-grid input[type="number"]::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+
+.common-inputs-grid input[type="number"] {
+    -moz-appearance: textfield;
+}
+
 .grid>div .text-lg {
     font-size: 1.125rem;
     font-weight: 800;

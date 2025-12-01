@@ -1,0 +1,69 @@
+{
+    "Cu": {
+        "60": [
+            "TW",
+            "UF"
+        ],
+        "75": [
+            "RHW",
+            "THHW",
+            "THW",
+            "THWN",
+            "XHHW",
+            "USE",
+            "ZW"
+        ],
+        "90": [
+            "TBS",
+            "SA",
+            "SIS",
+            "FEP",
+            "FEPB",
+            "MI",
+            "RHH",
+            "RHHW-2",
+            "THHN",
+            "THHW",
+            "THW-2",
+            "THWN-2",
+            "USE-2",
+            "XHH",
+            "XHHW",
+            "XHHW-2",
+            "ZW-2"
+        ]
+    },
+    "Al": {
+        "60": [
+            "UF"
+        ],
+        "75": [
+            "RHW",
+            "THHW",
+            "THW",
+            "THWN",
+            "XHHW",
+            "USE",
+            "ZW"
+        ],
+        "90": [
+            "TBS",
+            "SA",
+            "SIS",
+            "FEP",
+            "FEPB",
+            "MI",
+            "RHH",
+            "RHHW-2",
+            "THHN",
+            "THHW",
+            "THW-2",
+            "THWN-2",
+            "USE-2",
+            "XHH",
+            "XHHW",
+            "XHHW-2",
+            "ZW-2"
+        ]
+    }
+}
