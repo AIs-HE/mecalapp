@@ -432,7 +432,7 @@ export default function CircuitDimensionMainPage() {
                         {/* Right project info column (emerald) */}
                         <div className="col-span-3 h-full">
                             <div className="h-full overflow-auto pl-2">
-                                <ProjectInfoPanel projectInfo={{ costCenter: projectId || undefined, projectName: 'Project', client: 'Client' }} />
+                                <ProjectInfoPanel projectId={projectId || undefined} memoryId={memoryId || undefined} />
                             </div>
                         </div>
                     </div>

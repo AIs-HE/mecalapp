@@ -64,7 +64,7 @@ export default function CommonInputs({ memoryId, onChange }: { memoryId?: string
     }
 
     return (
-        <div className="bg-bg-lightgray-100 text-black rounded-lg shadow-md p-3">
+        <div className="bg-gray-300 text-black rounded-lg shadow-md p-3">
             <div className="flex items-center justify-between mb-3">
                 <div className="font-semibold">📊 Common data</div>
                 <button aria-label="toggle common inputs" onClick={() => setCollapsed(!collapsed)} className="text-black/90">{collapsed ? '▸' : '▾'}</button>
