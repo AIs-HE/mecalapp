@@ -710,15 +710,28 @@ main h2 {
     min-height: 0 !important;
 }
 
-/* Remove up/down spinner controls for number inputs inside the CommonInputs grid */
-.common-inputs-grid input[type="number"]::-webkit-outer-spin-button,
-.common-inputs-grid input[type="number"]::-webkit-inner-spin-button {
+/* Remove up/down spinner controls for number inputs globally */
+input[type="number"]::-webkit-outer-spin-button,
+input[type="number"]::-webkit-inner-spin-button {
     -webkit-appearance: none;
     margin: 0;
 }
 
-.common-inputs-grid input[type="number"] {
+input[type="number"] {
     -moz-appearance: textfield;
+}
+
+/* Utility: hide native scrollbars while keeping content scrollable */
+.hide-scrollbar {
+    -ms-overflow-style: none;
+    /* IE and Edge */
+    scrollbar-width: none;
+    /* Firefox */
+}
+
+.hide-scrollbar::-webkit-scrollbar {
+    display: none;
+    /* Safari and Chrome */
 }
 
 .grid>div .text-lg {

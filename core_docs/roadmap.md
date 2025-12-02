@@ -2,6 +2,13 @@
 
 **Last Updated:** 2025-11-15
 **Last Updated (local edits):** 2025-12-01
+**Last Updated (local edits):** 2025-12-02
+
+POC Update (2025-12-02)
+-----------------------
+- Per-memory persistence: circuit modal config is stored per-memory at `localStorage` key `circuit_config:<memoryId>`; DraftControls remain local until server persistence is defined.
+- ProjectInfoPanel & CommonInputs were added in the POC; ProjectInfoPanel fetches project and memory metadata when provided `projectId`/`memoryId` and renders read-only metadata. CommonInputs sources `data/conductor_types.json` for conductor type options.
+- Next roadmap items (short): implement `lib/auth.js`, draft modal-config JSONB schema and migration, add API endpoints to persist per-memory config, and create an integration test that validates per-memory load/save behavior.
 
 Purpose
 -------

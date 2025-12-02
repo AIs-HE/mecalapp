@@ -1,7 +1,7 @@
 # System Sync Reference - MecalApp (Backend-focused)
 
 **Last Updated:** 2025-11-15
-**Last Updated (local edits):** 2025-12-01
+**Last Updated (local edits):** 2025-12-02
 
 Purpose
 -------
@@ -218,6 +218,12 @@ Concise integration notes to help engineers mapping the canonical contracts in t
 
   - Added `components/CommonInputs.tsx` (3x3 grid) and `components/ProjectInfoPanel.tsx` (right-hand scaffold) as part of the Circuit Dimension POC. `CommonInputs` now imports `data/conductor_types.json` and renders a conductor-type `<select>` whose options update when `conductorMaterial` or `conductorTemperature` change; the component persists configuration to localStorage under `circuit_config:<memoryId>`.
   - Added `data/conductor_types.json` (Cu/Al × 60/75/90°C) as a small local JSON cache used by the POC to populate conductor-type options.
+
+POC Update (2025-12-02)
+-----------------------
+- The circuit-dimension page now probes per-memory metadata via dev endpoints and persists modal configuration per-memory at `localStorage` key `circuit_config:<memoryId>`. The page reads `mecalapp_user_name` and `mecalapp_user_role` from `localStorage` for header display consistency.
+- `ProjectInfoPanel.tsx` now fetches project, client, and project memory lists when given `projectId` and `memoryId` and renders a read-only `<dl>` for Cost Center, Project Name, Client and Version.
+- Recommendation: define server-side JSONB schema and migration for modal-config persistence, add RLS-aware endpoints (`pages/api/project_memories/[id]/config.js`), and add `lib/auth.js` to centralize localStorage auth helpers before enabling DB saves of UI drafts.
 
   Developer note: these deltas are UI-only and were validated locally with `npx tsc --noEmit` (no TypeScript diagnostics). No commits were performed — changes are local until instructed to commit and push.
 

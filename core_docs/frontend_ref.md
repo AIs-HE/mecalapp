@@ -2,7 +2,8 @@
 *** Frontend Concepts Guide (ARCHIVAL) ***
 
 **Last Updated:** 2025-11-15
-**Last Updated (local edits):** 2025-12-01
+**Last Updated (local edits):** 2025-12-02
+
 
 Purpose
 -------
@@ -144,6 +145,14 @@ Additional UI & data delta (POC — 2025-12-01):
 
 - Added `components/CommonInputs.tsx` (3x3 labeled inputs) and `components/ProjectInfoPanel.tsx` (emerald-right scaffold). `CommonInputs` now sources conductor-type options from `data/conductor_types.json` and replaces the former free-text conductorType input with a select that auto-updates when `conductorMaterial` or `conductorTemperature` change.
 - Added `data/conductor_types.json` as a small local JSON cache mapping `Cu`/`Al` to conductor-type arrays for 60/75/90°C. This JSON is used only by the POC frontend to populate the conductor-type dropdown.
+
+POC Update (2025-12-02)
+-----------------------
+- ProjectInfoPanel now accepts `projectId` and `memoryId` props and, when `projectInfo` is not provided, fetches project, clients and project memories to populate display-only fields (Cost Center, Project Name, Client, Version).
+- The circuit configuration modal persists per-memory under `localStorage` key pattern `circuit_config:<memoryId>` and the header shows `mecalapp_user_name` / `mecalapp_user_role` from `localStorage`.
+- Scoped CSS fixes applied: `.circuit-modal .grid>div { min-height:0; padding:6px !important; }` to avoid global `.grid>div` regressions.
+- Added `data/conductor_types.json` and wired `CommonInputs` to populate conductor-type `<select>` and auto-correct invalid selections when material/temperature change.
+- Next steps: add a centralized `lib/auth.js` helper and draft server-side modal-config persistence (JSONB column + endpoints).
 
 POC Incremental Update (2025-11-27)
 ----------------------------------

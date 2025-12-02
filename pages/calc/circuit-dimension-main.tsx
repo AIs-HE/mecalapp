@@ -2,7 +2,8 @@ import React, { useEffect, useState, useCallback } from 'react'
 import { useRouter } from 'next/router'
 import { getDraft, setDraft, updateLastSavedToDb } from '../../lib/cache'
 import ProjectInfoPanel from '../../components/ProjectInfoPanel'
-import CommonInputs from '../../components/CommonInputs'
+import CircuitTabs from '../../components/CircuitTabs'
+import { getAuth } from '../../lib/auth'
 
 export default function CircuitDimensionMainPage() {
     const router = useRouter()
@@ -220,13 +221,12 @@ export default function CircuitDimensionMainPage() {
         return () => { document.body.classList.remove('no-footer-reserve') }
     }, [])
 
-    // Initialize auth display from storage (if available)
+    // Initialize auth display from centralized helper (if available)
     useEffect(() => {
         try {
-            const name = localStorage.getItem('mecalapp_user_name')
-            const role = localStorage.getItem('mecalapp_user_role')
-            if (name) setAuthName(name)
-            if (role) setAuthRole(role)
+            const a = getAuth()
+            if (a.name) setAuthName(a.name)
+            if (a.role) setAuthRole(a.role)
         } catch (e) {
             // ignore
         }
@@ -318,8 +318,8 @@ export default function CircuitDimensionMainPage() {
 
             {/* Extremely simple modal: minimal wrappers, grid-only, tiny paddings */}
             {showConfigModal && (
-                <div className="fixed inset-0 z-60 grid place-items-center bg-black/25">
-                    <section className="circuit-modal bg-white rounded-md shadow-sm w-[40vw] p-2 h-[70vh] inline-grid overflow-auto min-h-0">
+                <div className="fixed inset-0 z-[9999] grid place-items-center bg-black/25">
+                    <section className="circuit-modal bg-white rounded-md shadow-sm w-[40vw] p-2 h-[70vh] inline-grid overflow-auto min-h-0 z-[10000]">
                         <header className="grid grid-cols-12 items-center gap-1">
                             <h2 className="col-span-10 text-sm font-medium" style={{ color: 'var(--color-main, #085f18)' }}>Circuit Dimension</h2>
                             <button aria-label="Close" onClick={() => onCancelConfig()} className="col-span-2 justify-self-end text-gray-500">✕</button>
@@ -412,20 +412,12 @@ export default function CircuitDimensionMainPage() {
                     <div className="grid grid-cols-12 gap-4 w-full h-full">
                         {/* Main content column (tabs, common inputs, equipment gallery) */}
                         <div className="col-span-9 h-full flex flex-col">
-                            <div className="flex-1 overflow-auto pr-2">
+                            <div className="flex-1 overflow-auto pr-2 hide-scrollbar">
                                 <div className="mb-4">
-                                    <CommonInputs memoryId={memoryId || undefined} onChange={(s) => {
-                                        // placeholder hook: future wiring will push these values into context/drafts
-                                    }} />
+                                    <CircuitTabs memoryId={memoryId || undefined} nonEseBool={nonEseBool} dcBool={dcBool} tranBool={tranBool} genBool={genBool} />
                                 </div>
 
-                                <div className="mb-4 bg-gray-700 text-white rounded-lg p-3">
-                                    <div className="flex items-center justify-between mb-2">
-                                        <div className="font-medium">⚡ Circuits (0)</div>
-                                        <button className="bg-[var(--color-main,#85B726)] text-white text-sm px-2 py-1 rounded">➕ Agregar Equipo</button>
-                                    </div>
-                                    <div className="text-sm text-gray-200">Equipment table gallery placeholder. Wiring and calculation engine will be added next.</div>
-                                </div>
+                                {/* equipment placeholder moved into the active tab container (CircuitTabs) */}
                             </div>
                         </div>
 

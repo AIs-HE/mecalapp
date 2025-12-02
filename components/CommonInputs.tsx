@@ -25,23 +25,11 @@ const defaultState: CommonInputsState = {
     conduitMaterial: 'PVC',
 }
 
-export default function CommonInputs({ memoryId, onChange }: { memoryId?: string, onChange?: (s: CommonInputsState) => void }) {
+export default function CommonInputs({ memoryId, onChange, tabLabel }: { memoryId?: string, onChange?: (s: CommonInputsState) => void, tabLabel?: string }) {
     const [collapsed, setCollapsed] = useState(false)
     const [state, setState] = useState<CommonInputsState>(defaultState)
 
-    useEffect(() => {
-        // Load persisted circuit config (if present) to prefill sensible fields
-        if (!memoryId) return
-        try {
-            const raw = localStorage.getItem(`circuit_config:${memoryId}`)
-            if (raw) {
-                const cfg = JSON.parse(raw)
-                setState(prev => ({ ...prev, tensionKV: cfg.tensionKV ?? prev.tensionKV, powerFactor: cfg.powerFactor ?? prev.powerFactor, conductorTemperature: cfg.conductorTemperature ?? prev.conductorTemperature }))
-            }
-        } catch (e) {
-            // ignore
-        }
-    }, [memoryId])
+    // No localStorage prefill — keep defaults unless parent provides overrides
 
     useEffect(() => {
         if (onChange) onChange(state)
@@ -66,7 +54,7 @@ export default function CommonInputs({ memoryId, onChange }: { memoryId?: string
     return (
         <div className="bg-gray-300 text-black rounded-lg shadow-md p-3">
             <div className="flex items-center justify-between mb-3">
-                <div className="font-semibold">📊 Common data</div>
+                <div className="font-semibold">📊 Common data{tabLabel ? ` - ${tabLabel}` : ''}</div>
                 <button aria-label="toggle common inputs" onClick={() => setCollapsed(!collapsed)} className="text-black/90">{collapsed ? '▸' : '▾'}</button>
             </div>
 

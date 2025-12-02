@@ -410,10 +410,7 @@ will be specified in the future.
 - **LOSBool:** verifyLOS()
 
 #### Placeholder Calculations:
-- **Trigger:** Any Inline Editing described in 3.3.4 Editing System - Inline Editing.
-- **caliberPlaHol:** Placeholder text for caliber not selected rows = caliberFromTable() 
-- **ResistancePlaHol:** Placeholder text for resistance empty rows = resistanceFromTable()
-- **inductiveReactancePlaHol:** Placeholder text for inductiveReactance empty rows = inductiveReactanceFromTable()
+Brief placeholder behavior is documented in the UI implementation notes: inputs may show computed suggestions (for caliber, resistance and inductive reactance) as visual placeholders only. These are UX suggestions and must not overwrite stored model values.
 
 ### 3.3.4 Editing System
 

@@ -1,9 +1,10 @@
 # Complete Reference - MecalApp Project (Backend/Architecture Focus)
 
 **Last Updated:** 2025-11-15
-**Last Updated (local edits):** 2025-12-01
+**Last Updated (local edits):** 2025-12-02
 **Last Updated (updated):** 2025-11-15
 **Project Phase:** Phase 1 - Core Infrastructure
+
 
 Purpose
 -------
@@ -218,3 +219,10 @@ Memory types (POC)
 
 
 Use these notes to align system-level decisions (deployment, environment, infra) with the POC's in-repo choices. For production work, prefer separate, testable frontend workspaces and CI jobs that run migrations and type generation as part of the deploy pipeline.
+
+POC Update (2025-12-02)
+-----------------------
+- The Circuit Dimension POC now persists per-memory configuration to `localStorage` under `circuit_config:<memoryId>` and reads `mecalapp_user_name`/`mecalapp_user_role` from `localStorage` for header display consistency.
+- `components/ProjectInfoPanel.tsx` was added and wires to fetch project/client/memory metadata when `projectId`/`memoryId` are provided; it renders read-only Cost Center, Project Name, Client and Version fields.
+- `components/CommonInputs.tsx` implements the 3×3 inputs grid and uses `data/conductor_types.json` for conductor-type options; selection auto-corrects when conductor material or temperature change.
+- Recommended next architectural steps: add `lib/auth.js` to centralize localStorage auth reads/writes and design a JSONB schema + migration for server-side modal-config persistence before enabling DB saves in production.

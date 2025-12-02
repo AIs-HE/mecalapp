@@ -1,7 +1,7 @@
 # Backend Reference - MecalApp
 
 **Last Updated:** 2025-11-15
- **Last Updated (local edits):** 2025-12-01
+**Last Updated (local edits):** 2025-12-02
 
 Additional UI & data delta (POC — 2025-12-01):
 
@@ -11,6 +11,13 @@ Additional UI & data delta (POC — 2025-12-01):
 - Minor CSS scoping: `styles/globals.css` contains a modal-scoped override (`.circuit-modal .grid>div`) to avoid a global `.grid>div { min-height: 160px }` rule from stretching dialog rows. These are local UI fixes and do not alter canonical backend schemas or RLS policies.
 **Note:** Updated to reflect recent POC deltas (assignment API behaviour, local memory types mapping, and example admin API updates).
 **Project Phase:** Phase 1 - Core Infrastructure
+
+POC Update (2025-12-02)
+-----------------------
+- Circuit Dimension POC: `components/CommonInputs.tsx` and `components/ProjectInfoPanel.tsx` were added; `ProjectInfoPanel` now fetches project + memory details when `projectId`/`memoryId` props are provided, and the CommonInputs conductor-type `<select>` sources `data/conductor_types.json`.
+- Per-memory local persistence: modal config is stored under `localStorage` as `circuit_config:<memoryId>` for the POC. Dev example endpoints under `pages/api/project_memories/[id]/*` support lightweight client probes used by the UI to choose DB vs local draft.
+- CSS scoping: modal-scoped overrides were added to `styles/globals.css` to avoid global layout regressions.
+- Next steps (backend): draft JSONB column + migration for modal-config persistence and add example server endpoints (`pages/api/project_memories/[id]/config.js`) with RLS notes.
 
 ---
 
