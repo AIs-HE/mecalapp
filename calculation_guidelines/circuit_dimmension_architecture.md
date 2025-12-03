@@ -410,7 +410,14 @@ will be specified in the future.
 - **LOSBool:** verifyLOS()
 
 #### Placeholder Calculations:
-Brief placeholder behavior is documented in the UI implementation notes: inputs may show computed suggestions (for caliber, resistance and inductive reactance) as visual placeholders only. These are UX suggestions and must not overwrite stored model values.
+- **Trigger:** Any Inline Editing described in 3.3.4 Editing System - Inline Editing.
+- **Caliber Placeholder (`caliberPlaHol`):** When the `caliber` cell is empty (or set to a UI-only default such as `--`), compute and display a suggested caliber using `caliberFromTable()` and render it as a non-submittable placeholder in the cell. To support consistent behavior the UI should initialize new rows with `caliber = ''` (empty string) rather than the literal `'--'`. The placeholder must be shown only when the field value is empty or null — it must not overwrite the stored model value.
+- **Resistance Placeholder (`ResistancePlaHol`):** When the `resistance` input is empty, compute and show a placeholder using `resistanceFromTable(caliber, conductorMaterial, conduitMaterial)`. If any lookup inputs are missing (for example no `caliber` selected) or the lookup fails, the placeholder should remain blank.
+- **Inductive Reactance Placeholder (`inductiveReactancePlaHol`):** When the `inductiveReactance` input is empty, compute and show a placeholder using `inductiveReactanceFromTable(caliber, conduitMaterial)`. If lookup inputs are missing or the lookup fails, leave the placeholder blank.
+- **UX Notes:**
+   - Render placeholders using the input `placeholder` attribute (not as the input `value`) so they remain visually distinct and editable.
+   - Treat placeholders purely as visual suggestions; when the user types a value the placeholder disappears and the typed value becomes the model value.
+   - For compatibility, placeholder activation logic should treat both `''` (empty string) and non-value tokens like `'--'` as empty states — preferring `''` as the canonical empty value.
 
 ### 3.3.4 Editing System
 
@@ -685,7 +692,7 @@ interface Equipment {
   - `calculateUsageFactor()` returns usageFactor = demandedPower / installedPower
   - `calculateSumationDemandedPower()` returns demandedPower = sumation of either all demanded powers of Esential loads or all demanded powers of Non Esential loads or all demanded powers of Esential and Non Esential loads 
   - `calculateActivePower()` returns activePower = (iNominalx125 / niFactor) * conductorLenght * (resistance * cos(acos(powerFactor)) + inductiveReactance * sin(acos(powerFactor)))
-  - `calculateVoltageDrop()` returns voltageDrop = if (phases = 1) then activePower * 2; elseif (phases = 3) then activePower / sqrt(3)
+   - `calculateVoltageDrop()` returns voltageDrop = if (phases = 1) then activePower * 2; elseif (phases = 3) then activePower * sqrt(3)
   - `calculateLosses()` returns losses = if (phases = 1) then 2 * ((iNominalx125 / niFactor) ^ 2) * resistance * conductorLenght; elseif (phases = 3) then 3 * ((iNominalx125 / niFactor) ^ 2) * resistance * conductorLenght
   - `ampacityFromTable()` returns ampacityValue = Obtained from ampacityTable described in 3.3.6 Local Data using caliber, tensionKV, conductorMaterial and conductorTemperature values
   - `tempFacFromTable()` returns temperatureFac = Obtained from temFacTable described in 3.3.6 Local Data using ambientTemperature value
@@ -696,6 +703,18 @@ interface Equipment {
   - `verifyICB()` returns ICBBool = true if ((protectionCurrent > iNominalx125) and (xN.Fac > protectionCurrent)), everything else will give false
   - `verifyREG()` returns REGBool = true if deltaV > regulation value, else is false
   - `verifyLOS()` returns LOSBool = true if percLoss > losses value, else is false
+
+#### Calculation units & UI formatting (2025-12-03)
+
+- Three-phase voltage-drop correction: the three-phase voltage-drop calculation was corrected to multiply by sqrt(3) (previously it divided by sqrt(3)). This aligns the implementation with NTC/RETIE conventions and fixes REG values that were previously ~1/3 of expected.
+- Percent units: `calculateRegulation()` and `calculateLossesPerc()` are expressed in percent units for consistency with UI thresholds and verification logic. Concretely:
+   - `calculateRegulation()` → returns: (voltageDrop / (tensionKV * 1000)) * 100  // percent
+   - `calculateLossesPerc()` → returns: (losses / (powerFactor * installedPower * 1000)) * 100 // percent
+   Consumers (UI and any persisted contracts) should treat those values as percentages (for example `3.88` represents `3.88%`).
+- UI formatting: the Equipment table displays REG and LOS rounded to two decimals and appends a trailing `%` (for example `3.88%`). This is a presentation choice implemented in `components/EquipmentTableGallery.tsx`.
+- Placeholders & helpers: the frontend now exposes a `suggestCaliber()` helper and shows computed `resistance` and `inductiveReactance` (Xl) as input `placeholder` attributes when the corresponding fields are empty. These placeholders are visual-only and do NOT overwrite model values — they only appear when the model field is empty (canonical empty state: `''`). If you want the UI to apply a suggested value to the model, implement an explicit opt-in action (for example, an "Apply suggestion" control) so writes are deliberate and auditable.
+
+Note: these are calculation and frontend wiring changes only; no DB schema changes were applied. If you plan to persist calculation outputs or placeholder-derived suggestions server-side, define a JSONB schema and add a migration that documents the percent-unit contract before writing values to the DB.
 
 #### Validation System:
 - **Common Inputs Validation:** Ensures all required fields are complete
