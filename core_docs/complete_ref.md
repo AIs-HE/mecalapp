@@ -5,6 +5,17 @@
 **Last Updated (updated):** 2025-11-15
 **Project Phase:** Phase 1 - Core Infrastructure
 
+<!-- Circuit Dimension POC Summary (added 2025-12-02) -->
+- Circuit Dimension POC added a configuration-first UI at
+	`/calc/circuit-dimension-main` and a small calculation engine wired into
+	the frontend POC. Architectural notes:
+	- The POC computes placeholders (R, Xl) from ampacity lookups and
+		displays a caliber suggestion; these behaviors are UI-only until a
+		server-side JSONB contract and migration are agreed.
+	- For productionize: define JSONB schema for per-memory config and add
+		RLS-aware endpoints in `system_sync_ref.md` before moving persistence
+		off `localStorage`.
+
 
 Purpose
 -------
@@ -226,3 +237,11 @@ POC Update (2025-12-02)
 - `components/ProjectInfoPanel.tsx` was added and wires to fetch project/client/memory metadata when `projectId`/`memoryId` are provided; it renders read-only Cost Center, Project Name, Client and Version fields.
 - `components/CommonInputs.tsx` implements the 3×3 inputs grid and uses `data/conductor_types.json` for conductor-type options; selection auto-corrects when conductor material or temperature change.
 - Recommended next architectural steps: add `lib/auth.js` to centralize localStorage auth reads/writes and design a JSONB schema + migration for server-side modal-config persistence before enabling DB saves in production.
+
+POC Delta (2025-12-03): calculation + UI deltas
+-----------------------------------------------
+- Calculation fixes: the in-repo calculation helpers were corrected — three-phase voltage drop formula fixed (multiply by sqrt(3)), and `calculateRegulation()` and `calculateLossesPerc()` now return percent units to align with UI thresholds and display.
+- UI & placeholders: `suggestCaliber()` helper added; resistance and Xl are shown as input `placeholder` attributes when the model fields are empty (visual-only). The equipment table now allows native horizontal overflow and displays the native horizontal scrollbar; wheel-to-horizontal behavior was removed.
+- Dev dependency: `next` was upgraded to `16.0.7` to address a security advisory (see branch `circuit-dimension-memory`, commit `c3de3dc`).
+
+Implication: these are frontend and calculation-engine changes only. If you plan to persist any of the UI modal-configs or placeholder-derived values server-side, define a JSONB schema and migration and update the API contracts in `system_sync_ref.md` before applying DB changes.

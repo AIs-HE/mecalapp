@@ -4,6 +4,15 @@
 **Last Updated (local edits):** 2025-12-01
 **Last Updated (local edits):** 2025-12-02
 
+<!-- Circuit Dimension POC Quick Next Steps (added 2025-12-02) -->
+- Circuit Dimension POC implemented locally. Short next steps for roadmap:
+  1. Add unit tests for the calculation helpers in `lib/calculations.ts`.
+  2. Define JSONB schema + migration for server-side per-memory config (if
+    persistence is desired) and document API contract in `system_sync_ref.md`.
+  3. Run the dev server and smoke-test placeholder UI and verification flags
+    before committing/pushing.
+
+
 POC Update (2025-12-02)
 -----------------------
 - Per-memory persistence: circuit modal config is stored per-memory at `localStorage` key `circuit_config:<memoryId>`; DraftControls remain local until server persistence is defined.
@@ -51,6 +60,8 @@ Changelog (selected)
 
 - 2025-12-01 - Local UX & integration deltas: Updated circuit-dimension modal to include labels, helper text, accessible inputs and aria attributes; modal resized to `50vw` by `80vh`. Scoped CSS override applied in `styles/globals.css` to prevent a global `.grid>div { min-height: 160px }` rule from stretching dialog rows; modal-scoped rule sets `padding:6px !important` for inner grid children. Projects page now persists authenticated display values to `localStorage` keys (`mecalapp_user_name`, `mecalapp_user_role`) and the circuit-dimension page reads these to show consistent user info. Per-memory dev endpoints were added locally to support client probes (`pages/api/project_memories/[id]/metadata.js` and `.../data.js`).
 
+- 2025-12-03 - Calculation & docs delta: Corrected 3φ voltage-drop and standardized percentage units in the calculation engine (`lib/calculations.ts`). `calculateRegulation()` and `calculateLossesPerc()` now return percent units; Equipment table UI appends `%` and formats to 2 decimals. Suggestion helper `suggestCaliber()` and resistance/Xl placeholders were added to the Equipment table (visual-only). See branch `circuit-dimension-memory`, commit `c3de3dc` for dependency upgrade details (Next.js → 16.0.7).
+
 Additional UI & data delta (POC — 2025-12-01):
 
 - Added `components/CommonInputs.tsx` (3x3 labeled input grid) and `components/ProjectInfoPanel.tsx` (right-side scaffold) to the Circuit Dimension POC. `CommonInputs` now sources conductor-type options from `data/conductor_types.json` and auto-updates the conductor-type select when material or temperature change.
@@ -59,6 +70,11 @@ Additional UI & data delta (POC — 2025-12-01):
 Pending next steps (short):
 - Wire DraftControls persistence handlers (`onPushToDatabase`, `onLoadFromDatabase`, `onExport`) and define API / JSONB contract if persistence moves to the backend.
 - Implement Emerald Green `ProjectInfoPanel` and the purple/red/gray containers as per the architecture spec.
+
+Short-term action items (2025-12-03):
+- Add unit tests for `lib/calculations.ts` functions: `calculateVoltageDrop`, `calculateRegulation`, and `calculateLossesPerc` to guard against regressions.
+- Update `calculation_guidelines/circuit_dimmension_architecture.md` to reflect that REG and LOS values are expressed in percent (
+  e.g., 3.88 for 3.88%). I can apply that doc edit now if you want.
 
 Developer notes
 ---------------

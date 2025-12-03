@@ -3,6 +3,18 @@
 **Last Updated:** 2025-11-15
 **Last Updated (local edits):** 2025-12-02
 
+<!-- Circuit Dimension POC Summary (added 2025-12-02) -->
+- Circuit Dimension POC: calculation engine wiring and UI deltas implemented
+  in the frontend POC. Key backend-facing notes:
+  - Per-memory modal config persists client-side under `localStorage` key
+    `circuit_config:<memoryId>`; consider adding a JSONB column + migration
+    before enabling server-side persistence.
+  - Example dev endpoints exist under `pages/api/project_memories/[id]/*`
+    to support client probes; these are dev-only and bypass RLS.
+  - No production DB schema changes were applied by the POC; any server
+    persistence must be introduced via a migration and documented here.
+
+
 Additional UI & data delta (POC — 2025-12-01):
 
 - Added `components/CommonInputs.tsx` (3x3 grid of labeled inputs) and `components/ProjectInfoPanel.tsx` (right-side scaffold) as part of the Circuit Dimension POC UI. `CommonInputs` replaces a free-text conductor-type input with a select populated from a new local JSON cache `data/conductor_types.json` and auto-selects a valid conductor type when `conductorMaterial` or `conductorTemperature` change.
@@ -18,7 +30,18 @@ POC Update (2025-12-02)
 - Per-memory local persistence: modal config is stored under `localStorage` as `circuit_config:<memoryId>` for the POC. Dev example endpoints under `pages/api/project_memories/[id]/*` support lightweight client probes used by the UI to choose DB vs local draft.
 - CSS scoping: modal-scoped overrides were added to `styles/globals.css` to avoid global layout regressions.
 - Next steps (backend): draft JSONB column + migration for modal-config persistence and add example server endpoints (`pages/api/project_memories/[id]/config.js`) with RLS notes.
+ 
+POC Delta (2025-12-03): Recent calculation & UI fixes
+---------------------------------------------------
+- Calculation engine: fixed an incorrect three-phase voltage-drop formula (3φ voltage-drop now multiplies by sqrt(3) as per NTC/RETIE expectations). This change corrects previously low `regulation` (REG) values.
+- Units: `calculateRegulation()` and `calculateLossesPerc()` now return percent values (e.g., `0.23%` is represented as `0.23` with a trailing percent sign in the UI). Update consumers or stored contracts if they expect fractional units.
+- UI placeholders and helpers: frontend adds a `suggestCaliber()` helper and shows computed resistance and Xl as visual `placeholder` attributes (not model writes). These are UI-only suggestions and do not mutate DB state.
+- Equipment table UX: the equipment table component (`components/EquipmentTableGallery.tsx`) was updated to allow native horizontal overflow (`overflow-x-auto` + `min-w-max`) and to show the native horizontal scrollbar (wheel-to-horizontal hijack was removed). This is a UI/UX improvement only.
+- Dev tooling: upgraded `next` to `16.0.7` to remediate a security advisory; see commit `c3de3dc` on branch `circuit-dimension-memory` for details.
 
+Notes for backend engineers:
+- These changes are primarily frontend and calculation-engine logic inside `lib/calculations.ts` and the Next.js frontend. No DB schema changes were applied in these patches — if you plan to persist modal/config or placeholder auto-selections server-side, implement a JSONB column and a migration, and record the expected percent-unit semantics in the migration notes.
+- TypeScript checks were run locally (`npx tsc --noEmit`) and returned no diagnostics after the changes.
 ---
 
 ## 📋 FILE GUIDELINES FOR AI UPDATES

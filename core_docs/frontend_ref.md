@@ -4,6 +4,17 @@
 **Last Updated:** 2025-11-15
 **Last Updated (local edits):** 2025-12-02
 
+<!-- Circuit Dimension POC Summary (added 2025-12-02) -->
+- Circuit Dimension POC (in-repo Next.js frontend): UI wiring added for
+  `components/CommonInputs.tsx`, `components/ProjectInfoPanel.tsx`, and the
+  `/calc/circuit-dimension-main` page. Key frontend notes for integrators:
+  - Numeric inputs for equipment rows allow empty-string values so `placeholder`
+    attributes can be shown for R and Xl suggestions.
+  - Caliber suggestions are computed and shown as the empty `<option>` label
+    (value `''`) so users see a recommended caliber without auto-select.
+  - Local persistence uses `localStorage` with key `circuit_config:<memoryId>`;
+    consider server persistence only after defining JSONB schema and migration.
+
 
 Purpose
 -------
@@ -148,7 +159,14 @@ Additional UI & data delta (POC — 2025-12-01):
 
 POC Update (2025-12-02)
 -----------------------
-- ProjectInfoPanel now accepts `projectId` and `memoryId` props and, when `projectInfo` is not provided, fetches project, clients and project memories to populate display-only fields (Cost Center, Project Name, Client, Version).
+
+POC Delta (2025-12-03): Calculation & Equipment Table UI updates
+----------------------------------------------------------------
+ - Calculation wiring: `lib/calculations.ts` was updated to correct a three-phase voltage-drop formula and to return percent units for `calculateRegulation()` and `calculateLossesPerc()`. The frontend now formats REG and LOS cells to two decimals and appends a trailing `%` in the Equipment table.
+ - Equipment table UX: `components/EquipmentTableGallery.tsx` now renders resistance and inductive-reactance (Xl) suggestions as `placeholder` attributes when their inputs are empty, and shows a suggested caliber via the select's empty option (value `''`). Placeholders are visual-only and do not mutate model state.
+ - Scrolling: the equipment table wrapper was changed to allow horizontal overflow (`overflow-x-auto`) and a `min-w-max` table so the native horizontal scrollbar is visible and usable; temporary wheel-to-horizontal hijack experiments were removed to preserve standard vertical wheel behavior.
+
+These UI changes are visual and calculation-output formatting only. If you want placeholders to auto-apply values into the model, say so and we can implement an opt-in action (e.g., "Apply suggested caliber") that writes the chosen value into the row state.
 - The circuit configuration modal persists per-memory under `localStorage` key pattern `circuit_config:<memoryId>` and the header shows `mecalapp_user_name` / `mecalapp_user_role` from `localStorage`.
 - Scoped CSS fixes applied: `.circuit-modal .grid>div { min-height:0; padding:6px !important; }` to avoid global `.grid>div` regressions.
 - Added `data/conductor_types.json` and wired `CommonInputs` to populate conductor-type `<select>` and auto-correct invalid selections when material/temperature change.

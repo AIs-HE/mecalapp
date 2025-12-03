@@ -3,6 +3,14 @@
 **Last Updated:** 2025-11-15
 **Last Updated (local edits):** 2025-12-02
 
+<!-- Circuit Dimension POC Integration Note (added 2025-12-02) -->
+- The Circuit Dimension POC uses a client-side `localStorage` key
+  `circuit_config:<memoryId>` to stage per-memory configuration. If the team
+  decides to persist this server-side, add an RLS-aware endpoint and a
+  JSONB column for `project_memories` (document expected JSON schema here) and
+  add migration guidance so backend teams can review prior to applying.
+
+
 Purpose
 -------
 This document describes the canonical data flows, backend contracts, and integration patterns between any future frontend and the Supabase backend. It does not include frontend implementation code. Use this file to re-create client-side interactions against the existing Supabase database and RLS.
@@ -224,6 +232,15 @@ POC Update (2025-12-02)
 - The circuit-dimension page now probes per-memory metadata via dev endpoints and persists modal configuration per-memory at `localStorage` key `circuit_config:<memoryId>`. The page reads `mecalapp_user_name` and `mecalapp_user_role` from `localStorage` for header display consistency.
 - `ProjectInfoPanel.tsx` now fetches project, client, and project memory lists when given `projectId` and `memoryId` and renders a read-only `<dl>` for Cost Center, Project Name, Client and Version.
 - Recommendation: define server-side JSONB schema and migration for modal-config persistence, add RLS-aware endpoints (`pages/api/project_memories/[id]/config.js`), and add `lib/auth.js` to centralize localStorage auth helpers before enabling DB saves of UI drafts.
+
+POC Delta (2025-12-03): Calculation outputs & placeholder behavior
+---------------------------------------------------------------
+- Calculation units: `lib/calculations.ts` now returns percent values for `calculateRegulation()` and `calculateLossesPerc()` (i.e., the functions produce values in percent units). If you plan to persist calculation outputs or use them in server-side checks, record the percent-unit contract in the API schema and migrations so consumers interpret values consistently.
+- Voltage-drop fix: three-phase voltage-drop formula corrected (multiply by sqrt(3)). This change affects REG and related verification booleans — update server-side validation policies only if you rely on the previous, incorrect numeric behaviour.
+- Placeholders: the frontend shows `suggestCaliber()` results and resistance/Xl lookups as input `placeholder` attributes only. These UI placeholders are not written to the model or DB. If you require server-side persistence of suggested values, design an opt-in API (for example `POST /api/project_memories/:id/apply-suggestion`) that validates the choice before writing.
+- Table UX: the equipment table was updated to allow native horizontal overflow and the native horizontal scrollbar is visible. No sync or API changes are required for that UI-only change.
+
+Dev note: dependency upgrades (including `next` → `16.0.7`) were committed on branch `circuit-dimension-memory` (commit `c3de3dc`). These are dev-focused fixes; review and pin versions in CI if needed.
 
   Developer note: these deltas are UI-only and were validated locally with `npx tsc --noEmit` (no TypeScript diagnostics). No commits were performed — changes are local until instructed to commit and push.
 
