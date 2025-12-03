@@ -12,6 +12,12 @@
   3. Run the dev server and smoke-test placeholder UI and verification flags
     before committing/pushing.
 
+POC UPDATE (2025-12-03)
+----------------------
+- **Calculation fixes:** corrected three-phase Vdrop (×√3) and made REG/LOS percent-semantics explicit in the calculation helpers. Add unit tests for `calculateVoltageDrop`, `calculateRegulation`, and `calculateLossesPerc` as high priority.
+- **UI & layout:** equipment gallery layout fixes applied (ancestor `min-h-0`, internal `flex-1 overflow-auto`), header sticky while body scrolls, and vertical scrollbar visually hidden using `.hide-scrollbar`. Horizontal overflow remains native.
+- **Action items (short):** add unit tests for the calculation helpers; draft a JSONB schema + migration if modal-config persistence moves to the backend; run the dev server to verify visual fixes.
+
 
 POC Update (2025-12-02)
 -----------------------

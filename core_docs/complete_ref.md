@@ -16,6 +16,13 @@
 		RLS-aware endpoints in `system_sync_ref.md` before moving persistence
 		off `localStorage`.
 
+<!-- Circuit Dimension POC Update (added 2025-12-03) -->
+- 2025-12-03: calculation & UI deltas
+	- **Calculation correctness:** fixed three-phase voltage-drop (multiply by sqrt(3)) and updated `calculateRegulation()`/`calculateLossesPerc()` to return percent units; consumers should interpret REG/LOS as percent values.
+	- **UI behavior:** suggested-caliber helper (`suggestCaliber()`), resistance and Xl shown as `placeholder` attributes (visual-only). Equipment table now keeps native horizontal overflow and the native horizontal scrollbar; wheel-to-horizontal experiments were removed to preserve vertical wheel behavior.
+	- **Layout fixes:** added `min-h-0` and internal `flex-1 overflow-auto` scroll container so the equipment gallery no longer overflows its parent; table header remains sticky while the tbody scrolls.
+	- **Files touched:** `pages/calc/circuit-dimension-main.tsx`, `components/EquipmentTableGallery.tsx`, `components/CircuitTabs.tsx`, `lib/calculations.ts`, and `styles/globals.css` (used `.hide-scrollbar`). Branch: `circuit-dimension-memory`.
+
 
 Purpose
 -------

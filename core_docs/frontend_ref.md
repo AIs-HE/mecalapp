@@ -15,6 +15,13 @@
   - Local persistence uses `localStorage` with key `circuit_config:<memoryId>`;
     consider server persistence only after defining JSONB schema and migration.
 
+<!-- Circuit Dimension POC Update (added 2025-12-03) -->
+- 2025-12-03: calculation & UI formatting
+  - **Calculation formatting:** REG and LOS are now percent units; the UI formats REG/LOS to two decimals and appends `%` (see `components/EquipmentTableGallery.tsx`). `lib/calculations.ts` was updated accordingly.
+  - **Placeholders & suggestions:** `suggestCaliber()` is shown as the empty `<option>` label and resistance/Xl values appear as `placeholder` text when model fields are empty — intentionally non-destructive.
+  - **Scroll & layout:** equipment gallery uses an internal vertical scroll (`flex-1 overflow-auto`) with the vertical scrollbar visually hidden via `.hide-scrollbar`; horizontal overflow is visible and native. Header is sticky relative to the scroll container.
+  - **Files edited (POC):** `components/EquipmentTableGallery.tsx`, `components/CircuitTabs.tsx`, `pages/calc/circuit-dimension-main.tsx`, and `lib/calculations.ts` on branch `circuit-dimension-memory`.
+
 
 Purpose
 -------

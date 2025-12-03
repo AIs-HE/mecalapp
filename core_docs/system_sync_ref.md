@@ -10,6 +10,13 @@
   JSONB column for `project_memories` (document expected JSON schema here) and
   add migration guidance so backend teams can review prior to applying.
 
+<!-- Circuit Dimension POC Update (added 2025-12-03) -->
+- 2025-12-03: Integration notes for calculation outputs and placeholders
+  - **Units contract:** `calculateRegulation()` and `calculateLossesPerc()` now return percent units. If you plan to persist calculation outputs server-side, record this percent-unit contract in the API schema and migrations so consumers interpret values consistently.
+  - **Voltage-drop fix:** three-phase voltage-drop formula corrected (multiply by sqrt(3)). If server-side verification logic depends on prior (incorrect) values, update server checks accordingly.
+  - **Placeholders policy:** resistance/Xl and suggested-caliber are shown as UI `placeholder` values only; they are not written to the model. If persistence of suggestions is desired, design an opt-in API (for example `POST /api/project_memories/:id/apply-suggestion`) that validates and applies the suggestion server-side.
+  - **Files changed (POC):** frontend and calculation helpers: `lib/calculations.ts`, `components/EquipmentTableGallery.tsx`, `components/CircuitTabs.tsx`, `pages/calc/circuit-dimension-main.tsx`. Branch: `circuit-dimension-memory`.
+
 
 Purpose
 -------
