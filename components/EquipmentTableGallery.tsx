@@ -6,7 +6,20 @@ export type Equipment = {
     output?: string
     name?: string
     phases?: 1 | 3
-    installedPower?: number
+    installedPower?: number | ''
+    usageFactor?: number | ''
+    demandedPower?: number
+    iNominalx125?: number
+    protectionCurrent?: number | ''
+    conductorsPerPhase?: number | ''
+    caliber?: string
+    calculatedAmpacity?: number
+    calculatedAmpacityFac?: number
+    conductorLength?: number | ''
+    resistance?: number | ''
+    inductiveReactance?: number | ''
+    regulation?: number
+    lossesPerc?: number
 }
 
 export default function EquipmentTableGallery({
@@ -186,7 +199,7 @@ export default function EquipmentTableGallery({
                                             <input
                                                 type="number"
                                                 step="0.001"
-                                                
+
                                                 className="w-20 bg-gray-700 text-white border border-gray-600 px-1 py-0.5 rounded"
                                                 value={(eq as any).resistance ?? ''}
                                                 onChange={e => {
@@ -199,7 +212,7 @@ export default function EquipmentTableGallery({
                                             <input
                                                 type="number"
                                                 step="0.001"
-                                                
+
                                                 className="w-20 bg-gray-700 text-white border border-gray-600 px-1 py-0.5 rounded"
                                                 value={(eq as any).inductiveReactance ?? ''}
                                                 onChange={e => {

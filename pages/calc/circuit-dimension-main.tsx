@@ -32,7 +32,7 @@ export default function CircuitDimensionMainPage() {
     const memoryId = (query?.memory_id as string) || null
     const projectId = (query?.project_id as string) || null
 
-    const safeFetch = useCallback(async (url, opts) => {
+    const safeFetch = useCallback(async (url: string, opts?: RequestInit) => {
         try {
             const res = await fetch(url, opts)
             if (!res.ok) return { ok: false, status: res.status }

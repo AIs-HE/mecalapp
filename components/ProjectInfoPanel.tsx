@@ -1,15 +1,15 @@
 import React, { useEffect, useState } from 'react'
 
 export interface ProjectInfo {
-    costCenter?: string
-    projectName?: string
-    client?: string
-    version?: number
-    companyLogo?: string
-    lastModified?: string
+    costCenter?: string | undefined
+    projectName?: string | undefined
+    client?: string | undefined
+    version?: number | undefined
+    companyLogo?: string | undefined
+    lastModified?: string | undefined
 }
 
-export default function ProjectInfoPanel({ projectInfo, projectId, memoryId }: { projectInfo?: ProjectInfo, projectId?: string, memoryId?: string }) {
+export default function ProjectInfoPanel({ projectInfo, projectId, memoryId }: { projectInfo?: ProjectInfo, projectId: string | undefined, memoryId: string | undefined }) {
     const [collapsed, setCollapsed] = useState(false)
     const [localProject, setLocalProject] = useState<ProjectInfo | undefined>(projectInfo)
     const [loading, setLoading] = useState(false)
@@ -60,11 +60,16 @@ export default function ProjectInfoPanel({ projectInfo, projectId, memoryId }: {
                     } catch (e) { /* ignore */ }
                 }
 
+                // Normalize version to a number when possible
+                let versionNum: number | undefined = undefined
+                if (typeof version === 'number') versionNum = version
+                else if (typeof version === 'string' && version.trim() !== '' && !Number.isNaN(Number(version))) versionNum = Number(version)
+
                 const mapped: ProjectInfo = {
                     costCenter: proj?.cost_center || proj?.costCenter || undefined,
                     projectName: proj?.name || proj?.projectName || undefined,
                     client: clientName || undefined,
-                    version: version ?? undefined,
+                    version: versionNum,
                 }
                 setLocalProject(mapped)
             } catch (e) {

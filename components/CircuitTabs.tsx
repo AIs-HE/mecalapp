@@ -12,7 +12,7 @@ export default function CircuitTabs({
     tranBool,
     genBool,
 }: {
-    memoryId?: string
+    memoryId: string | undefined
     nonEseBool: boolean
     dcBool: boolean
     tranBool: boolean
@@ -29,7 +29,7 @@ export default function CircuitTabs({
         return t
     }, [nonEseBool, dcBool, tranBool, genBool])
 
-    const [activeTab, setActiveTab] = useState<TabId>(availableTabs[0].id)
+    const [activeTab, setActiveTab] = useState<TabId>(availableTabs[0]?.id ?? 'esential_loads')
     const [equipments, setEquipments] = useState<Equipment[]>([])
     const [commonInputs, setCommonInputs] = useState<any>({ tensionKV: 0.48, powerFactor: 1, ambientTemperature: 30, conductorTemperature: '75°C', conductorsPerConduit: '1-3' })
 
@@ -99,7 +99,7 @@ export default function CircuitTabs({
             {/* Common Inputs (promote inner gray card from CommonInputs) */}
             <div>
                 <CommonInputs
-                    memoryId={memoryId}
+                    memoryId={memoryId as string | undefined}
                     tabLabel={availableTabs.find(t => t.id === activeTab)?.label}
                     onChange={(s) => setCommonInputs(s)}
                 />

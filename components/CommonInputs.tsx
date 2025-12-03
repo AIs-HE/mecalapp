@@ -1,6 +1,19 @@
 import React, { useEffect, useState } from 'react'
 import conductorTypes from '../data/conductor_types.json'
 
+/*
+ * CommonInputs
+ *
+ * What we implemented:
+ * - Central source for shared calculation inputs used by the equipment table
+ *   (installationType, tensionKV, powerFactor, conductorMaterial, conductorTemperature,
+ *   ambientTemperature, conductorType, conductorsPerConduit, conduitMaterial).
+ * - Loads persisted modal configuration from `localStorage` (key
+ *   `circuit_config:<memoryId>`) to prefill sensible defaults where available.
+ * - Emits changes via `onChange` so parent components recompute calculated fields
+ *   when common inputs are modified.
+ */
+
 export interface CommonInputsState {
     installationType: 'Conduit' | 'Exposed'
     tensionKV: number
@@ -25,7 +38,7 @@ const defaultState: CommonInputsState = {
     conduitMaterial: 'PVC',
 }
 
-export default function CommonInputs({ memoryId, onChange, tabLabel }: { memoryId?: string, onChange?: (s: CommonInputsState) => void, tabLabel?: string }) {
+export default function CommonInputs({ memoryId, onChange, tabLabel }: { memoryId: string | undefined, onChange?: (s: CommonInputsState) => void, tabLabel?: string | undefined }) {
     const [collapsed, setCollapsed] = useState(false)
     const [state, setState] = useState<CommonInputsState>(defaultState)
 
@@ -42,8 +55,8 @@ export default function CommonInputs({ memoryId, onChange, tabLabel }: { memoryI
         const opts: string[] = ((conductorTypes as any)[mat] && (conductorTypes as any)[mat][temp]) || []
         if (opts.length === 0) return
         if (!state.conductorType || !opts.includes(state.conductorType)) {
-            // default to first option
-            setState(prev => ({ ...prev, conductorType: opts[0] }))
+            // default to first option (ensure string, not undefined)
+            setState(prev => ({ ...prev, conductorType: opts[0] ?? '' }))
         }
     }, [state.conductorMaterial, state.conductorTemperature])
 
