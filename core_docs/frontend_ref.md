@@ -234,6 +234,22 @@ Where to find authoritative backend details
 
 End of Frontend Concepts Guide
 
+## Circuit Dimension — tabs update (2025-12-04)
+
+Implementation notes for frontend engineers (code is truth):
+
+- `components/CircuitTabs.tsx` holds per-tab state: `commonByTab` and `equipmentsByTab`. Each tab's `common` inputs and `equipments` array are independent; wire UI state persistence and autosave around this shape.
+- `CommonInputs` and `EquipmentTableGallery` now accept an `activeTab` prop. `CommonInputs` renders DC-specific inputs when `activeTab === 'dc_panel'`. `EquipmentTableGallery` renders a DC-specific column layout for `dc_panel` and a modified layout for `transfer_outputs` (disabled `U.F.` and `Dem.P.` selector).
+- The equipment gallery uses intermediate text buffers (e.g., `installedInputs`, `usageInputs`) and per-row error maps to preserve typing state and show inline validation without clobbering user input — keep that UX pattern when extending the table.
+- For `transfer_outputs`, the `demandedPower` selector is present (`Ese`/`NonEse`/`Ese&NonEse`); the gallery currently renders the selector and disables `usageFactor` input. The actual summation across Ese/NonEse groups should be computed by the parent (`CircuitTabs`) or by a shared helper using `equipmentsByTab`.
+- DC rows use DC-prefixed fields (`dcoutput`, `dcname`, `unitInstalledPower`, `InFac`, `dcprotectionCurrent`, `dccaliber`, `dcresistance`, `dcregulation`, `dclossesPerc`). REG/LOS are displayed as percent strings but are derived values — do not persist them as input properties.
+
+Developer notes:
+- Keep handler identities stable (use `useCallback`) for parent-to-child callbacks to avoid React update loops — the codebase fixed a maximum-update-depth issue by memoizing the `onChange` passed into `CommonInputs`.
+- When implementing autosave and DraftControls, persist only input fields in `draft_array` and in `project_memories.db_array` (server) — never persist calculated outputs.
+
+See `components/CircuitTabs.tsx`, `components/CommonInputs.tsx`, and `components/EquipmentTableGallery.tsx` for exact prop names and runtime behavior.
+
 **Usage:**
 - Wrap in `app/dashboard/layout.tsx`
 - Fetch projects on mount based on user role

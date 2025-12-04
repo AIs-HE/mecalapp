@@ -184,6 +184,19 @@ Where to find implementation details
 - Production deployment guide: `deployment_guide.md`
 
 End of Complete Reference
+
+## Circuit Dimension — tabs update (2025-12-04)
+
+Architectural summary (code-as-truth):
+
+- Per-tab model: `components/CircuitTabs.tsx` manages `commonByTab` and `equipmentsByTab` so each tab has isolated `common` inputs and `equipments` arrays. This affects how you should design persistence and API contracts — prefer a JSON object keyed by tab id when storing per-memory payloads.
+- UI behaviors to note:
+	- `CommonInputs` and `EquipmentTableGallery` accept an `activeTab` prop and render tab-specific forms and columns (notably `dc_panel` has a distinct DC column layout and DC-prefixed model fields).
+	- `transfer_outputs` renders `usageFactor` as read-only and `demandedPower` as a selector (`Ese`/`NonEse`/`Ese&NonEse`) — summation wiring for selected groups across tabs is pending and expected to be implemented in the parent.
+	- Per-row controlled text buffers and error maps are used across the gallery to preserve intermediate typing and surface validation without clobbering.
+- Calculated fields are computed client-side and should not be persisted to `project_memories.db_array` — persist only input fields and a `timestamp` for DraftControls comparisons.
+
+See `calculation_guidelines/circuit_dimmension_architecture.md` and the `components/` folder for field-level mappings and implementation details.
  
 Additional UI & data delta (POC — 2025-12-01):
 

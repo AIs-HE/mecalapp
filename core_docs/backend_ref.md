@@ -1026,6 +1026,28 @@ VALUES
 
 **End of Backend Reference**
 
+## Circuit Dimension — tabs update (2025-12-04)
+
+Runtime summary for backend integrators:
+
+- The frontend POC now uses a per-tab state model: `components/CircuitTabs.tsx` stores `commonByTab` and `equipmentsByTab`. When persisting to the authoritative DB (`project_memories.db_array`), prefer an object keyed by tab id where each tab contains `common` and `equipments` subobjects. Example shape:
+
+```json
+{
+  "esential_loads": { "common": {...}, "equipments": [...] },
+  "non_esential_loads": { "common": {...}, "equipments": [...] },
+  "transfer_outputs": { "common": {...}, "equipments": [...] },
+  "dc_panel": { "common": {...}, "equipments": [...] }
+}
+```
+
+- Persist only input fields. Calculated outputs (REG, LOS, iNominalx125, calculatedAmpacity, etc.) are computed client-side and should NOT be written into `db_array`.
+- Transfer Outputs specifics: the UI renders `usageFactor` as computed/read-only and `demandedPower` as a selector (`Ese`/`NonEse`/`Ese&NonEse`). The live summation across Ese/NonEse groups is a UI wiring task; backend endpoints accepting saved payloads should expect the selected option or a concrete numeric `demandedPower` value and validate accordingly.
+- DC panel specifics: DC rows use DC-prefixed fields (e.g., `dcoutput`, `dcname`, `unitInstalledPower`, `InFac`, `dcprotectionCurrent`, `dccaliber`, `dcresistance`, `dcregulation`, `dclossesPerc`). DC REG/LOS are presentation-only; if persisted, ensure percent semantics are recorded explicitly.
+- API guidance: when implementing `PUT /api/project_memories/:id/data` validate payloads to reject calculated fields and normalize percent fields as numeric percents (3.88 => 3.88). Return `{ db_array: { payload, timestamp }, updated_at }` for DraftControls comparisons.
+
+See `components/CircuitTabs.tsx`, `components/CommonInputs.tsx` and `components/EquipmentTableGallery.tsx` for exact runtime wiring.
+
 ---
 
 POC Implementation Update (2025-11-26)

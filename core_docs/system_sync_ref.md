@@ -1,3 +1,18 @@
+## Circuit Dimension — tabs update (2025-12-04)
+
+Short summary for integrators:
+- The frontend POC now implements per-tab state: `CircuitTabs` manages `commonByTab` and `equipmentsByTab` so each tab keeps its own `common` and `equipments` payloads. When persisting to `db_array`, prefer storing an object keyed by tab id with `common` + `equipments` subobjects.
+- The `transfer_outputs` tab UI renders `usageFactor` as computed/read-only and `demandedPower` as a selector (`'Ese'|'NonEse'|'Ese&NonEse'`). The selector is present in the UI; the live summation across Ese/NonEse groups must be implemented by the parent (the code currently renders the selector and leaves summation wiring as next work).
+- The `dc_panel` tab uses DC-prefixed fields in the model (`dcoutput`, `dcname`, `unitInstalledPower`, `InFac`, `dcprotectionCurrent`, `dccaliber`, `dcresistance`, `dcregulation`, `dclossesPerc`) and a dedicated DC column layout in `EquipmentTableGallery`.
+- Calculated fields (REG, LOS, iNominalx125, calculatedAmpacity, etc.) are computed client-side and are read-only; DO NOT persist calculated outputs to the authoritative `project_memories.db_array` — persist only input fields as per the DraftControls contract.
+- The equipment gallery uses controlled text buffers and per-row error maps to preserve intermediate typing. This design choice improves UX (allows typing '.' and intermediate states) and should be considered by any server-side validation that rehydrates payloads.
+- A memoized `onChange` handler was added to avoid React maximum-update-depth problems; keep handler identities stable when wiring parent-to-child callbacks in similar components.
+
+Recommended API considerations:
+- If you introduce `PUT /api/project_memories/:id/data` to accept per-tab payloads, validate and strip any calculated fields server-side. Normalize percent fields (e.g., REG/LOS) as numeric percent values (3.88 = 3.88%).
+- Return `db_array` shaped like `{ payload: { esential_loads: {...}, transfer_outputs: {...}, dc_panel: {...} }, timestamp: '<ISO>' }` so the DraftControls UI can compare deep equality and timestamps.
+
+See `components/CircuitTabs.tsx`, `components/EquipmentTableGallery.tsx`, and `components/CommonInputs.tsx` for exact field names and runtime wiring in the repo.
 # System Sync Reference - MecalApp (Backend-focused)
 
 **Last Updated:** 2025-12-04

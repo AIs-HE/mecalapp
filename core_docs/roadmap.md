@@ -105,3 +105,18 @@ Add a short implementation work item for the Circuit Dimension DraftControls beh
 - Priority roadmap tasks: (1) Add unit tests for calculation helpers (`calculateVoltageDrop`, `calculateRegulation`, `calculateLossesPerc`), (2) Implement `GET /api/project_memories/:id/metadata` and `GET /api/project_memories/:id/data` endpoints that return `{ db_array: { payload, timestamp }, updated_at }`, (3) Add a small migration that documents percent-unit contract for REG/LOS before enabling DB pushes.
 
 These items are short-term priorities to ensure a consistent UX and avoid accidental persistence of calculated outputs.
+
+## Circuit Dimension — tabs update (2025-12-04)
+
+Roadmap additions reflecting current code:
+
+- Implement Transfer Dem.P. summation: wire the `demandedPower` selector in `transfer_outputs` rows so selecting `Ese`/`NonEse`/`Ese&NonEse` displays the summed demanded power from the corresponding groups across `esential_loads` and `non_esential_loads`. `CircuitTabs` holds per-tab arrays and is the natural place to compute and inject the summed values.
+- Finalize DC calculations & tests: complete DC `InFac` calculation, REG/LOS presentation rules, and add unit tests for DC-specific helpers. Ensure DC numeric precision matches architecture rules.
+- DraftControls persistence: implement client autosave to `localStorage` (`draft_array`) with `timestamp`, and server `PUT /api/project_memories/:id/data` to persist input-only payloads into `project_memories.db_array`. Ensure server-side validation strips calculated fields and normalizes percent semantics.
+
+Priorities (updated):
+1. Transfer Dem.P. summation wiring (UI + tests)
+2. DraftControls autosave + server push (client & API + migration notes)
+3. DC calculations finalization and unit tests
+
+These items align with the per-tab model implemented in `components/CircuitTabs.tsx` and should be scheduled for the next sprint for the Circuit Dimension feature.
