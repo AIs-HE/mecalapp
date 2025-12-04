@@ -376,6 +376,35 @@ Migration & operational notes
 End of Backend Reference
 - This is intentional - memories don't exist without projects
 
+## Draft Controls — DB vs Local Draft Sync (canonical guidance)
+
+Purpose: document the authoritative contract for persisting circuit-dimension user input drafts and how the frontend should compare local autosaved drafts (`draft_array`) with authoritative DB payloads (`project_memories.db_array`). This section records the UI wording and behavior agreed for the Circuit Dimension POC so backend, API and frontend teams implement a consistent sync UX.
+
+Storage contract:
+- Authoritative persisted memories MUST be saved under the existing `project_memories` table. Use the existing JSONB column `db_array` in the authored project row (or the agreed JSONB column) to store the input-only payload. Do NOT persist calculated fields (REG, LOS, derived ampacity, etc.). Calculations are recomputed client-side on load.
+- Working drafts are autosaved locally on the client as `draft_array` (localStorage) and contain the same input-only shape plus a `timestamp` ISO string. The frontend may also keep an in-memory `draftBuffer` for intermediate edits; only the `draft_array` is persisted to localStorage.
+
+Sync rules (frontend behavior):
+- On opening a memory the client MUST query the DB for the authoritative `db_array` for the chosen `project_id` / `memory_id` (example endpoint: `GET /api/project_memories/:id/data`). If the request fails, the DraftControls UI shows the **red** state (see UI states below).
+- After fetching the `db_array` the client compares deep equality between the fetched `db_array.payload` and the local `draft_array.payload`.
+  - If the two arrays are equal (deep equality) then show the **green** indicator and message: "You have the latest approved version". All DraftControls buttons are disabled in this state.
+  - If they differ and `draft_array.timestamp` > `db_array.timestamp`, show the **amber** indicator and message: "You have an older local version. Press 'Save in DB' to make permanent or 'Load from DB' to load the last approved version." All three DraftControls buttons are enabled in this state (`Guardar en DB`, `Cargar desde DB`, `Exportar a Word`).
+  - If they differ and `db_array.timestamp` > `draft_array.timestamp`, show the **amber** indicator and message: "There is an older approved version. Press 'Load from DB' to load it." All three buttons are enabled (users should be able to push local drafts if desired).
+  - If the client cannot obtain `db_array` (network error or 5xx), show the **red** indicator and message: "All changes are saved locally only." In the red state none of the DraftControls buttons are enabled (to avoid accidental partial pushes while offline). The UI should still allow local export.
+
+UI semantics & storage normalization:
+- Percent semantics: when persisting any percentage values (for example `regulation` or `lossesPerc`) ensure the server-side schema and API treat those numbers as percentages (e.g., `3.88` represents `3.88%`). The server should not convert them to fractional values automatically — the agreed contract is numeric percent values.
+- Normalization: the server must normalize timestamps to ISO 8601 `UTC` when returning `db_array.timestamp` so client comparisons are reliable across timezones. The API returning `db_array` should include `payload` and `timestamp` keys: `{ payload: [...], timestamp: '2025-12-04T12:34:56Z' }`.
+
+API guidance for implementers:
+- `GET /api/project_memories/:id/metadata` → returns `{ updated_at: string }` (lightweight probe)
+- `GET /api/project_memories/:id/data` → returns `{ db_array: { payload: [...], timestamp: string }, updated_at: string }`
+- `PUT /api/project_memories/:id/data` → accepts `{ payload: [...], timestamp: string }` and writes `db_array` (input-only) after server-side validation. Server MUST reject payloads that include calculated fields.
+
+Migration note: prefer adding a JSONB `db_array` column to `project_memories` rather than creating new tables when possible to remain backward compatible. If you must add a table, provide a migration and document the mapping between `db_array` and the new schema here.
+
+End of Draft Controls guidance
+
 **Trigger:** Auto-update `updated_at`
 ```sql
 CREATE TRIGGER update_project_memories_updated_at

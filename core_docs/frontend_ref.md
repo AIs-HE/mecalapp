@@ -4,6 +4,28 @@
 **Last Updated:** 2025-12-04
 **Last Updated (local edits):** 2025-12-04
 
+## Draft Controls — UI Sync Behavior (Circuit Dimension)
+
+Implementers: copy this exact wording into `components/DraftControls.tsx` and the Circuit Dimension page DraftControls UI.
+
+Behavior summary:
+- On page open the client probes the server for `db_array` metadata and then full `db_array` (example endpoints in `system_sync_ref.md`). If the probe fails, show the **red** state.
+- Compare deep equality between the fetched `db_array.payload` and the local `draft_array.payload` (localStorage). Timestamps only break ties when arrays differ.
+
+Indicator states and messages:
+- **Green (saved):** `bg-green-500` — message: "You have the latest approved version". All DraftControls buttons disabled.
+- **Amber (conflict/newer local):** `bg-amber-500` — message depends on timestamps:
+  - If `draft_array.timestamp` > `db_array.timestamp`: "You have an older local version. Press 'Save in DB' to make permanent or 'Load from DB' to load the last approved version." Enable all three buttons.
+  - If `db_array.timestamp` > `draft_array.timestamp`: "There is an older approved version. Press 'Load from DB' to load it." Enable all three buttons.
+- **Red (DB unreachable):** `bg-red-500` — message: "All changes are saved locally only." All DraftControls buttons disabled (allow local export).
+
+UX notes:
+- Use deep-equality for payload comparison so identical payloads (even with different timestamps) are treated equal.
+- Persist `draft_array` as `{ payload, timestamp }` where `timestamp` is ISO 8601 UTC. Show `Last modified` (local) and `Last saved` (DB) in the DraftControls bar where available.
+- Save only input fields to DB; never persist calculated outputs from `lib/calculations.ts`.
+
+See `system_sync_ref.md` for example API endpoints and `backend_ref.md` for the recommended `project_memories.db_array` column usage.
+
 <!-- Circuit Dimension POC Summary (added 2025-12-02) -->
 - Circuit Dimension POC (in-repo Next.js frontend): UI wiring added for
   `components/CommonInputs.tsx`, `components/ProjectInfoPanel.tsx`, and the

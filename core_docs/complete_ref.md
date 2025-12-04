@@ -256,3 +256,14 @@ POC Delta (2025-12-03): calculation + UI deltas
 - Dev dependency: `next` was upgraded to `16.0.7` to address a security advisory (see branch `circuit-dimension-memory`, commit `c3de3dc`).
 
 Implication: these are frontend and calculation-engine changes only. If you plan to persist any of the UI modal-configs or placeholder-derived values server-side, define a JSONB schema and migration and update the API contracts in `system_sync_ref.md` before applying DB changes.
+
+## Draft Controls — DB vs Local Draft Sync (summary)
+
+Add this operational summary to align architects and implementers across backend and frontend workstreams:
+
+- Authoritative storage: `project_memories.db_array` (JSONB) MUST contain only input fields (no calculated outputs). Persisted JSON must include `payload` and `timestamp` (ISO 8601 UTC).
+- Local drafts: the frontend autosaves working drafts to `localStorage` as `draft_array` (same input-only shape + `timestamp`).
+- On open: client probes the DB (`GET /api/project_memories/:id/metadata` and `GET /api/project_memories/:id/data`) and compares deep equality between `db_array.payload` and `draft_array.payload`.
+- UI states: green (equal) → show "You have the latest approved version" (buttons disabled); amber (different) → show either "You have an older local version..." or "There is an older approved version..." depending on timestamps (all DraftControls buttons enabled); red (DB unreachable) → show "All changes are saved locally only." (buttons disabled).
+
+Recommended immediate roadmap action: document and implement the server endpoints that return `db_array` and `metadata` (examples in `backend_ref.md` and `system_sync_ref.md`) and add a small migration that documents the percent-unit contract for REG/LOS values before enabling `Guardar en DB` in production.

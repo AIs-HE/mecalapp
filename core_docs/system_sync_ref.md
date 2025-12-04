@@ -78,6 +78,36 @@ POC security & API hardening (2025-11-04)
 Implementation note: these are UI/tooling conveniences for the POC and do not change the canonical API or RLS policies. When porting to a production frontend, move inline styles to CSS/Tailwind, add aria attributes and keyboard testing, and ensure server routes using the admin client remain server-only.
 
 These notes are implementation pointers — they do not change the canonical API contracts documented in this file but will help frontend engineers find the implemented helpers and example routes in this repo.
+  
+## Draft Controls — API & Contract (recommended)
+
+Define the following minimal endpoints and shapes to support the DraftControls sync UX for Circuit Dimension memories. These are intentionally small and safe: the server persists only input fields and timestamps; calculated outputs remain client-only.
+
+1) `GET /api/project_memories/:id/metadata`
+  - Response: `{ updated_at: string }`
+  - Purpose: lightweight probe to decide whether to fetch full data
+
+2) `GET /api/project_memories/:id/data`
+  - Response: `{ db_array: { payload: Array, timestamp: string }, updated_at: string }`
+  - `payload` shape: array of equipment/input objects (input-only fields). Server MUST NOT return calculated fields (REG, LOS, calculatedAmpacity, etc.).
+
+3) `PUT /api/project_memories/:id/data`
+  - Request body: `{ payload: Array, timestamp: string }` (timestamp is the client's now)
+  - Behavior: server validates payload contains only input fields, normalizes percent fields (REG/LOS) as numeric percent values (e.g., `3.88` for 3.88%), writes `db_array` JSONB, and returns `{ db_array: { payload, timestamp: server_timestamp }, updated_at: server_timestamp }`.
+  - Server-side validation: reject requests that include calculated fields; return `4xx` with validation messages.
+
+Client-side flow (recommended):
+- On open: call `GET /metadata`. If metadata indicates newer `updated_at`, call `GET /data` and compare with local `draft_array`.
+- If `GET /data` fails: treat as offline — enter red state (local-only). Allow local export but disable DB push buttons.
+
+Notes on timestamps and percent semantics:
+- Timestamps must be normalized to ISO 8601 UTC on the server. Clients use timestamps only for tie-breaking; deep equality on payload is the primary equality check.
+- Percent semantics: server should persist REG/LOS and similar percent values as numeric percent (3.88 = 3.88%). Document this in any migration notes.
+
+Backward compatibility:
+- If you must adapt older rows that store different shapes, add a server-side normalizer that extracts input-only fields into `db_array.payload` and emits a migration log. Prefer not to mutate existing calculated output fields — leave them for client recomputation.
+
+End of Draft Controls API guidance
 
 Supabase usage notes
 ---------------------

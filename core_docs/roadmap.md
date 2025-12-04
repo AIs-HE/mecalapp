@@ -96,3 +96,12 @@ Recommended next steps
 3. Add integration tests that validate RLS behavior using test users (admin vs employee).
 
 End of Roadmap
+## Draft Controls & Next Steps (short)
+
+Add a short implementation work item for the Circuit Dimension DraftControls behavior described in the architecture:
+
+- Implement client-side comparison between local `draft_array` (localStorage) and server `db_array` (`project_memories.db_array`). Use deep equality for payloads and ISO 8601 UTC timestamps for tie-breaking.
+- UI states: green (equal) → show "You have the latest approved version" (buttons disabled); amber (different) → show either "You have an older local version..." or "There is an older approved version..." depending on timestamps (buttons enabled); red (DB unreachable) → show "All changes are saved locally only." (buttons disabled).
+- Priority roadmap tasks: (1) Add unit tests for calculation helpers (`calculateVoltageDrop`, `calculateRegulation`, `calculateLossesPerc`), (2) Implement `GET /api/project_memories/:id/metadata` and `GET /api/project_memories/:id/data` endpoints that return `{ db_array: { payload, timestamp }, updated_at }`, (3) Add a small migration that documents percent-unit contract for REG/LOS before enabling DB pushes.
+
+These items are short-term priorities to ensure a consistent UX and avoid accidental persistence of calculated outputs.
