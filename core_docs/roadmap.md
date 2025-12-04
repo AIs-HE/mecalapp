@@ -1,8 +1,8 @@
 # Roadmap & Changelog (Backend-focused)
 
-**Last Updated:** 2025-11-15
-**Last Updated (local edits):** 2025-12-01
-**Last Updated (local edits):** 2025-12-02
+**Last Updated:** 2025-12-04
+**Last Updated (local edits):** 2025-12-04
+**Last Updated (local edits):** 2025-12-04
 
 <!-- Circuit Dimension POC Quick Next Steps (added 2025-12-02) -->
 - Circuit Dimension POC implemented locally. Short next steps for roadmap:
@@ -15,6 +15,7 @@
 POC UPDATE (2025-12-03)
 ----------------------
 - **Calculation fixes:** corrected three-phase Vdrop (×√3) and made REG/LOS percent-semantics explicit in the calculation helpers. Add unit tests for `calculateVoltageDrop`, `calculateRegulation`, and `calculateLossesPerc` as high priority.
+- **Validation & linting update (2025-12-04):** Added per-row `inductiveReactance` validation to the Equipment table (3 decimals, >0) and applied a small CSS lint-compatible update (`appearance: textfield`) in `styles/globals.css`. Tailwind directives in `styles/tailwind.css` were annotated to reduce unknown-at-rule linter warnings.
 - **UI & layout:** equipment gallery layout fixes applied (ancestor `min-h-0`, internal `flex-1 overflow-auto`), header sticky while body scrolls, and vertical scrollbar visually hidden using `.hide-scrollbar`. Horizontal overflow remains native.
 - **Action items (short):** add unit tests for the calculation helpers; draft a JSONB schema + migration if modal-config persistence moves to the backend; run the dev server to verify visual fixes.
 

@@ -1,7 +1,7 @@
 # System Sync Reference - MecalApp (Backend-focused)
 
-**Last Updated:** 2025-11-15
-**Last Updated (local edits):** 2025-12-02
+**Last Updated:** 2025-12-04
+**Last Updated (local edits):** 2025-12-04
 
 <!-- Circuit Dimension POC Integration Note (added 2025-12-02) -->
 - The Circuit Dimension POC uses a client-side `localStorage` key
@@ -16,6 +16,8 @@
   - **Voltage-drop fix:** three-phase voltage-drop formula corrected (multiply by sqrt(3)). If server-side verification logic depends on prior (incorrect) values, update server checks accordingly.
   - **Placeholders policy:** resistance/Xl and suggested-caliber are shown as UI `placeholder` values only; they are not written to the model. If persistence of suggestions is desired, design an opt-in API (for example `POST /api/project_memories/:id/apply-suggestion`) that validates and applies the suggestion server-side.
   - **Files changed (POC):** frontend and calculation helpers: `lib/calculations.ts`, `components/EquipmentTableGallery.tsx`, `components/CircuitTabs.tsx`, `pages/calc/circuit-dimension-main.tsx`. Branch: `circuit-dimension-memory`.
+
+- **Validation & linting note (2025-12-04):** The POC added per-row validation for `inductiveReactance` (decimal up to 3 places, >0) in `components/EquipmentTableGallery.tsx`. A small cross-browser CSS update (`appearance: textfield`) was applied alongside `-moz-appearance` in `styles/globals.css` and Tailwind directives in `styles/tailwind.css` were annotated to reduce unknown-at-rule linter warnings for downstream integrators.
 
 
 Purpose

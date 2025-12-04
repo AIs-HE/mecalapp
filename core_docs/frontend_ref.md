@@ -1,8 +1,8 @@
 ### ProjectContext
 *** Frontend Concepts Guide (ARCHIVAL) ***
 
-**Last Updated:** 2025-11-15
-**Last Updated (local edits):** 2025-12-02
+**Last Updated:** 2025-12-04
+**Last Updated (local edits):** 2025-12-04
 
 <!-- Circuit Dimension POC Summary (added 2025-12-02) -->
 - Circuit Dimension POC (in-repo Next.js frontend): UI wiring added for
@@ -17,6 +17,9 @@
 
 <!-- Circuit Dimension POC Update (added 2025-12-03) -->
 - 2025-12-03: calculation & UI formatting
+ - 2025-12-04: validation + small CSS lint notes
+   - Added per-row `inductiveReactance` validation in `components/EquipmentTableGallery.tsx` (decimal up to 3 places, >0) and preserved input-buffer UX for intermediate '.' typing.
+   - Adjusted `styles/globals.css` to include `appearance: textfield` alongside `-moz-appearance` to satisfy cross-browser styling and linter suggestions; annotated Tailwind directives in `styles/tailwind.css` to reduce linter noise.
   - **Calculation formatting:** REG and LOS are now percent units; the UI formats REG/LOS to two decimals and appends `%` (see `components/EquipmentTableGallery.tsx`). `lib/calculations.ts` was updated accordingly.
   - **Placeholders & suggestions:** `suggestCaliber()` is shown as the empty `<option>` label and resistance/Xl values appear as `placeholder` text when model fields are empty — intentionally non-destructive.
   - **Scroll & layout:** equipment gallery uses an internal vertical scroll (`flex-1 overflow-auto`) with the vertical scrollbar visually hidden via `.hide-scrollbar`; horizontal overflow is visible and native. Header is sticky relative to the scroll container.

@@ -411,9 +411,9 @@ export default function CircuitDimensionMainPage() {
                 <section className="text-gray-700 h-full">
                     <div className="grid grid-cols-12 gap-4 w-full h-full">
                         {/* Main content column (tabs, common inputs, equipment gallery) */}
-                        <div className="col-span-9 h-full flex flex-col">
-                            <div className="flex-1 overflow-auto pr-2 hide-scrollbar">
-                                <div className="mb-4">
+                        <div className="col-span-9 h-full flex flex-col min-h-0">
+                            <div className="flex-1 pr-2 min-h-0">
+                                <div className="mb-4 flex flex-col h-full min-h-0">
                                     <CircuitTabs memoryId={memoryId || undefined} nonEseBool={nonEseBool} dcBool={dcBool} tranBool={tranBool} genBool={genBool} />
                                 </div>
 

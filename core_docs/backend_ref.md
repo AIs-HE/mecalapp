@@ -1,7 +1,7 @@
 # Backend Reference - MecalApp
 
-**Last Updated:** 2025-11-15
-**Last Updated (local edits):** 2025-12-02
+**Last Updated:** 2025-12-04
+**Last Updated (local edits):** 2025-12-04
 
 <!-- Circuit Dimension POC Summary (added 2025-12-02) -->
 - Circuit Dimension POC: calculation engine wiring and UI deltas implemented
@@ -18,6 +18,7 @@
 - 2025-12-03: POC wiring and calculation corrections
   - **Calculation fixes:** corrected three-phase voltage-drop (3φ Vdrop now multiplies by sqrt(3)) and standardized percent semantics: `calculateRegulation()` and `calculateLossesPerc()` now return percent values. These are logic-level changes in `lib/calculations.ts` and affect downstream validations.
   - **UI-only placeholders:** `suggestCaliber()` added and resistance/Xl values are shown as input `placeholder` attributes in the equipment table; these are visual-only and do not write to the model/DB.
+  - **InductiveReactance validation & CSS linting:** Per-row controlled input validation for `inductiveReactance` (decimal up to 3 places, > 0) was added to `components/EquipmentTableGallery.tsx`. A small CSS lint suggestion for number inputs was addressed in `styles/globals.css` (added `appearance: textfield` next to `-moz-appearance`). Tailwind directives in `styles/tailwind.css` are annotated to reduce unknown-at-rule linter noise. These UI-side edits are included on branch `circuit-dimension-memory`.
   - **Layout & UX:** container/flex fixes (`min-h-0` on ancestors) and internal scroll container changes prevent the equipment gallery from overflowing its parent; table header is sticky while `tbody` scrolls. Vertical scrollbar for the equipment pane is visually hidden using the existing `.hide-scrollbar` utility while horizontal overflow remains visible.
   - **Files touched (POC):** `pages/calc/circuit-dimension-main.tsx`, `components/EquipmentTableGallery.tsx`, `components/CircuitTabs.tsx`, `lib/calculations.ts`, and `styles/globals.css` (CSS utility used). Changes are on branch `circuit-dimension-memory`.
   - **Operator note:** These changes are frontend & calculation-engine focused; if you require server-side persistence for modal-config or suggested values, define a JSONB schema + migration and update API contracts before persisting.

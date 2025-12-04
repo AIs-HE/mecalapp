@@ -1,6 +1,8 @@
+/* stylelint-disable at-rule-no-unknown */
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+/* stylelint-enable at-rule-no-unknown */
 
 /* Optional: small helpers that combine with Tailwind utilities */
 /* Keep legacy globals in `globals.css` and migrate rules incrementally. */

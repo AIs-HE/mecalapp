@@ -77,7 +77,7 @@ export default function CircuitTabs({
     }, [commonInputs])
 
     return (
-        <div className="rounded-lg overflow-hidden">
+        <div className="rounded-lg overflow-hidden flex flex-col h-full min-h-0">
             <div className="bg-purple-500 text-white px-3 py-2 rounded-t-lg">
                 <nav className="flex gap-2 overflow-x-auto hide-scrollbar">
                     {availableTabs.map(t => {
@@ -106,14 +106,16 @@ export default function CircuitTabs({
             </div>
 
             {/* Equipment gallery */}
-            <EquipmentTableGallery
-                equipments={equipments}
-                onAdd={handleAddEquipment}
-                onDelete={handleDeleteEquipment}
-                onUpdate={handleUpdateEquipment}
-                commonInputs={commonInputs}
-                validation={{ valid: true }}
-            />
+            <div className="flex-1 min-h-0">
+                <EquipmentTableGallery
+                    equipments={equipments}
+                    onAdd={handleAddEquipment}
+                    onDelete={handleDeleteEquipment}
+                    onUpdate={handleUpdateEquipment}
+                    commonInputs={commonInputs}
+                    validation={{ valid: true }}
+                />
+            </div>
         </div>
     )
 }

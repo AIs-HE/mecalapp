@@ -1,8 +1,8 @@
 # Complete Reference - MecalApp Project (Backend/Architecture Focus)
 
-**Last Updated:** 2025-11-15
-**Last Updated (local edits):** 2025-12-02
-**Last Updated (updated):** 2025-11-15
+**Last Updated:** 2025-12-04
+**Last Updated (local edits):** 2025-12-04
+**Last Updated (updated):** 2025-12-04
 **Project Phase:** Phase 1 - Core Infrastructure
 
 <!-- Circuit Dimension POC Summary (added 2025-12-02) -->
@@ -18,6 +18,10 @@
 
 <!-- Circuit Dimension POC Update (added 2025-12-03) -->
 - 2025-12-03: calculation & UI deltas
+
+- 2025-12-04: UI validation and CSS lint updates
+	- Added per-row `inductiveReactance` controlled input validation to `components/EquipmentTableGallery.tsx` (decimal up to 3 places, > 0). Preserves typing buffers and shows inline tooltips on error.
+	- Applied a small CSS lint-compatible update to `styles/globals.css` for number inputs (`appearance: textfield`) and annotated `styles/tailwind.css` to reduce unknown-at-rule linter warnings.
 	- **Calculation correctness:** fixed three-phase voltage-drop (multiply by sqrt(3)) and updated `calculateRegulation()`/`calculateLossesPerc()` to return percent units; consumers should interpret REG/LOS as percent values.
 	- **UI behavior:** suggested-caliber helper (`suggestCaliber()`), resistance and Xl shown as `placeholder` attributes (visual-only). Equipment table now keeps native horizontal overflow and the native horizontal scrollbar; wheel-to-horizontal experiments were removed to preserve vertical wheel behavior.
 	- **Layout fixes:** added `min-h-0` and internal `flex-1 overflow-auto` scroll container so the equipment gallery no longer overflows its parent; table header remains sticky while the tbody scrolls.

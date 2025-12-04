@@ -156,6 +156,19 @@ export function calculateAmpacity(caliber: string, conductorsPerPhase: number, c
     return (base || 0) * (conductorsPerPhase || 1)
 }
 
+// Suggest the smallest caliber that makes the ICB condition true
+export function suggestCaliber(protectionCurrent: number, iNominalx125: number, conductorsPerPhase: number, common?: CommonInputsState) {
+    if (!protectionCurrent || protectionCurrent <= 0) return ''
+    for (const cal of caliberOptions) {
+        const calculatedAmpacity = calculateAmpacity(cal, conductorsPerPhase || 1, common)
+        const calculatedAmpacityFac = calculateAmpacityFactored(calculatedAmpacity, common?.ambientTemperature ?? 30, common?.conductorTemperature ?? '75°C', common?.conductorsPerConduit ?? '1-3')
+        if (verifyICB(protectionCurrent, iNominalx125, calculatedAmpacityFac)) {
+            return cal
+        }
+    }
+    return ''
+}
+
 export function calculateAmpacityFactored(calculatedAmpacity: number, ambientTemperature: number, conductorTemperature: string, conductorsPerConduit: string) {
     const tempFac = lookupTempFac(ambientTemperature, conductorTemperature)
     const groupingFac = lookupGroupingFac(conductorsPerConduit)
@@ -164,17 +177,22 @@ export function calculateAmpacityFactored(calculatedAmpacity: number, ambientTem
 
 export function calculateVoltageDrop(activePower: number, phases: number) {
     if (phases === 1) return activePower * 2
-    return activePower / Math.sqrt(3)
+    // For three-phase systems the line voltage drop is sqrt(3) * I * (R cosφ + X sinφ) * L
+    // The previous implementation divided by sqrt(3) which produced a value 1/3 of the correct
+    // three-phase line-to-line voltage drop. Multiply by sqrt(3) to correct this.
+    return activePower * Math.sqrt(3)
 }
 
 export function calculateRegulation(voltageDrop: number, tensionKV: number) {
     if (!tensionKV) return 0
-    return voltageDrop / (tensionKV * 1000)
+    // Return regulation as a percentage (ΔV / V_nominal * 100)
+    return (voltageDrop / (tensionKV * 1000)) * 100
 }
 
 export function calculateLossesPerc(losses: number, powerFactor: number, installedPower: number) {
     if (!powerFactor || !installedPower) return 0
-    return losses / (powerFactor * installedPower * 1000)
+    // Return losses as a percentage of delivered power (percent = 100 * losses / (PF * P_installed[kW]))
+    return (losses / (powerFactor * installedPower * 1000)) * 100
 }
 
 export function calculateActivePower(iNominalx125: number, niFactor: number, conductorLength: number, resistance: number, inductiveReactance: number, powerFactor: number) {
