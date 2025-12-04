@@ -24,6 +24,7 @@ export type Equipment = {
 
 export default function EquipmentTableGallery({
     equipments = [],
+    activeTab,
     onAdd,
     onDelete,
     onUpdate,
@@ -31,12 +32,33 @@ export default function EquipmentTableGallery({
     commonInputs,
 }: {
     equipments?: Equipment[]
+    activeTab?: string
     onAdd: () => void
     onDelete: (id: string) => void
     onUpdate: (id: string, changes: Partial<Equipment>) => void
     validation?: { valid: boolean; messages?: string[] }
     commonInputs?: any
 }) {
+    const [selectedRowId, setSelectedRowId] = useState<string | null>(null)
+
+    function getRowBgClass(eq: Equipment | any) {
+        // selected/editing row (honeydew)
+        if (selectedRowId && eq && eq.id === selectedRowId) return 'bg-green-50'
+
+        const icb = (eq as any).ICBBool
+        const reg = (eq as any).REGBool
+        // some code paths may use PERBool instead of LOSBool; accept either
+        const los = (eq as any).LOSBool !== undefined ? (eq as any).LOSBool : (eq as any).PERBool
+
+        // all verifications passed -> green
+        if (icb === true && reg === true && los === true) return 'bg-green-100'
+
+        // any verification explicitly failed -> red
+        if (icb === false || reg === false || los === false) return 'bg-red-50'
+
+        // default
+        return 'bg-white'
+    }
     const [installedInputs, setInstalledInputs] = useState<Record<string, string>>({})
     const [installedErrors, setInstalledErrors] = useState<Record<string, string | null>>({})
     const [usageInputs, setUsageInputs] = useState<Record<string, string>>({})
@@ -554,7 +576,7 @@ export default function EquipmentTableGallery({
     }
     // No wheel hijacking: let the mouse wheel control vertical scrolling only.
     return (
-        <div className="bg-gray-700 text-white p-3 rounded-b-lg flex flex-col h-full min-h-0">
+        <div className="bg-gray-300 text-black p-3 rounded-b-lg flex flex-col h-full min-h-0">
             <div className="flex items-center justify-between mb-2">
                 <div className="font-medium">⚡ Circuits ({equipments?.length ?? 0})</div>
                 <button
@@ -577,64 +599,152 @@ export default function EquipmentTableGallery({
             )}
 
             {(!equipments || equipments.length === 0) ? (
-                <div className="text-sm text-gray-200">No circuits added. Click '➕ Add a Circuit' to get started.</div>
+                <div className="text-sm text-black">No circuits added. Click '➕ Add a Circuit' to get started.</div>
             ) : (
-                <div className="flex-1 overflow-auto mt-2 border border-gray-600 rounded min-h-0 relative hide-scrollbar">
+                <div className="flex-1 overflow-auto mt-2 border border-gray-300 rounded min-h-0 relative hide-scrollbar">
                     <div className="overflow-x-auto overflow-y-visible min-w-full">
                         <table className="min-w-max w-full text-left text-sm">
-                            <thead className="bg-gray-800 sticky top-0 z-10">
+                            <thead className="bg-gray-500 sticky top-0 z-10">
                                 <tr>
-                                    <th className="px-2 py-2">Out</th>
-                                    <th className="px-2 py-2">Name</th>
-                                    <th className="px-2 py-2">Pha.Qty.</th>
-                                    <th className="px-2 py-2">I.P.[kVA]</th>
-                                    <th className="px-2 py-2">U.F.</th>
-                                    <th className="px-2 py-2">Dem.P.</th>
-                                    <th className="px-2 py-2">Inx1.25</th>
-                                    <th className="px-2 py-2">Prot.I</th>
-                                    <th className="px-2 py-2">CxPha</th>
-                                    <th className="px-2 py-2">Cal</th>
-                                    <th className="px-2 py-2">xN</th>
-                                    <th className="px-2 py-2">xN.Fac</th>
-                                    <th className="px-2 py-2">L[km]</th>
-                                    <th className="px-2 py-2">R[Ω/km]</th>
-                                    <th className="px-2 py-2">Xl[Ω/km]</th>
-                                    <th className="px-2 py-2">REG</th>
-                                    <th className="px-2 py-2">LOS</th>
-                                    <th className="px-2 py-2">Del</th>
+                                    {activeTab === 'dc_panel' ? (
+                                        <>
+                                            <th className="px-2 py-2">Out</th>
+                                            <th className="px-2 py-2">Name</th>
+                                            <th className="px-2 py-2">T. Charge</th>
+                                            <th className="px-2 py-2">Equ.Qty.</th>
+                                            <th className="px-2 py-2">U.I.P.</th>
+                                            <th className="px-2 py-2">Dem.F.</th>
+                                            <th className="px-2 py-2">Nom.CxF</th>
+                                            <th className="px-2 py-2">Prot.I</th>
+                                            <th className="px-2 py-2">CxPha</th>
+                                            <th className="px-2 py-2">Cal</th>
+                                            <th className="px-2 py-2">xN</th>
+                                            <th className="px-2 py-2">L[km]</th>
+                                            <th className="px-2 py-2">R[Ω/km]</th>
+                                            <th className="px-2 py-2">REG</th>
+                                            <th className="px-2 py-2">LOS</th>
+                                            <th className="px-2 py-2">Del</th>
+                                        </>
+                                    ) : (
+                                        <>
+                                            <th className="px-2 py-2">Out</th>
+                                            <th className="px-2 py-2">Name</th>
+                                            <th className="px-2 py-2">Pha.Qty.</th>
+                                            <th className="px-2 py-2">I.P.[kVA]</th>
+                                            <th className="px-2 py-2">U.F.</th>
+                                            <th className="px-2 py-2">Dem.P.</th>
+                                            <th className="px-2 py-2">Inx1.25</th>
+                                            <th className="px-2 py-2">Prot.I</th>
+                                            <th className="px-2 py-2">CxPha</th>
+                                            <th className="px-2 py-2">Cal</th>
+                                            <th className="px-2 py-2">xN</th>
+                                            <th className="px-2 py-2">xN.Fac</th>
+                                            <th className="px-2 py-2">L[km]</th>
+                                            <th className="px-2 py-2">R[Ω/km]</th>
+                                            <th className="px-2 py-2">Xl[Ω/km]</th>
+                                            <th className="px-2 py-2">REG</th>
+                                            <th className="px-2 py-2">LOS</th>
+                                            <th className="px-2 py-2">Del</th>
+                                        </>
+                                    )}
                                 </tr>
                             </thead>
                             <tbody>
-                                {equipments.map(eq => {
+                                {equipments.map((eq, idx) => {
                                     // defensive: skip malformed rows without an id
                                     if (!eq || !eq.id) return null
                                     const rawCaliber = (eq as any).caliber ?? ''
                                     const resPlaceholder = rawCaliber !== '' ? resistanceFromTable(rawCaliber, commonInputs?.conductorMaterial ?? 'Cu', commonInputs?.conduitMaterial ?? 'PVC') : undefined
                                     const xlPlaceholder = rawCaliber !== '' ? inductiveReactanceFromTable(rawCaliber, commonInputs?.conduitMaterial ?? 'PVC') : undefined
 
+                                    // verification flags used for row/background and per-column color coding
+                                    const icbFlag = (eq as any).ICBBool
+                                    const regFlag = (eq as any).REGBool
+                                    const losFlag = (eq as any).LOSBool !== undefined ? (eq as any).LOSBool : (eq as any).PERBool
+
                                     // compute local iNominalx125 if not present on the row
                                     const localINominalx125 = Number((eq as any).iNominalx125 || calculateINominalx125(Number(eq.installedPower || 0), Number(commonInputs?.tensionKV || 0), Number(eq.phases || 3)))
                                     const suggested = suggestCaliber(Number(eq.protectionCurrent || 0), localINominalx125, Number(eq.conductorsPerPhase || 1), commonInputs)
 
+                                    const rowBg = getRowBgClass(eq)
+                                    const evenClass = idx % 2 === 0 ? 'bg-gray-100/60' : ''
+
+                                    // DC panel has a different column layout
+                                    if (activeTab === 'dc_panel') {
+                                        return (
+                                            <tr key={eq.id} onDoubleClick={() => setSelectedRowId(eq.id)} className={`${evenClass} ${rowBg}`}>
+                                                <td className="px-2 py-2">
+                                                    <input className="w-20 bg-gray-100 text-black border border-gray-600 px-1 py-0.5 rounded" value={(eq as any).dcoutput ?? ''} onChange={e => onUpdate(eq.id, { dcoutput: e.target.value } as any)} />
+                                                </td>
+                                                <td className="px-2 py-2">
+                                                    <input className="w-36 bg-gray-100 text-black border border-gray-600 px-1 py-0.5 rounded" value={(eq as any).dcname ?? ''} onChange={e => onUpdate(eq.id, { dcname: e.target.value } as any)} />
+                                                </td>
+                                                <td className="px-2 py-2">
+                                                    <select className="bg-gray-100 text-black border border-gray-600 px-1 py-0.5 rounded" value={(eq as any).chargeType ?? 'Con'} onChange={e => onUpdate(eq.id, { chargeType: e.target.value } as any)}>
+                                                        <option value="Con">Con</option>
+                                                        <option value="Mom">Mom</option>
+                                                    </select>
+                                                </td>
+                                                <td className="px-2 py-2">
+                                                    <input type="text" inputMode="numeric" className="w-20 bg-gray-100 text-black border border-gray-600 px-1 py-0.5 rounded" value={String((eq as any).equipmentNumber ?? '')} onChange={e => onUpdate(eq.id, { equipmentNumber: Number(e.target.value) || '' } as any)} />
+                                                </td>
+                                                <td className="px-2 py-2">
+                                                    <input type="text" inputMode="numeric" className="w-24 bg-gray-100 text-black border border-gray-600 px-1 py-0.5 rounded" value={String((eq as any).unitInstalledPower ?? '')} onChange={e => onUpdate(eq.id, { unitInstalledPower: Number(e.target.value) || '' } as any)} />
+                                                </td>
+                                                <td className="px-2 py-2">
+                                                    <input type="text" inputMode="decimal" className="w-16 bg-gray-100 text-black border border-gray-600 px-1 py-0.5 rounded" value={String((eq as any).demandedPowerFactor ?? '')} onChange={e => onUpdate(eq.id, { demandedPowerFactor: Number(e.target.value) || '' } as any)} />
+                                                </td>
+                                                <td className="px-2 py-2 text-right">{typeof (eq as any).InFac !== 'undefined' ? Number((eq as any).InFac).toFixed(2) : '-'}</td>
+                                                <td className="px-2 py-2">
+                                                    <input type="text" inputMode="numeric" className="w-20 bg-gray-100 text-black border border-gray-600 px-1 py-0.5 rounded" value={String((eq as any).dcprotectionCurrent ?? '')} onChange={e => onUpdate(eq.id, { dcprotectionCurrent: Number(e.target.value) || '' } as any)} />
+                                                </td>
+                                                <td className="px-2 py-2">
+                                                    <input type="text" inputMode="numeric" className="w-20 bg-gray-100 text-black border border-gray-600 px-1 py-0.5 rounded" value={String((eq as any).dcconductorsPerPhase ?? '')} onChange={e => onUpdate(eq.id, { dcconductorsPerPhase: Number(e.target.value) || '' } as any)} />
+                                                </td>
+                                                <td className="px-2 py-2">
+                                                    <select className={`w-24 bg-gray-100 border border-gray-600 px-1 py-0.5 rounded`} value={(eq as any).dccaliber ?? ''} onChange={e => onUpdate(eq.id, { dccaliber: e.target.value } as any)}>
+                                                        <option value="">--</option>
+                                                        {caliberOptions.map(c => (
+                                                            <option key={c} value={c}>{c}</option>
+                                                        ))}
+                                                    </select>
+                                                </td>
+                                                <td className="px-2 py-2 text-right">{typeof (eq as any).dccalculatedAmpacity !== 'undefined' ? Number((eq as any).dccalculatedAmpacity).toFixed(0) : '-'}</td>
+                                                <td className="px-2 py-2">
+                                                    <input type="text" inputMode="decimal" className="w-20 bg-gray-100 text-black border border-gray-600 px-1 py-0.5 rounded" value={String((eq as any).dcconductorLength ?? '')} onChange={e => onUpdate(eq.id, { dcconductorLength: Number(e.target.value) || '' } as any)} />
+                                                </td>
+                                                <td className="px-2 py-2">
+                                                    <input type="text" inputMode="decimal" className="w-20 bg-gray-100 text-black border border-gray-600 px-1 py-0.5 rounded" value={String((eq as any).dcresistance ?? '')} onChange={e => onUpdate(eq.id, { dcresistance: Number(e.target.value) || '' } as any)} />
+                                                </td>
+                                                <td className="px-2 py-2 text-right">{typeof (eq as any).dcregulation !== 'undefined' ? `${Number((eq as any).dcregulation).toFixed(2)}%` : '-'}</td>
+                                                <td className="px-2 py-2 text-right">{typeof (eq as any).dclossesPerc !== 'undefined' ? `${Number((eq as any).dclossesPerc).toFixed(2)}%` : '-'}</td>
+                                                <td className="px-2 py-2">
+                                                    <button onClick={() => onDelete(eq.id)} className="px-2 py-1 rounded bg-red-600 text-white">🗑️</button>
+                                                </td>
+                                            </tr>
+                                        )
+                                    }
+
+                                    // default (esential / non esential / transfer)
                                     return (
-                                        <tr key={eq.id} className="even:bg-gray-800/60">
+                                        <tr key={eq.id} onDoubleClick={() => setSelectedRowId(eq.id)} className={`${evenClass} ${rowBg}`}>
                                             <td className="px-2 py-2">
                                                 <input
-                                                    className="w-20 bg-gray-700 text-white border border-gray-600 px-1 py-0.5 rounded"
+                                                    className="w-20 bg-gray-100 text-black border border-gray-600 px-1 py-0.5 rounded"
                                                     value={eq.output ?? ''}
                                                     onChange={e => onUpdate(eq.id, { output: e.target.value })}
                                                 />
                                             </td>
                                             <td className="px-2 py-2">
                                                 <input
-                                                    className="w-36 bg-gray-700 text-white border border-gray-600 px-1 py-0.5 rounded"
+                                                    className="w-36 bg-gray-100 text-black border border-gray-600 px-1 py-0.5 rounded"
                                                     value={eq.name ?? ''}
                                                     onChange={e => onUpdate(eq.id, { name: e.target.value })}
                                                 />
                                             </td>
                                             <td className="px-2 py-2">
                                                 <select
-                                                    className="bg-gray-700 text-white border border-gray-600 px-1 py-0.5 rounded"
+                                                    className="bg-gray-100 text-black border border-gray-600 px-1 py-0.5 rounded"
                                                     value={String(eq.phases ?? 3)}
                                                     onChange={e => onUpdate(eq.id, { phases: Number(e.target.value) as 1 | 3 })}
                                                 >
@@ -652,11 +762,10 @@ export default function EquipmentTableGallery({
                                                     <input
                                                         type="text"
                                                         inputMode="decimal"
-                                                        className="w-20 bg-gray-700 text-white border border-gray-600 px-1 py-0.5 rounded"
+                                                        className="w-20 bg-gray-100 text-black border border-gray-600 px-1 py-0.5 rounded"
                                                         value={installedInputs[eq.id] ?? (eq.installedPower === undefined || eq.installedPower === '' ? '' : String(eq.installedPower))}
                                                         onChange={e => handleInstalledChange(eq.id, e.target.value)}
                                                         onBlur={() => {
-                                                            // if user cleared the input, restore previous numeric value visually
                                                             if ((installedInputs[eq.id] ?? '') === '') {
                                                                 const prev = eq.installedPower === undefined || eq.installedPower === '' ? '' : String(eq.installedPower)
                                                                 setInstalledInputs(prevState => ({ ...prevState, [eq.id]: prev }))
@@ -676,9 +785,12 @@ export default function EquipmentTableGallery({
                                                     <input
                                                         type="text"
                                                         inputMode="decimal"
-                                                        className="w-16 bg-gray-700 text-white border border-gray-600 px-1 py-0.5 rounded"
+                                                        className="w-16 bg-gray-100 text-black border border-gray-600 px-1 py-0.5 rounded"
                                                         value={usageInputs[eq.id] ?? ((eq as any).usageFactor === undefined || (eq as any).usageFactor === '' ? '' : String((eq as any).usageFactor))}
-                                                        onChange={e => handleUsageChange(eq.id, e.target.value)}
+                                                        onChange={e => {
+                                                            if (activeTab === 'transfer_outputs') return
+                                                            handleUsageChange(eq.id, e.target.value)
+                                                        }}
                                                         onBlur={() => {
                                                             if ((usageInputs[eq.id] ?? '') === '') {
                                                                 const prevVal = (eq as any).usageFactor === undefined || (eq as any).usageFactor === '' ? '' : String((eq as any).usageFactor)
@@ -686,10 +798,22 @@ export default function EquipmentTableGallery({
                                                                 setUsageErrors(prev => ({ ...prev, [eq.id]: null }))
                                                             }
                                                         }}
+                                                        disabled={activeTab === 'transfer_outputs'}
                                                     />
                                                 </div>
                                             </td>
-                                            <td className="px-2 py-2 text-right">{typeof (eq as any).demandedPower !== 'undefined' ? Number((eq as any).demandedPower).toFixed(2) : '-'}</td>
+                                            <td className="px-2 py-2 text-right">
+                                                {activeTab === 'transfer_outputs' ? (
+                                                    <select className="w-28 bg-gray-100 text-black border border-gray-600 px-1 py-0.5 rounded" value={String((eq as any).demandedPower ?? '')} onChange={e => onUpdate(eq.id, { demandedPower: e.target.value } as any)}>
+                                                        <option value="">--</option>
+                                                        <option value="Ese">Ese</option>
+                                                        <option value="NonEse">NonEse</option>
+                                                        <option value="Ese&NonEse">Ese & NonEse</option>
+                                                    </select>
+                                                ) : (
+                                                    <span>{typeof (eq as any).demandedPower !== 'undefined' ? Number((eq as any).demandedPower).toFixed(2) : '-'}</span>
+                                                )}
+                                            </td>
                                             <td className="px-2 py-2 text-right">{typeof (eq as any).iNominalx125 !== 'undefined' ? Number((eq as any).iNominalx125).toFixed(2) : '-'}</td>
                                             <td className="px-2 py-2">
                                                 <div className="relative">
@@ -701,7 +825,7 @@ export default function EquipmentTableGallery({
                                                     <input
                                                         type="text"
                                                         inputMode="numeric"
-                                                        className="w-20 bg-gray-700 text-white border border-gray-600 px-1 py-0.5 rounded"
+                                                        className="w-20 bg-gray-100 text-black border border-gray-600 px-1 py-0.5 rounded"
                                                         value={protectionInputs[eq.id] ?? ((eq as any).protectionCurrent === undefined || (eq as any).protectionCurrent === '' ? '' : String((eq as any).protectionCurrent))}
                                                         onChange={e => handleProtectionChange(eq.id, e.target.value)}
                                                         onBlur={() => {
@@ -724,7 +848,7 @@ export default function EquipmentTableGallery({
                                                     <input
                                                         type="text"
                                                         inputMode="numeric"
-                                                        className="w-20 bg-gray-700 text-white border border-gray-600 px-1 py-0.5 rounded"
+                                                        className="w-20 bg-gray-100 text-black border border-gray-600 px-1 py-0.5 rounded"
                                                         value={conductorsInputs[eq.id] ?? ((eq as any).conductorsPerPhase === undefined || (eq as any).conductorsPerPhase === '' ? '' : String((eq as any).conductorsPerPhase))}
                                                         onChange={e => handleConductorsChange(eq.id, e.target.value)}
                                                         onBlur={() => {
@@ -739,7 +863,7 @@ export default function EquipmentTableGallery({
                                             </td>
                                             <td className="px-2 py-2">
                                                 <select
-                                                    className="w-24 bg-gray-700 text-white border border-gray-600 px-1 py-0.5 rounded"
+                                                    className={`w-24 bg-gray-100 border border-gray-600 px-1 py-0.5 rounded ${icbFlag === true ? 'text-green-700' : icbFlag === false ? 'text-red-600' : 'text-black'}`}
                                                     value={rawCaliber}
                                                     onChange={e => onUpdate(eq.id, { caliber: e.target.value })}
                                                 >
@@ -761,11 +885,10 @@ export default function EquipmentTableGallery({
                                                     <input
                                                         type="text"
                                                         inputMode="decimal"
-                                                        className="w-20 bg-gray-700 text-white border border-gray-600 px-1 py-0.5 rounded"
+                                                        className="w-20 bg-gray-100 text-black border border-gray-600 px-1 py-0.5 rounded"
                                                         value={conductorLenInputs[eq.id] ?? ((eq as any).conductorLength === undefined || (eq as any).conductorLength === '' ? '' : String((eq as any).conductorLength))}
                                                         onChange={e => handleConductorLengthChange(eq.id, e.target.value)}
                                                         onBlur={() => {
-                                                            // if user cleared the input, restore previous numeric value visually
                                                             if ((conductorLenInputs[eq.id] ?? '') === '') {
                                                                 const prev = (eq as any).conductorLength === undefined || (eq as any).conductorLength === '' ? '' : String((eq as any).conductorLength)
                                                                 setConductorLenInputs(prevState => ({ ...prevState, [eq.id]: prev }))
@@ -785,7 +908,7 @@ export default function EquipmentTableGallery({
                                                     <input
                                                         type="text"
                                                         inputMode="decimal"
-                                                        className="w-20 bg-gray-700 text-white border border-gray-600 px-1 py-0.5 rounded"
+                                                        className="w-20 bg-gray-100 text-black border border-gray-600 px-1 py-0.5 rounded"
                                                         value={resistanceInputs[eq.id] ?? ((eq as any).resistance === undefined || (eq as any).resistance === '' ? '' : String((eq as any).resistance))}
                                                         placeholder={typeof resPlaceholder === 'number' && !isNaN(resPlaceholder) ? resPlaceholder.toFixed(3) : ''}
                                                         onChange={e => handleResistanceChange(eq.id, e.target.value)}
@@ -809,7 +932,7 @@ export default function EquipmentTableGallery({
                                                     <input
                                                         type="text"
                                                         inputMode="decimal"
-                                                        className="w-20 bg-gray-700 text-white border border-gray-600 px-1 py-0.5 rounded"
+                                                        className="w-20 bg-gray-100 text-black border border-gray-600 px-1 py-0.5 rounded"
                                                         value={inductiveInputs[eq.id] ?? ((eq as any).inductiveReactance === undefined || (eq as any).inductiveReactance === '' ? '' : String((eq as any).inductiveReactance))}
                                                         placeholder={typeof xlPlaceholder === 'number' && !isNaN(xlPlaceholder) ? xlPlaceholder.toFixed(3) : ''}
                                                         onChange={e => handleInductiveChange(eq.id, e.target.value)}
@@ -823,8 +946,16 @@ export default function EquipmentTableGallery({
                                                     />
                                                 </div>
                                             </td>
-                                            <td className="px-2 py-2 text-right">{typeof (eq as any).regulation !== 'undefined' ? `${Number((eq as any).regulation).toFixed(2)}%` : '-'}</td>
-                                            <td className="px-2 py-2 text-right">{typeof (eq as any).lossesPerc !== 'undefined' ? `${Number((eq as any).lossesPerc).toFixed(2)}%` : '-'}</td>
+                                            <td className="px-2 py-2 text-right">
+                                                {typeof (eq as any).regulation !== 'undefined' ? (
+                                                    <span className={`${regFlag === true ? 'text-green-700' : regFlag === false ? 'text-red-600' : ''}`}>{`${Number((eq as any).regulation).toFixed(2)}%`}</span>
+                                                ) : '-'}
+                                            </td>
+                                            <td className="px-2 py-2 text-right">
+                                                {typeof (eq as any).lossesPerc !== 'undefined' ? (
+                                                    <span className={`${losFlag === true ? 'text-green-700' : losFlag === false ? 'text-red-600' : ''}`}>{`${Number((eq as any).lossesPerc).toFixed(2)}%`}</span>
+                                                ) : '-'}
+                                            </td>
                                             <td className="px-2 py-2">
                                                 <button
                                                     onClick={() => onDelete(eq.id)}

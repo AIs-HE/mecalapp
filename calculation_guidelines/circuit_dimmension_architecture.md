@@ -309,14 +309,14 @@ When `activeTab === 'transformers_&_generators'`, no Common Inputs Area (RED CON
 | 3 | Pha.Qty. | `phases` | Select | 60px | ✅ | 1 or 3 phases | Default "3" |
 | 4 | I.P.[kVA] | `installedPower` | Number | 80px | ✅ | Installed power | Decimal up to 2 places > 0|
 | 5 | U.F. | `usageFactor` | Number | 60px | ✅ | Utilization factor | Decimal up to 2 places, between 0 and 1  |
-| 6 | Dem.P. | `demandedPowerCal` | Number | 80px | ❌ | Calculated demand | Decimal up to 2 places |
+| 6 | Dem.P. | `demandedPower` | Number | 80px | ❌ | Calculated demand | Decimal up to 2 places |
 | 7 | Inx1.25 | `iNominalx125` | Number | 80px | ❌ | Nominal current × 1.25 | Decimal up to 2 places |
 | 8 | Prot.I | `protectionCurrent` | Number | 70px | ✅ | Protection current | Integer > 0 |
 | 9 | CxPha | `conductorsPerPhase` | Number | 60px | ✅ | Conductors per phase | Integer > 0 |
 | 10 | Cal | `caliber` | Select | 70px | ✅ | Wire calibers | Column AWGKcmil row values in ampacityTable - 3.3.6 Local Data |
 | 11 | xN | `calculatedAmpacity` | Number | 60px | ❌ | Calculated ampacity | Integer |
 | 12 | xN.Fac | `calculatedAmpacityFac` | Number | 80px | ❌ | Factored current capacity | Integer |
-| 13 | L[km] | `conductorLenght` | Number | 70px | ✅ | Conductor length | Decimal up to 2 places > 0 |
+| 13 | L[km] | `conductorLength` | Number | 70px | ✅ | Conductor length | Decimal up to 2 places > 0 |
 | 14 | R[Ω/km] | `resistance` | Number | 80px | ✅ | Resistance | Decimal up to 3 places > 0|
 | 15 | Xl[Ω/km] | `inductiveReactance` | Number | 80px | ✅ | Inductive reactance | Decimal up to 3 places > 0|
 | 16 | REG | `regulation` | Number | 50px | ❌ | Regulation verification | % up to 2 places|
@@ -349,7 +349,7 @@ variables are calculated from functions in 5.3 Calculation Engine - Electrical C
 | 10 | Cal | `caliber` | Select | 70px | ✅ | Wire calibers | Column AWGKcmil row values in ampacityTable - 3.3.6 Local Data |
 | 11 | xN | `calculatedAmpacity` | Number | 60px | ❌ | Calculated ampacity | Integer > 0 |
 | 12 | xN.Fac | `calculatedAmpacityFac` | Number | 80px | ❌ | Factored current capacity | |
-| 13 | L[km] | `conductorLenght` | Number | 70px | ✅ | Conductor length | Decimal up to 2 places > 0 |
+| 13 | L[km] | `conductorLength` | Number | 70px | ✅ | Conductor length | Decimal up to 2 places > 0 |
 | 14 | R[Ω/km] | `resistance` | Number | 80px | ✅ | Resistance | Decimal up to 3 places > 0|
 | 15 | Xl[Ω/km] | `inductiveReactance` | Number | 80px | ✅ | Inductive reactance | Decimal up to 3 places > 0|
 | 16 | REG | `regulation` | Number | 50px | ❌ | Regulation verification | % up to 2 places |
@@ -380,9 +380,9 @@ variables are calculated from functions in 5.3 Calculation Engine - Electrical C
 | 9 | CxPha | `dcconductorsPerPhase` | Number | 60px | ✅ | Conductors per phase | Integer > 0 |
 | 10 | Cal | `dccaliber` | Select | 60px | ✅ | Wire caliber | Column AWGKcmil row values in ampacityTable - 3.3.6 Local Data |
 | 11 | xN | `dccalculatedAmpacity` | Number | 60px | ❌ | Calculated ampacity | Integer |
-| 12 | L[km] | `dcconductorLenght` | Number | 70px | ✅ | Conductor length | Decimal up to 2 places > 0 |
+| 12 | L[km] | `dcconductorLength` | Number | 70px | ✅ | Conductor length | Decimal up to 2 places > 0 |
 | 13 | R[Ω/km] | `dcresistance` | Number | 80px | ✅ | Resistance |  Decimal up to 3 places > 0 |
-| 14 | REG | `dcregulation` | Percent | 60px | ❌ | Regulation verification | % up to 2 places |
+| 14 | REG | `dcregulation` | Number | 60px | ❌ | Regulation verification | % up to 2 places |
 | 15 | LOS | `dclossesPerc` | Number | 60px | ❌ | Losses verification | % up to 2 places |
 | 16 | Del | - | Button | 50px | ❌ | Delete button (🗑️) | N/A |
 
@@ -419,6 +419,21 @@ will be specified in the future.
    - Treat placeholders purely as visual suggestions; when the user types a value the placeholder disappears and the typed value becomes the model value.
    - For compatibility, placeholder activation logic should treat both `''` (empty string) and non-value tokens like `'--'` as empty states — preferring `''` as the canonical empty value.
 
+### Runtime UI details (code is the truth)
+
+The current implementation in the `circuit-dimension-memory` branch is the source of truth for runtime behavior. Important UX/implementation details from the codebase:
+
+- **Per-tab state model:** `CircuitTabs` holds per-tab data as `commonByTab: Record<string, CommonInputs>` and `equipmentsByTab: Record<string, Equipment[]>`. The overall memory payload is an object keyed by tab id.
+- **`activeTab` prop:** `CommonInputs` and `EquipmentTableGallery` receive an `activeTab` prop and render tab-specific inputs/columns when `activeTab === 'dc_panel'` (DC layout) or `activeTab === 'transfer_outputs'` (transfer behavior).
+- **Per-row text buffers & error maps:** The equipment gallery uses controlled text buffers (e.g., `installedInputs`, `usageInputs`, `protectionInputs`) and per-row error maps to preserve intermediate typing (allowing '.' while typing) and to show transient validation overlays.
+- **Placeholders are visual-only:** Caliber/resistance/Xl suggestions are shown using the input `placeholder` attribute and do not overwrite model values; an explicit apply action would be required to persist a suggestion.
+- **Transfer panels UI:** In the code `transfer_outputs` renders `usageFactor` as a read-only (disabled) input and `demandedPower` as a select with options `['Ese','NonEse','Ese&NonEse']`. The select is rendered and wired to the row model; actual summation of Ese/NonEse groups is intended behavior but the live summation across tabs is a separate wiring step (the UI shows the selector control now).
+- **DC panel mapping:** DC rows use DC-prefixed fields in the model, for example: `dcoutput`, `dcname`, `chargeType`, `equipmentNumber`, `unitInstalledPower`, `demandedPowerFactor`, `InFac`, `dcprotectionCurrent`, `dcconductorsPerPhase`, `dccaliber`, `dccalculatedAmpacity`, `dcconductorLength`, `dcresistance`, `dcregulation`, `dclossesPerc` (presentation shows percent strings for REG/LOS but those are derived, not persisted as inputs).
+- **Calculated fields are read-only and not persisted:** Calculated outputs (iNominalx125, regulation, lossesPerc, calculatedAmpacity, etc.) are computed in the client but should not be written into the authoritative DB payload; persistence only stores input fields according to the Draft/DB contract.
+- **Stable handler identity:** A previously-observed React "Maximum update depth" warning was fixed in the code by memoizing the `onChange` handler passed from `CircuitTabs` into `CommonInputs` (using `useCallback`) so effects depending on that handler do not retrigger infinitely.
+
+Refer to `components/CircuitTabs.tsx`, `components/CommonInputs.tsx` and `components/EquipmentTableGallery.tsx` for the exact runtime wiring.
+
 ### 3.3.4 Editing System
 
 #### Inline Editing:
@@ -442,17 +457,17 @@ will be specified in the future.
 - **Honeydew (`bg-green-50`):** Currently selected/editing row
 
 #### Special Caliber Column:
-- **Color Coding:** 
+- **Text Color Coding:** 
   - **Green:** ICBBool = true
   - **Red:** ICBBool = false
 
 #### Special LOS Column:
-- **Color Coding:** 
+- **Text Color Coding:** 
   - **Green:** LOSBool = true
   - **Red:** LOSBool = false
 
 #### Special REG Column:
-- **Color Coding:** 
+- **Text Color Coding:** 
   - **Green:** REGBool = true
   - **Red:** REGBool = false
 
@@ -683,7 +698,7 @@ interface Equipment {
 - **NTC-2050/RETIE Standards:** Colombian electrical code compliance
 - **Real-time Updates:** Calculations run on every input change
 - **Functions:**
-  - `calculateDemandedPower()` returns demandedPowerCal = installedPower * usageFactor
+   - `calculateDemandedPower()` returns `demandedPower` = installedPower * usageFactor
   - `calculateINominalx125()` returns iNominalx125 = if (phases = 1) then  niFactor * installedPower / tensionKV; elseif (phases = 3) then niFactor * installedPower / ( tensionKV * sqrt(3))
   - `calculateAmpacity()` returns calculatedAmpacity = ampacityValue * conductorsPerPhase; ampacityValue is obtained with  ampacityFromTable() function
   - `calculateAmpacityFactored()` returns calculatedAmpacityFac = calculatedAmpacity * temperatureFac * groupingFac; groupingFac and temperatureFac are obtained with tempFacFromTable() and groupingFacFromTable() functions
@@ -691,9 +706,9 @@ interface Equipment {
   - `calculateLossesPerc()` returns lossesPerc = losses / (powerFactor * installedPower * 1000); losses is calculated with calculateLosses() function
   - `calculateUsageFactor()` returns usageFactor = demandedPower / installedPower
   - `calculateSumationDemandedPower()` returns demandedPower = sumation of either all demanded powers of Esential loads or all demanded powers of Non Esential loads or all demanded powers of Esential and Non Esential loads 
-  - `calculateActivePower()` returns activePower = (iNominalx125 / niFactor) * conductorLenght * (resistance * cos(acos(powerFactor)) + inductiveReactance * sin(acos(powerFactor)))
+   - `calculateActivePower()` returns activePower = (iNominalx125 / niFactor) * conductorLength * (resistance * cos(acos(powerFactor)) + inductiveReactance * sin(acos(powerFactor)))
    - `calculateVoltageDrop()` returns voltageDrop = if (phases = 1) then activePower * 2; elseif (phases = 3) then activePower * sqrt(3)
-  - `calculateLosses()` returns losses = if (phases = 1) then 2 * ((iNominalx125 / niFactor) ^ 2) * resistance * conductorLenght; elseif (phases = 3) then 3 * ((iNominalx125 / niFactor) ^ 2) * resistance * conductorLenght
+   - `calculateLosses()` returns losses = if (phases = 1) then 2 * ((iNominalx125 / niFactor) ^ 2) * resistance * conductorLength; elseif (phases = 3) then 3 * ((iNominalx125 / niFactor) ^ 2) * resistance * conductorLength
   - `ampacityFromTable()` returns ampacityValue = Obtained from ampacityTable described in 3.3.6 Local Data using caliber, tensionKV, conductorMaterial and conductorTemperature values
   - `tempFacFromTable()` returns temperatureFac = Obtained from temFacTable described in 3.3.6 Local Data using ambientTemperature value
   - `groupingFacFromTable()` returns groupingFac Obtained from groFacTable described in 3.3.6 Local Data using conductorsPerConduit value
@@ -816,27 +831,34 @@ This specification provides all necessary information to recreate the electrical
 
 ---
 
-## Implementation Status (2025-11-14)
+## Implementation Status (2025-12-04)
 
-The following items document the current implementation present in the repository (branch: `circuit-dimension-memory`). Keep this section as a short, living summary of what was built and where to look in the codebase.
+The following items document the current implementation present in the repository (branch: `circuit-dimension-memory`). This section is updated to reflect the runtime behavior implemented in the code (the repository is the source of truth).
 
-- **Circuit Dimension Main Page:** Implemented at `/calc/circuit-dimension-main` — a full-page route that hosts the configuration modal and loads project + memory context from query parameters.
-- **Modal Configuration UI:** A 7-question modal (4 boolean toggles + 3 numeric inputs) was added. Defaults: `NonEseBool=false`, `DCBool=false`, `TranBool=false`, `GenBool=false`, `niFactor=1.25`, `deltaV=5`, `percLoss=3.88`.
-- **Navigation:** `components/MemoryCard.jsx` was updated to handle `memory_type: 'circuit'` and route users to the Circuit Dimension main page. This fixed an earlier redirect issue where `memory_type` values did not match the frontend expectation.
-- **Configuration Persistence:** Modal values are saved to `localStorage` so the Secondary page layout can read and apply them immediately without a DB round-trip. This supports optimistic UX and draft workflows.
-   - **Secondary Layout (scaffold):** A 4-container secondary layout is present to accept configuration and display the calculation UI (Emerald header, Emerald Green project info, Purple tabs & gallery, White draft controls). Calculation engines and per-row functions are documented in this spec and are ready to be wired into the secondary layout.
+- **Per-tab state model (implemented):** `components/CircuitTabs.tsx` holds `commonByTab` and `equipmentsByTab` objects so each tab has an isolated `common` payload and `equipments` array. The saved memory payload is an object keyed by tab id.
+- **Common inputs (implemented):** `components/CommonInputs.tsx` accepts `activeTab` and renders a DC input scaffold when `activeTab === 'dc_panel'`. Numeric validation and intermediate text buffers are used to avoid clobbering while typing.
+- **Equipment table gallery (implemented):** `components/EquipmentTableGallery.tsx` accepts `activeTab` and renders:
+   - A DC-specific column layout when `activeTab === 'dc_panel'` (DC-prefixed field names are used in the model).
+   - For `transfer_outputs` the UI renders `usageFactor` as disabled (read-only) and `demandedPower` as a select control with options `['Ese','NonEse','Ese&NonEse']` (the select control is present; summation wiring across tabs is pending).
+   - Per-row controlled text buffers and per-row error maps (popovers) to allow intermediate typing and clear validation messages.
+- **Calculation engine wiring (partial):** Calculation helpers exist in `lib/calculations.ts` and are used to compute read-only fields such as `demandedPower`, `iNominalx125`, `calculatedAmpacity`, `regulation`, and `lossesPerc`. Calculated fields are displayed but not persisted to the authoritative DB payload.
+- **UI correctness fixes:** Three-phase voltage-drop and percent semantics were corrected in the calculation helpers (three-phase multiplies by `sqrt(3)` and REG/LOS are expressed as percent numbers). The Equipment table displays percent values with a `%` suffix for clarity.
+- **Stability fix (implemented):** A React maximum-update-depth issue was fixed by memoizing the `onChange` callback passed from `CircuitTabs` to `CommonInputs` (using `useCallback`) to keep handler identity stable and avoid effect churn.
+
+Pending items (high priority):
+- **Transfer Dem.P. summation:** Implement the logic that, when a `transfer_outputs` row's `demandedPower` select is set to `'Ese'|'NonEse'|'Ese&NonEse'`, the displayed demanded power is the sum of the selected groups across the respective tabs. `CircuitTabs` already holds per-tab arrays; the gallery should call back to compute the summed value or the parent should inject a helper value.
+- **DC calculations & validations:** Finalize DC per-row calculations (InFac, REG/LOS formatting, numeric precision) and add tests for DC behaviors.
+- **Draft autosave & DB push (DraftControls):** Wire `DraftControls.tsx` to autosave per-tab drafts to `localStorage` (`draft_array`) with timestamps and to push input-only payloads (no calculated fields) into `project_memories.db_array` via the server API.
 
 Where to look (code pointers):
 
-- `pages/calc/circuit-dimension-main.jsx` — main page + modal wiring and localStorage persistence
-- `components/MemoryCard.jsx` — navigation logic to route `memory_type='circuit'` to the configuration page
-- `lib/cache.js` — local staging + ops queue used across POC components
-- `calculation_guidelines/circuit_dimmension_architecture.md` — this conceptual and component-level specification
+- `components/CircuitTabs.tsx` — per-tab state orchestration and memoized callbacks
+- `components/CommonInputs.tsx` — activeTab-aware common inputs and DC scaffold
+- `components/EquipmentTableGallery.tsx` — per-row buffers, error maps, DC layout and transfer UI
+- `lib/calculations.ts` — calculation helpers and corrected three-phase/percent semantics
 
 Next recommended steps:
 
-1. Commit and push these documentation updates and any related code changes on branch `circuit-dimension-memory`.
-2. Wire the documented calculation functions (section 5.3) into the Secondary layout components and add unit tests for the calculation engine.
-3. Review naming consistency: consider renaming internal occurrences of "Dimmension" → "Dimension" if desired (note: file and path names contain the current spelling and renaming is optional and potentially breaking).
-
-If you want, I can commit and push these documentation edits now, and open a PR — tell me to proceed and I'll run the Git commands.
+1. Implement the Transfer Dem.P. summation wiring in `CircuitTabs` or expose a helper to the gallery so the selected option displays the summed demanded power.
+2. Finalize DC per-row calculation rules and validations and add unit tests.
+3. Implement `DraftControls` autosave and DB push per the Draft vs DB contract (store only input fields in DB). If you want, I can implement the Transfer Dem.P. summation next — tell me to proceed.

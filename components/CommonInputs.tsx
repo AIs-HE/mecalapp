@@ -24,6 +24,14 @@ export interface CommonInputsState {
     conductorType: string
     conductorsPerConduit: string
     conduitMaterial: 'PVC' | 'Aluminum' | 'Steel'
+    // DC-specific optional fields (only used when editing the DC panel)
+    dcinstalationType?: 'Conduit' | 'Exposed'
+    busVoltageV?: number | ''
+    dcconductorMaterial?: 'Cu' | 'Al'
+    dcconductorTemperature?: '60°C' | '75°C' | '90°C'
+    dcambientTemperature?: number | ''
+    dcconductorsPerConduit?: string
+    dcconductorType?: string
 }
 
 const defaultState: CommonInputsState = {
@@ -36,9 +44,17 @@ const defaultState: CommonInputsState = {
     conductorType: '',
     conductorsPerConduit: '1-3',
     conduitMaterial: 'PVC',
+    // default DC values left empty so the UI can prompt for them
+    dcinstalationType: 'Conduit',
+    busVoltageV: '',
+    dcconductorMaterial: 'Cu',
+    dcconductorTemperature: '75°C',
+    dcambientTemperature: '',
+    dcconductorsPerConduit: '1-3',
+    dcconductorType: '',
 }
 
-export default function CommonInputs({ memoryId, onChange, tabLabel }: { memoryId: string | undefined, onChange?: (s: CommonInputsState) => void, tabLabel?: string | undefined }) {
+export default function CommonInputs({ memoryId, onChange, tabLabel, activeTab }: { memoryId: string | undefined, onChange?: (s: CommonInputsState) => void, tabLabel?: string | undefined, activeTab?: string }) {
     const [collapsed, setCollapsed] = useState(false)
     const [state, setState] = useState<CommonInputsState>(defaultState)
     // local editing buffer + error for tensionKV so we can reject invalid inputs
@@ -49,23 +65,32 @@ export default function CommonInputs({ memoryId, onChange, tabLabel }: { memoryI
     const [ambientInput, setAmbientInput] = useState<string>(String(defaultState.ambientTemperature))
     const [ambientError, setAmbientError] = useState<string | null>(null)
 
+    // detect DC panel via activeTab or label
+    const isDC = String(tabLabel || '').toLowerCase().includes('dc') || activeTab === 'dc_panel'
+
     // No localStorage prefill — keep defaults unless parent provides overrides
 
     useEffect(() => {
         if (onChange) onChange(state)
     }, [state, onChange])
 
-    // when material or temperature changes, ensure conductorType stays valid
     useEffect(() => {
         const mat = state.conductorMaterial || 'Cu'
         const temp = (state.conductorTemperature || '75°C').replace('°C', '')
         const opts: string[] = ((conductorTypes as any)[mat] && (conductorTypes as any)[mat][temp]) || []
         if (opts.length === 0) return
         if (!state.conductorType || !opts.includes(state.conductorType)) {
-            // default to first option (ensure string, not undefined)
             setState(prev => ({ ...prev, conductorType: opts[0] ?? '' }))
         }
-    }, [state.conductorMaterial, state.conductorTemperature])
+
+        // DC defaults: if dc conductor type is missing, try to populate from DC material/temp
+        const dcmat = (state.dcconductorMaterial as any) || mat
+        const dctemp = ((state.dcconductorTemperature as any) || state.conductorTemperature || '75°C').replace('°C', '')
+        const dcopts: string[] = ((conductorTypes as any)[dcmat] && (conductorTypes as any)[dcmat][dctemp]) || []
+        if (dcopts.length > 0 && (!(state.dcconductorType) || !(dcopts.includes(state.dcconductorType as string)))) {
+            setState(prev => ({ ...prev, dcconductorType: (dcopts[0] ?? prev.dcconductorType) }))
+        }
+    }, [state.conductorMaterial, state.conductorTemperature, state.dcconductorMaterial, state.dcconductorTemperature])
 
     function update<K extends keyof CommonInputsState>(k: K, v: CommonInputsState[K]) {
         setState(prev => ({ ...prev, [k]: v }))
@@ -197,148 +222,252 @@ export default function CommonInputs({ memoryId, onChange, tabLabel }: { memoryI
     }
 
     return (
-        <div className="bg-gray-300 text-black rounded-lg shadow-md p-3">
+        <div className="bg-gray-300 text-black rounded-t-lg p-3">
             <div className="flex items-center justify-between mb-3">
                 <div className="font-semibold">📊 Common data{tabLabel ? ` - ${tabLabel}` : ''}</div>
                 <button aria-label="toggle common inputs" onClick={() => setCollapsed(!collapsed)} className="text-black/90">{collapsed ? '▸' : '▾'}</button>
             </div>
 
             {!collapsed && (
-                <div className="grid grid-cols-3 gap-3 common-inputs-grid">
-                    <div>
-                        <div className="text-xs mb-1 text-[#85C538]">Type of installation</div>
-                        <select className="w-full mt-1 text-sm p-1 rounded text-black" value={state.installationType} onChange={(e) => update('installationType', e.target.value as any)}>
-                            <option>Conduit</option>
-                            <option>Exposed</option>
-                        </select>
-                    </div>
+                isDC ? (
+                    <div className="grid grid-cols-3 gap-3 common-inputs-grid">
+                        <div>
+                            <div className="text-xs mb-1 text-[#85C538]">Type of installation</div>
+                            <select className="w-full mt-1 text-sm p-1 rounded text-black" value={(state.dcinstalationType as any) || 'Conduit'} onChange={(e) => setState(prev => ({ ...prev, dcinstalationType: e.target.value as any }))}>
+                                <option>Conduit</option>
+                                <option>Exposed</option>
+                            </select>
+                        </div>
 
-                    <div>
-                        <div className="text-xs mb-1 text-[#85C538]">Tension (kV)</div>
-                        <input
-                            type="text"
-                            inputMode="decimal"
-                            className="w-full mt-1 text-sm p-1 rounded text-black"
-                            value={tensionInput}
-                            onChange={(e) => handleTensionChange(e.target.value)}
-                            onBlur={() => {
-                                // on blur, if empty, restore previous numeric value
-                                if (tensionInput === '') {
-                                    setTensionInput(String(state.tensionKV || defaultState.tensionKV))
-                                    setTensionError(null)
-                                }
-                            }}
-                        />
-                        {tensionError !== null && tensionError !== '' && (
-                            <div role="alert" className="mt-1 text-xs text-red-700 bg-red-100 p-1 rounded">
-                                {tensionError}
-                            </div>
-                        )}
-                    </div>
+                        <div>
+                            <div className="text-xs mb-1 text-[#85C538]">Nominal Tension (V)</div>
+                            <input
+                                type="text"
+                                inputMode="numeric"
+                                className="w-full mt-1 text-sm p-1 rounded text-black"
+                                value={String(state.busVoltageV ?? '')}
+                                onChange={(e) => {
+                                    const raw = e.target.value
+                                    if (raw.includes(',')) return
+                                    if (raw === '') return setState(prev => ({ ...prev, busVoltageV: '' }))
+                                    const parsed = Number(raw)
+                                    if (!isNaN(parsed) && parsed > 0) setState(prev => ({ ...prev, busVoltageV: parsed }))
+                                }}
+                            />
+                        </div>
 
-                    <div>
-                        <div className="text-xs mb-1 text-[#85C538]">Power Factor</div>
-                        <input
-                            type="text"
-                            inputMode="decimal"
-                            className="w-full mt-1 text-sm p-1 rounded text-black"
-                            value={powerInput}
-                            onChange={(e) => handlePowerChange(e.target.value)}
-                            onBlur={() => {
-                                if (powerInput === '') {
-                                    setPowerInput(String(state.powerFactor ?? defaultState.powerFactor))
-                                    setPowerError(null)
-                                }
-                            }}
-                        />
-                        {powerError !== null && powerError !== '' && (
-                            <div role="alert" className="mt-1 text-xs text-red-700 bg-red-100 p-1 rounded">
-                                {powerError}
-                            </div>
-                        )}
-                    </div>
+                        <div>
+                            <div className="text-xs mb-1 text-[#85C538]">Conductor Material</div>
+                            <select className="w-full mt-1 text-sm p-1 rounded text-black" value={(state.dcconductorMaterial as any) || state.conductorMaterial} onChange={(e) => setState(prev => ({ ...prev, dcconductorMaterial: e.target.value as any }))}>
+                                <option value="Cu">Cu</option>
+                                <option value="Al">Al</option>
+                            </select>
+                        </div>
 
-                    <div>
-                        <div className="text-xs mb-1 text-[#85C538]">Conductor Material</div>
-                        <select className="w-full mt-1 text-sm p-1 rounded text-black" value={state.conductorMaterial} onChange={(e) => update('conductorMaterial', e.target.value as any)}>
-                            <option value="Cu">Cu</option>
-                            <option value="Al">Al</option>
-                        </select>
-                    </div>
+                        <div>
+                            <div className="text-xs mb-1 text-[#85C538]">Conductor Temp</div>
+                            <select className="w-full mt-1 text-sm p-1 rounded text-black" value={(state.dcconductorTemperature as any) || state.conductorTemperature} onChange={(e) => setState(prev => ({ ...prev, dcconductorTemperature: e.target.value as any }))}>
+                                <option>60°C</option>
+                                <option>75°C</option>
+                                <option>90°C</option>
+                            </select>
+                        </div>
 
-                    <div>
-                        <div className="text-xs mb-1 text-[#85C538]">Conductor Temp</div>
-                        <select className="w-full mt-1 text-sm p-1 rounded text-black" value={state.conductorTemperature} onChange={(e) => update('conductorTemperature', e.target.value as any)}>
-                            <option>60°C</option>
-                            <option>75°C</option>
-                            <option>90°C</option>
-                        </select>
-                    </div>
+                        <div>
+                            <div className="text-xs mb-1 text-[#85C538]">Ambient Temp (°C)</div>
+                            <input
+                                type="text"
+                                inputMode="numeric"
+                                className="w-full mt-1 text-sm p-1 rounded text-black"
+                                value={String(state.dcambientTemperature ?? '')}
+                                onChange={(e) => {
+                                    const raw = e.target.value
+                                    if (raw.includes(',')) return
+                                    if (raw === '') return setState(prev => ({ ...prev, dcambientTemperature: '' }))
+                                    const parsed = Number(raw)
+                                    if (!isNaN(parsed) && parsed >= -20 && parsed <= 100) setState(prev => ({ ...prev, dcambientTemperature: parsed }))
+                                }}
+                            />
+                        </div>
 
-                    <div>
-                        <div className="text-xs mb-1 text-[#85C538]">Ambient Temp (°C)</div>
-                        <input
-                            type="text"
-                            inputMode="numeric"
-                            className="w-full mt-1 text-sm p-1 rounded text-black"
-                            value={ambientInput}
-                            onChange={(e) => handleAmbientChange(e.target.value)}
-                            onBlur={() => {
-                                if (ambientInput === '') {
-                                    setAmbientInput(String(state.ambientTemperature ?? defaultState.ambientTemperature))
-                                    setAmbientError(null)
-                                }
-                            }}
-                        />
-                        {ambientError !== null && ambientError !== '' && (
-                            <div role="alert" className="mt-1 text-xs text-red-700 bg-red-100 p-1 rounded">
-                                {ambientError}
-                            </div>
-                        )}
-                    </div>
+                        <div>
+                            <div className="text-xs mb-1 text-[#85C538]">Conductors per Conduit</div>
+                            <select className="w-full mt-1 text-sm p-1 rounded text-black" value={state.dcconductorsPerConduit || state.conductorsPerConduit} onChange={(e) => setState(prev => ({ ...prev, dcconductorsPerConduit: e.target.value }))}>
+                                <option>1-3</option>
+                                <option>4-6</option>
+                                <option>7-9</option>
+                                <option>10-20</option>
+                                <option>21-24</option>
+                                <option>25-30</option>
+                                <option>31-40</option>
+                                <option>41-42</option>
+                                <option>43-more</option>
+                            </select>
+                        </div>
 
-                    <div>
-                        <div className="text-xs mb-1 text-[#85C538]">Conductors per Conduit</div>
-                        <select className="w-full mt-1 text-sm p-1 rounded text-black" value={state.conductorsPerConduit} onChange={(e) => update('conductorsPerConduit', e.target.value)}>
-                            <option>1-3</option>
-                            <option>4-6</option>
-                            <option>7-9</option>
-                            <option>10-20</option>
-                            <option>21-24</option>
-                            <option>25-30</option>
-                            <option>31-40</option>
-                            <option>41-42</option>
-                            <option>43-more</option>
-                        </select>
-                    </div>
+                        <div>
+                            <div className="text-xs mb-1 text-[#85C538]">Conduit Material</div>
+                            <select className="w-full mt-1 text-sm p-1 rounded text-black" value={state.conduitMaterial} onChange={(e) => update('conduitMaterial', e.target.value as any)}>
+                                <option>PVC</option>
+                                <option>Aluminum</option>
+                                <option>Steel</option>
+                            </select>
+                        </div>
 
-                    <div>
-                        <div className="text-xs mb-1 text-[#85C538]">Conduit Material</div>
-                        <select className="w-full mt-1 text-sm p-1 rounded text-black" value={state.conduitMaterial} onChange={(e) => update('conduitMaterial', e.target.value as any)}>
-                            <option>PVC</option>
-                            <option>Aluminum</option>
-                            <option>Steel</option>
-                        </select>
+                        <div>
+                            <div className="text-xs mb-1 text-[#85C538]">Conductor Type</div>
+                            <select
+                                className="w-full mt-1 text-sm p-1 rounded text-black"
+                                value={state.dcconductorType || state.conductorType}
+                                onChange={(e) => setState(prev => ({ ...prev, dcconductorType: e.target.value }))}
+                            >
+                                <option value="">-- select conductor type --</option>
+                                {(() => {
+                                    const mat = (state.dcconductorMaterial as any) || state.conductorMaterial || 'Cu'
+                                    const temp = ((state.dcconductorTemperature as any) || state.conductorTemperature || '75°C').replace('°C', '')
+                                    const opts: string[] = ((conductorTypes as any)[mat] && (conductorTypes as any)[mat][temp]) || []
+                                    return opts.map((o) => <option key={o} value={o}>{o}</option>)
+                                })()}
+                            </select>
+                        </div>
                     </div>
+                ) : (
+                    <div className="grid grid-cols-3 gap-3 common-inputs-grid">
+                        <div>
+                            <div className="text-xs mb-1 text-[#85C538]">Type of installation</div>
+                            <select className="w-full mt-1 text-sm p-1 rounded text-black" value={state.installationType} onChange={(e) => update('installationType', e.target.value as any)}>
+                                <option>Conduit</option>
+                                <option>Exposed</option>
+                            </select>
+                        </div>
 
-                    <div>
-                        <div className="text-xs mb-1 text-[#85C538]">Conductor Type</div>
-                        {/* populate options from conductor_types.json based on material + temperature */}
-                        <select
-                            className="w-full mt-1 text-sm p-1 rounded text-black"
-                            value={state.conductorType}
-                            onChange={(e) => update('conductorType', e.target.value)}
-                        >
-                            <option value="">-- select conductor type --</option>
-                            {(() => {
-                                const mat = state.conductorMaterial || 'Cu'
-                                const temp = (state.conductorTemperature || '75°C').replace('°C', '')
-                                const opts: string[] = ((conductorTypes as any)[mat] && (conductorTypes as any)[mat][temp]) || []
-                                return opts.map((o) => <option key={o} value={o}>{o}</option>)
-                            })()}
-                        </select>
+                        <div>
+                            <div className="text-xs mb-1 text-[#85C538]">Tension (kV)</div>
+                            <input
+                                type="text"
+                                inputMode="decimal"
+                                className="w-full mt-1 text-sm p-1 rounded text-black"
+                                value={tensionInput}
+                                onChange={(e) => handleTensionChange(e.target.value)}
+                                onBlur={() => {
+                                    // on blur, if empty, restore previous numeric value
+                                    if (tensionInput === '') {
+                                        setTensionInput(String(state.tensionKV || defaultState.tensionKV))
+                                        setTensionError(null)
+                                    }
+                                }}
+                            />
+                            {tensionError !== null && tensionError !== '' && (
+                                <div role="alert" className="mt-1 text-xs text-red-700 bg-red-100 p-1 rounded">
+                                    {tensionError}
+                                </div>
+                            )}
+                        </div>
+
+                        <div>
+                            <div className="text-xs mb-1 text-[#85C538]">Power Factor</div>
+                            <input
+                                type="text"
+                                inputMode="decimal"
+                                className="w-full mt-1 text-sm p-1 rounded text-black"
+                                value={powerInput}
+                                onChange={(e) => handlePowerChange(e.target.value)}
+                                onBlur={() => {
+                                    if (powerInput === '') {
+                                        setPowerInput(String(state.powerFactor ?? defaultState.powerFactor))
+                                        setPowerError(null)
+                                    }
+                                }}
+                            />
+                            {powerError !== null && powerError !== '' && (
+                                <div role="alert" className="mt-1 text-xs text-red-700 bg-red-100 p-1 rounded">
+                                    {powerError}
+                                </div>
+                            )}
+                        </div>
+
+                        <div>
+                            <div className="text-xs mb-1 text-[#85C538]">Conductor Material</div>
+                            <select className="w-full mt-1 text-sm p-1 rounded text-black" value={state.conductorMaterial} onChange={(e) => update('conductorMaterial', e.target.value as any)}>
+                                <option value="Cu">Cu</option>
+                                <option value="Al">Al</option>
+                            </select>
+                        </div>
+
+                        <div>
+                            <div className="text-xs mb-1 text-[#85C538]">Conductor Temp</div>
+                            <select className="w-full mt-1 text-sm p-1 rounded text-black" value={state.conductorTemperature} onChange={(e) => update('conductorTemperature', e.target.value as any)}>
+                                <option>60°C</option>
+                                <option>75°C</option>
+                                <option>90°C</option>
+                            </select>
+                        </div>
+
+                        <div>
+                            <div className="text-xs mb-1 text-[#85C538]">Ambient Temp (°C)</div>
+                            <input
+                                type="text"
+                                inputMode="numeric"
+                                className="w-full mt-1 text-sm p-1 rounded text-black"
+                                value={ambientInput}
+                                onChange={(e) => handleAmbientChange(e.target.value)}
+                                onBlur={() => {
+                                    if (ambientInput === '') {
+                                        setAmbientInput(String(state.ambientTemperature ?? defaultState.ambientTemperature))
+                                        setAmbientError(null)
+                                    }
+                                }}
+                            />
+                            {ambientError !== null && ambientError !== '' && (
+                                <div role="alert" className="mt-1 text-xs text-red-700 bg-red-100 p-1 rounded">
+                                    {ambientError}
+                                </div>
+                            )}
+                        </div>
+
+                        <div>
+                            <div className="text-xs mb-1 text-[#85C538]">Conductors per Conduit</div>
+                            <select className="w-full mt-1 text-sm p-1 rounded text-black" value={state.conductorsPerConduit} onChange={(e) => update('conductorsPerConduit', e.target.value)}>
+                                <option>1-3</option>
+                                <option>4-6</option>
+                                <option>7-9</option>
+                                <option>10-20</option>
+                                <option>21-24</option>
+                                <option>25-30</option>
+                                <option>31-40</option>
+                                <option>41-42</option>
+                                <option>43-more</option>
+                            </select>
+                        </div>
+
+                        <div>
+                            <div className="text-xs mb-1 text-[#85C538]">Conduit Material</div>
+                            <select className="w-full mt-1 text-sm p-1 rounded text-black" value={state.conduitMaterial} onChange={(e) => update('conduitMaterial', e.target.value as any)}>
+                                <option>PVC</option>
+                                <option>Aluminum</option>
+                                <option>Steel</option>
+                            </select>
+                        </div>
+
+                        <div>
+                            <div className="text-xs mb-1 text-[#85C538]">Conductor Type</div>
+                            {/* populate options from conductor_types.json based on material + temperature */}
+                            <select
+                                className="w-full mt-1 text-sm p-1 rounded text-black"
+                                value={state.conductorType}
+                                onChange={(e) => update('conductorType', e.target.value)}
+                            >
+                                <option value="">-- select conductor type --</option>
+                                {(() => {
+                                    const mat = state.conductorMaterial || 'Cu'
+                                    const temp = (state.conductorTemperature || '75°C').replace('°C', '')
+                                    const opts: string[] = ((conductorTypes as any)[mat] && (conductorTypes as any)[mat][temp]) || []
+                                    return opts.map((o) => <option key={o} value={o}>{o}</option>)
+                                })()}
+                            </select>
+                        </div>
                     </div>
-                </div>
+                )
             )}
         </div>
     )

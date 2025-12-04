@@ -1,4 +1,4 @@
-import React, { useMemo, useState, useEffect } from 'react'
+import React, { useMemo, useState, useEffect, useCallback } from 'react'
 import CommonInputs from './CommonInputs'
 import EquipmentTableGallery, { Equipment } from './EquipmentTableGallery'
 import { computeCalculatedFields } from '../lib/calculations'
@@ -30,18 +30,21 @@ export default function CircuitTabs({
     }, [nonEseBool, dcBool, tranBool, genBool])
 
     const [activeTab, setActiveTab] = useState<TabId>(availableTabs[0]?.id ?? 'esential_loads')
-    const [equipments, setEquipments] = useState<Equipment[]>([])
-    const [commonInputs, setCommonInputs] = useState<any>({ tensionKV: 0.48, powerFactor: 1, ambientTemperature: 30, conductorTemperature: '75°C', conductorsPerConduit: '1-3' })
+    // store equipments per tab so each tab has its own gallery
+    const [equipmentsByTab, setEquipmentsByTab] = useState<Record<string, Equipment[]>>({})
+    // store common inputs per tab
+    const [commonByTab, setCommonByTab] = useState<Record<string, any>>({})
 
     // No modal-config read (reverted POC localStorage reading). Use defaults.
     const defaultModalCfg = { niFactor: 1.25, deltaV: 5, percLoss: 3.88 }
 
     function handleAddEquipment() {
         const id = String(Date.now())
+        const currentEquipments = equipmentsByTab[activeTab] || []
         const newEq: Equipment = {
             id,
             output: id,
-            name: `Equipo ${equipments.length + 1}`,
+            name: `Equipo ${currentEquipments.length + 1}`,
             phases: 3,
             installedPower: '',
             usageFactor: '',
@@ -53,32 +56,40 @@ export default function CircuitTabs({
             inductiveReactance: '',
         } as unknown as Equipment
         const cfg = defaultModalCfg
-        const computed = computeCalculatedFields(newEq, commonInputs, cfg.niFactor, cfg.deltaV, cfg.percLoss)
-        setEquipments(prev => [...prev, computed])
+        const commonInputsForTab = commonByTab[activeTab] || { tensionKV: 0.48, powerFactor: 1, ambientTemperature: 30, conductorTemperature: '75°C', conductorsPerConduit: '1-3' }
+        const computed = computeCalculatedFields(newEq, commonInputsForTab, cfg.niFactor, cfg.deltaV, cfg.percLoss)
+        setEquipmentsByTab(prev => ({ ...prev, [activeTab]: [...currentEquipments, computed] }))
     }
 
     function handleDeleteEquipment(id: string) {
-        setEquipments(prev => prev.filter(e => e.id !== id))
+        const currentEquipments = equipmentsByTab[activeTab] || []
+        setEquipmentsByTab(prev => ({ ...prev, [activeTab]: currentEquipments.filter(e => e.id !== id) }))
     }
 
     function handleUpdateEquipment(id: string, changes: Partial<Equipment>) {
         const cfg = defaultModalCfg
-        setEquipments(prev => prev.map(e => {
+        const currentEquipments = equipmentsByTab[activeTab] || []
+        const commonInputsForTab = commonByTab[activeTab] || { tensionKV: 0.48, powerFactor: 1, ambientTemperature: 30, conductorTemperature: '75°C', conductorsPerConduit: '1-3' }
+        const updated = currentEquipments.map(e => {
             if (e.id !== id) return e
             const merged = { ...e, ...changes }
-            return computeCalculatedFields(merged, commonInputs, cfg.niFactor, cfg.deltaV, cfg.percLoss)
-        }))
+            return computeCalculatedFields(merged, commonInputsForTab, cfg.niFactor, cfg.deltaV, cfg.percLoss)
+        })
+        setEquipmentsByTab(prev => ({ ...prev, [activeTab]: updated }))
     }
 
-    // Recompute all equipment calculated fields whenever common inputs change
+    // Recompute all equipment calculated fields whenever common inputs for the active tab change
     useEffect(() => {
         const cfg = defaultModalCfg
-        setEquipments(prev => prev.map(e => computeCalculatedFields(e, commonInputs, cfg.niFactor, cfg.deltaV, cfg.percLoss)))
-    }, [commonInputs])
+        const commonInputsForTab = commonByTab[activeTab] || { tensionKV: 0.48, powerFactor: 1, ambientTemperature: 30, conductorTemperature: '75°C', conductorsPerConduit: '1-3' }
+        const currentEquipments = equipmentsByTab[activeTab] || []
+        const recomputed = currentEquipments.map(e => computeCalculatedFields(e, commonInputsForTab, cfg.niFactor, cfg.deltaV, cfg.percLoss))
+        setEquipmentsByTab(prev => ({ ...prev, [activeTab]: recomputed }))
+    }, [commonByTab, activeTab])
 
     return (
-        <div className="rounded-lg overflow-hidden flex flex-col h-full min-h-0">
-            <div className="bg-purple-500 text-white px-3 py-2 rounded-t-lg">
+        <div className="rounded-t-lg overflow-hidden flex flex-col h-full min-h-0">
+            <div className="bg-white text-black px-3 py-0 rounded-t-lg">
                 <nav className="flex gap-2 overflow-x-auto hide-scrollbar">
                     {availableTabs.map(t => {
                         const isActive = t.id === activeTab
@@ -86,7 +97,7 @@ export default function CircuitTabs({
                             <button
                                 key={t.id}
                                 onClick={() => setActiveTab(t.id)}
-                                className={`${isActive ? 'bg-red-500 text-white' : 'bg-purple-400 text-white/90'} px-3 py-1 rounded whitespace-nowrap`}
+                                className={`${isActive ? 'bg-gray-300 text-black' : 'bg-gray-400 text-white/90'} px-3 py-1 rounded-t-lg whitespace-nowrap`}
                                 aria-pressed={isActive}
                             >
                                 {t.label}
@@ -101,18 +112,20 @@ export default function CircuitTabs({
                 <CommonInputs
                     memoryId={memoryId as string | undefined}
                     tabLabel={availableTabs.find(t => t.id === activeTab)?.label}
-                    onChange={(s) => setCommonInputs(s)}
+                    activeTab={activeTab}
+                    onChange={useCallback((s: any) => setCommonByTab(prev => ({ ...prev, [activeTab]: s })), [activeTab])}
                 />
             </div>
 
             {/* Equipment gallery */}
             <div className="flex-1 min-h-0">
                 <EquipmentTableGallery
-                    equipments={equipments}
+                    activeTab={activeTab}
+                    equipments={equipmentsByTab[activeTab] || []}
                     onAdd={handleAddEquipment}
                     onDelete={handleDeleteEquipment}
                     onUpdate={handleUpdateEquipment}
-                    commonInputs={commonInputs}
+                    commonInputs={commonByTab[activeTab] || { tensionKV: 0.48, powerFactor: 1, ambientTemperature: 30, conductorTemperature: '75°C', conductorsPerConduit: '1-3' }}
                     validation={{ valid: true }}
                 />
             </div>

@@ -306,7 +306,7 @@ export default function CircuitDimensionMainPage() {
                                     <div className="font-medium text-gray-800">{authName}</div>
                                     <div className="text-xs text-gray-500">{authRole}</div>
                                 </div>
-                                <button type="button" aria-label="Back to Config" onClick={() => setShowConfigModal(true)} className="btn btn-sm bg-[var(--color-main,#85B726)] text-white font-semibold">Back to Config</button>
+                                <button type="button" aria-label="Back to Config" onClick={() => setShowConfigModal(true)} className="btn btn-sm bg-[var(--color-main,#85B738)] text-white font-semibold">Back to Config</button>
                                 <button type="button" aria-label="Back to Projects" onClick={() => router.push('/projects')} className="btn btn-sm" style={{ background: 'rgba(0,0,0,0.06)', color: '#111827' }}>Back to Projects</button>
                             </div>
                         </div>
